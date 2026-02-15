@@ -6,6 +6,13 @@ A collaborative web application for sharing, discovering, and managing recipes w
 ![License](LICENSE)
 ![React Version](https://img.shields.io/badge/React-19.2.0--61DAFB)
 
+## Branding Update (2026-02-14)
+
+- Project branding name is now **Kitchen Odyssey**.
+- UI labels previously showing CookHub have been updated to Kitchen Odyssey.
+- Demo account emails remain unchanged and continue using `@cookhub.com`.
+- Internal localStorage key prefixes (for example, `cookhub_*`) remain unchanged for backward compatibility.
+
 ## Features
 
 ### Core Functionality

@@ -139,15 +139,15 @@ export function RecipeDetail() {
     const categories = normalizeCategories(recipe.categories ?? recipe.category);
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 animate-page-in">
+        <div className="max-w-5xl mx-auto space-y-8 animate-page-in">
             <Button variant="ghost" className="mb-2 pl-0 hover:bg-transparent hover:text-cool-gray-90" onClick={() => navigate(-1)}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex flex-col lg:flex-row gap-6">
                 {/* Smaller Image */}
-                <div className="w-full md:w-2/5 aspect-[4/3] max-h-[280px] overflow-hidden rounded-xl bg-cool-gray-10 flex-shrink-0">
+                <div className="w-full lg:w-2/5 aspect-[4/3] max-h-[300px] overflow-hidden rounded-lg bg-cool-gray-10 flex-shrink-0 border border-cool-gray-20 shadow-sm">
                     <img src={recipe.images?.[0]} alt={recipe.title} className="h-full w-full object-cover" />
                 </div>
 
@@ -213,7 +213,7 @@ export function RecipeDetail() {
                             {likeCount} {likeCount === 1 ? 'Like' : 'Likes'}
                         </Button>
                         <Button
-                            variant={isFavorited ? 'primary' : 'outline'}
+                            variant={isFavorited ? 'secondary' : 'outline'}
                             size="sm"
                             onClick={handleToggleFavorite}
                             className="gap-1.5"
@@ -258,10 +258,10 @@ export function RecipeDetail() {
             </div>
 
             {/* Content Grid */}
-            <div className="grid md:grid-cols-[1fr_2fr] gap-6">
+            <div className="grid lg:grid-cols-[1fr_2fr] gap-6">
                 {/* Ingredients */}
                 <Card>
-                    <CardContent className="p-5">
+                    <CardContent className="p-6">
                         <div className="flex justify-between items-center mb-3">
                             <h3 className="text-lg font-bold">Ingredients</h3>
                             {Object.values(checkedIngredients).some(Boolean) && (
@@ -281,7 +281,7 @@ export function RecipeDetail() {
                                     aria-checked={!!checkedIngredients[i]}
                                     tabIndex="0"
                                     className={cn(
-                                        "flex justify-between items-center text-sm border-b border-cool-gray-10 pb-1.5 last:border-0 cursor-pointer group/ing outline-none focus-visible:ring-2 focus-visible:ring-cool-gray-90 focus-visible:ring-offset-2 rounded-sm",
+                                        "flex justify-between items-center text-sm border-b border-cool-gray-10 pb-2 last:border-0 cursor-pointer group/ing outline-none focus-visible:ring-2 focus-visible:ring-[#137fec] focus-visible:ring-offset-2 rounded-sm",
                                         checkedIngredients[i] && "opacity-60"
                                     )}
                                     onClick={() => toggleIngredient(i)}
@@ -316,12 +316,12 @@ export function RecipeDetail() {
                 </Card>
 
                 {/* Instructions */}
-                <div className="space-y-4">
+                <div className="space-y-4 rounded-lg border border-cool-gray-20 bg-white p-6 shadow-sm">
                     <h3 className="text-lg font-bold">Instructions</h3>
                     <div className="space-y-3">
                         {(recipe.instructions || []).map((step, i) => (
                             <div key={i} className="flex gap-3">
-                                <div className="flex-none flex items-center justify-center w-7 h-7 rounded-full bg-cool-gray-20 text-cool-gray-90 font-bold text-xs">
+                                <div className="flex-none flex items-center justify-center w-7 h-7 rounded-md bg-cool-gray-20 text-cool-gray-90 font-bold text-xs">
                                     {i + 1}
                                 </div>
                                 <p className="text-cool-gray-60 text-sm pt-0.5">{step}</p>
@@ -332,7 +332,7 @@ export function RecipeDetail() {
             </div>
 
             {/* Reviews Section */}
-            <div className="pt-6 border-t border-cool-gray-20">
+            <div className="pt-6 border border-cool-gray-20 bg-white rounded-lg p-6 shadow-sm">
                 <h3 className="text-xl font-bold mb-4">Reviews ({reviews.length})</h3>
 
                 {(isPending || isSuspended || isGuest) && (

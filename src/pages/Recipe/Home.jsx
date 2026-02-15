@@ -54,10 +54,10 @@ export function Home() {
     return (
         <div className="space-y-8 animate-page-in">
             {/* Hero Section */}
-            <section className="relative -mt-8 py-16 px-4 text-center bg-cool-gray-90 text-white rounded-b-3xl mb-10 overflow-hidden">
+            <section className="relative -mt-8 py-16 px-4 text-center bg-gradient-to-r from-brand to-[#137fec] text-white rounded-b-3xl mb-10 overflow-hidden">
                 <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1495521841625-f46248f59218?auto=format&fit=crop&q=80')] bg-cover bg-center" />
                 <div className="relative z-10 max-w-2xl mx-auto space-y-5">
-                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Share Your Culinary <span className="text-orange-400">Masterpiece</span></h1>
+                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Share Your Culinary <span className="text-white/90">Masterpiece</span></h1>
                     <p className="text-base text-cool-gray-30">Join our community of home cooks and professional chefs.</p>
 
                     <form onSubmit={handleSearch} className="relative max-w-lg mx-auto">
@@ -82,7 +82,7 @@ export function Home() {
 
                     <Button
                         variant="outline"
-                        className="gap-2 bg-white/10 border-white/30 text-white hover:bg-white/20"
+                        className="gap-2 bg-white/10 border-white/40 text-white hover:bg-white/20"
                         onClick={handleSurpriseMe}
                     >
                         <Sparkles className="h-4 w-4" />

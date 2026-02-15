@@ -131,7 +131,7 @@ export function Signup() {
                     </div>
                 )}
 
-                <Button type="submit" className="w-full" isLoading={isLoading} size="lg">
+                <Button type="submit" className="w-full" isLoading={isLoading} size="lg" variant="primary">
                     Create Account
                 </Button>
             </form>

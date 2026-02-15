@@ -285,7 +285,7 @@ export function CreateRecipe() {
     }
 
     return (
-        <div className="max-w-3xl mx-auto space-y-8 animate-page-in">
+        <div className="max-w-4xl mx-auto space-y-8 animate-page-in">
             <div className="flex items-center gap-3">
                 <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="h-10 w-10" aria-label="Go back">
                     <ArrowLeft className="h-5 w-5" />
@@ -313,7 +313,7 @@ export function CreateRecipe() {
                             <label className="text-sm font-medium text-cool-gray-60">Description</label>
                             <textarea
                                 id="description"
-                                className={`w-full rounded-md border p-3 text-sm focus:outline-none focus:ring-2 focus:ring-cool-gray-90 ${errors.description ? 'border-red-400' : 'border-cool-gray-30'}`}
+                                className={`w-full rounded-lg border p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#137fec] ${errors.description ? 'border-red-400' : 'border-cool-gray-30'}`}
                                 rows={3}
                                 value={formData.description}
                                 onChange={handleChange}
@@ -382,7 +382,7 @@ export function CreateRecipe() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-cool-gray-60 mb-1 block">Difficulty</label>
-                                <select id="difficulty" className="w-full h-10 rounded-md border border-cool-gray-30 px-3 bg-white" value={formData.difficulty} onChange={handleChange}>
+                                <select id="difficulty" className="w-full h-10 rounded-lg border border-cool-gray-30 px-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#137fec]" value={formData.difficulty} onChange={handleChange}>
                                     {RECIPE_DIFFICULTIES.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
@@ -449,9 +449,9 @@ export function CreateRecipe() {
                         {instructions.map((step, i) => (
                             <div key={i} className="space-y-1">
                                 <div className="flex gap-2 items-start">
-                                    <span className="flex-none flex items-center justify-center w-6 h-6 rounded-full bg-cool-gray-20 text-xs font-bold mt-2">{i + 1}</span>
+                                    <span className="flex-none flex items-center justify-center w-6 h-6 rounded-md bg-cool-gray-20 text-xs font-bold mt-2">{i + 1}</span>
                                     <textarea
-                                        className={`flex-1 rounded-md border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-cool-gray-90 ${errors[`instruction_${i}`] ? 'border-red-400' : 'border-cool-gray-30'}`}
+                                        className={`flex-1 rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#137fec] ${errors[`instruction_${i}`] ? 'border-red-400' : 'border-cool-gray-30'}`}
                                         rows={2}
                                         placeholder={`Step ${i + 1}...`}
                                         value={step}

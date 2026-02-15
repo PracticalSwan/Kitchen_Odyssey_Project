@@ -25,11 +25,11 @@ export function Modal({ isOpen, onClose, title, children, className }) {
 
     return createPortal(
         <div 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-md transition-opacity"
             onClick={onClose}
         >
             <div 
-                className={cn("relative w-full max-w-lg transform overflow-hidden rounded-xl bg-white p-6 shadow-2xl transition-all", className)}
+                className={cn("relative w-full max-w-lg transform overflow-hidden rounded-lg bg-white p-6 shadow-2xl transition-all", className)}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between mb-4">

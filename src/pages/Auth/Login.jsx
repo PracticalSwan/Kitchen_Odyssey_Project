@@ -37,7 +37,7 @@ export function Login() {
     return (
         <div className="space-y-6">
             <div className="space-y-2 text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-cool-gray-90">Welcome Back!</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-cool-gray-90">Welcome Back</h2>
                 <p className="text-cool-gray-60">Enter your credentials to access your account</p>
             </div>
 
@@ -72,7 +72,7 @@ export function Login() {
                     </div>
                 )}
 
-                <Button type="submit" className="w-full" isLoading={isLoading} size="lg">
+                <Button type="submit" className="w-full" isLoading={isLoading} size="lg" variant="primary">
                     Login
                 </Button>
             </form>

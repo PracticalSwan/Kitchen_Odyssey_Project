@@ -98,7 +98,7 @@ export function UserList() {
                 <p className="text-cool-gray-60">Manage user accounts and permissions.</p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 rounded-lg border border-cool-gray-20 bg-white p-4 shadow-sm">
                 <div className="relative w-64">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-cool-gray-60" />
                     <Input
@@ -119,7 +119,7 @@ export function UserList() {
                 </select>
             </div>
 
-            <div className="rounded-md border border-cool-gray-20 bg-white">
+            <div className="rounded-lg border border-cool-gray-20 bg-white shadow-sm">
                 <Table>
                     <TableHeader>
                         <TableRow>

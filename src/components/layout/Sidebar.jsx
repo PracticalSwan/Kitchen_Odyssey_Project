@@ -24,7 +24,7 @@ export function Sidebar() {
         <aside className="fixed inset-y-0 left-0 z-50 w-64 border-r border-cool-gray-20 bg-white shadow-sm flex flex-col">
             <div className="flex h-16 items-center border-b border-cool-gray-20 px-6">
                 <Link to="/admin" className="text-xl font-bold text-cool-gray-90">
-                    CookHub <span className="text-xs font-normal text-cool-gray-60 bg-cool-gray-10 px-2 py-1 rounded-full ml-2">Admin</span>
+                    <span className="text-brand">Kitchen Odyssey</span> <span className="text-xs font-normal text-cool-gray-60 bg-cool-gray-10 px-2 py-1 rounded-md ml-2">Admin</span>
                 </Link>
             </div>
 
@@ -38,8 +38,8 @@ export function Sidebar() {
                             className={cn(
                                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                                 isActive
-                                    ? "bg-cool-gray-90 text-[#FFFFFF]"
-                                    : "text-cool-gray-60 hover:bg-cool-gray-10 hover:text-cool-gray-90"
+                                    ? "bg-brand text-[#FFFFFF]"
+                                    : "text-cool-gray-60 hover:bg-cool-gray-10 hover:text-[#137fec]"
                             )}
                         >
                             <item.icon className={cn("h-4 w-4", isActive ? "text-[#FFFFFF]" : "text-inherit")} />

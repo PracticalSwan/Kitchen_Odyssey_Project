@@ -32,7 +32,7 @@ export function TableRow({ className, children, ...props }) {
 
 export function TableHead({ className, children, ...props }) {
     return (
-        <th className={cn("h-12 px-4 text-left align-middle font-medium text-cool-gray-60", className)} {...props}>
+        <th className={cn("sticky top-0 z-10 h-12 px-4 text-left align-middle font-medium text-cool-gray-60 bg-white", className)} {...props}>
             {children}
         </th>
     );
