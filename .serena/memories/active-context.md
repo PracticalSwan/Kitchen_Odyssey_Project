@@ -68,10 +68,29 @@ All documentation updated post-implementation and testing:
 - **plan/design-overhaul-1.md** — PREREQ-OV-001 and PREREQ-OV-002 marked ✅ Implemented with test counts
 - **README.md** — Added Guest Mode and Random Recipe Suggestion to Key Features, added Guest Mode Module section, updated project structure (RecipeSuggestionModal.jsx, plan files), updated system architecture diagram
 
+## Playwright Automated Test Suite — Completed 2026-02-14
+
+Full Playwright test infrastructure created with **32 passing tests** across 4 test files:
+
+### Test Files Created
+- `playwright.config.js` — Configured for Vite/React, baseURL `http://localhost:5174/recipe-sharing-system-deploy/`, Chromium browser, webServer auto-start
+- `tests/random-recipe.spec.js` — 11 tests: SurpriseMeButton, QualityConstraints, FallbackBehavior, ViewRecipeNavigation, TryAnotherLoading, ModalClose (ESC + X), GuestModeCompatibility, GuestAnalyticsNotTracked, ImageErrorHandling, RandomnessDistribution
+- `tests/guest-mode.spec.js` — 13 tests: GuestEntryFromLogin, GuestEntryFromSignup, GuestBrowsing, GuestSearch, GuestRecipeDetail, LikeBlocking, FavoriteBlocking, ReviewBlocking, RecipeCreationBlocking, ProfileRedirect, AdminBlocked, NavbarHidesProtectedLinks
+- `tests/guest-analytics.spec.js` — 4 tests: ViewCountNotTracked, ActiveUserNotCounted, SearchHistoryLocalStorageOnly, RecipeViewedByNotUpdated
+- `tests/guest-transitions.spec.js` — 5 tests: GuestToLogin, GuestToSignup, LogoutToGuest, GuestSessionPersistence, GuestIdClearedOnLogin
+
+### Testing Documentation Created
+- `docs/testing/guest-mode-devtools-checklist.md` — Chrome DevTools testing procedures (localStorage, React DevTools, Console, Network, Performance)
+- `docs/testing/guest-mode-browser-compatibility.md` — Cross-browser testing matrix (Chrome ✅, Firefox ✅, Edge ✅, Safari ⬜ requires macOS)
+
+### Test Execution
+- All 32 tests pass consistently (~18.7s runtime)
+- Run: `npx playwright test --reporter=list`
+- Dependencies: `@playwright/test` v1.58.2 (devDependency), Chromium browser
+
 ## Next Steps
-- Design Overhaul (plan/design-overhaul-1.md) — currently On Hold; depends on Guest Mode + Random Recipe being completed first (PREREQ-OV-001, PREREQ-OV-002)
-- Playwright automated test suites (guest-mode.spec.js, random-recipe.spec.js) — not yet created as formal test files
-- Cross-browser testing (Chrome, Firefox, Edge, Safari)
+- Design Overhaul (plan/design-overhaul-1.md) — currently On Hold; depends on Guest Mode + Random Recipe being completed first (PREREQ-OV-001, PREREQ-OV-002) — both now **completed with testing**
+- Safari cross-browser testing (requires macOS)
 
 ## Documentation & Branding Update (2026-02-14)
 

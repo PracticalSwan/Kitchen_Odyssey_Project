@@ -89,6 +89,29 @@ npm run preview
 npm run lint
 ```
 
+### Testing
+
+```bash
+# Run all Playwright tests
+npx playwright test
+
+# Run tests with visible output
+npx playwright test --reporter=list
+
+# Run specific test file
+npx playwright test tests/guest-mode.spec.js
+
+# Run tests in headed mode (visible browser)
+npx playwright test --headed
+```
+
+**Test Suite Overview:**
+- **32 automated tests** covering Guest Mode and Random Recipe Suggestion features
+- `tests/guest-mode.spec.js` — 13 tests (functionality + blocking)
+- `tests/guest-analytics.spec.js` — 4 tests (analytics isolation)
+- `tests/guest-transitions.spec.js` — 5 tests (mode transitions)
+- `tests/random-recipe.spec.js` — 11 tests (Surprise Me feature)
+
 ## Project Team
 
 | Name | Student ID |
@@ -102,22 +125,38 @@ npm run lint
 Kitchen_Odyssey/
 ├── src/
 │   ├── components/          # Reusable UI components
-│   │   ├── layout/        # Navigation & layout
-│   │   ├── recipe/        # Recipe-specific components
-│   │   └── ui/           # Generic UI primitives
-│   ├── context/           # React context for state management
-│   ├── layouts/           # Layout templates
-│   ├── lib/              # Utilities & helpers
-│   │   ├── storage.js    # LocalStorage & seed data
-│   │   └── utils.js      # Helper functions
-│   ├── pages/            # Page components
-│   │   ├── Auth/         # Authentication pages
-│   │   ├── Admin/        # Admin panels
-│   │   └── Recipe/       # Recipe & user features
+│   │   ├── layout/          # Navigation & layout
+│   │   ├── recipe/          # Recipe-specific components
+│   │   │   ├── RecipeCard.jsx
+│   │   │   └── RecipeSuggestionModal.jsx
+│   │   └── ui/              # Generic UI primitives
+│   ├── context/             # React context for state management
+│   ├── layouts/             # Layout templates
+│   ├── lib/                 # Utilities & helpers
+│   │   ├── storage.js       # LocalStorage & seed data
+│   │   └── utils.js         # Helper functions
+│   ├── pages/               # Page components
+│   │   ├── Auth/            # Authentication pages
+│   │   ├── Admin/           # Admin panels
+│   │   └── Recipe/          # Recipe & user features
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
-├── public/               # Static assets
+├── tests/                   # Playwright automated tests
+│   ├── guest-mode.spec.js
+│   ├── guest-analytics.spec.js
+│   ├── guest-transitions.spec.js
+│   └── random-recipe.spec.js
+├── docs/
+│   └── testing/             # Testing documentation
+│       ├── guest-mode-devtools-checklist.md
+│       └── guest-mode-browser-compatibility.md
+├── plan/                    # Feature implementation plans
+│   ├── feature-guest-mode-1.md
+│   ├── feature-random-recipe-suggestion-1.md
+│   └── design-overhaul-1.md
+├── public/                  # Static assets
+├── playwright.config.js     # Playwright test configuration
 ├── package.json
 ├── vite.config.js
 └── README.md
@@ -137,6 +176,7 @@ Kitchen_Odyssey/
 ### Development Tools
 - Vite 7.2.4 - Fast build tool with HMR
 - ESLint 9.39.1 - Code quality tool
+- Playwright 1.58.2 - End-to-end testing framework
 
 ### Utilities
 - Clsx 2.1.1 - Conditional className utility
@@ -222,6 +262,12 @@ storage.resetData();
 - [PROPOSAL.md](PROPOSAL.md) - Project proposal and specifications
 - [guides/](guides/) - Setup guides and implementation documentation
 - [plan/](plan/) - Feature implementation plans and design documents
+  - [feature-guest-mode-1.md](plan/feature-guest-mode-1.md) - Guest Mode implementation plan (Completed)
+  - [feature-random-recipe-suggestion-1.md](plan/feature-random-recipe-suggestion-1.md) - Random Recipe Suggestion plan (Completed)
+  - [design-overhaul-1.md](plan/design-overhaul-1.md) - Design Overhaul plan (On Hold)
+- [docs/testing/](docs/testing/) - Testing documentation and checklists
+  - [guest-mode-devtools-checklist.md](docs/testing/guest-mode-devtools-checklist.md) - Chrome DevTools testing procedures
+  - [guest-mode-browser-compatibility.md](docs/testing/guest-mode-browser-compatibility.md) - Cross-browser testing matrix
 
 ---
 
