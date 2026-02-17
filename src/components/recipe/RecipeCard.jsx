@@ -72,7 +72,7 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
 
     return (
         <Link to={`/recipes/${recipe.id}`} className="group block h-full">
-            <Card className="h-full flex flex-col overflow-hidden transition-all hover:shadow-lg border-cool-gray-20 hover-lift cursor-pointer">
+            <Card className="h-full flex flex-col overflow-hidden transition-all hover:shadow-lg border-cool-gray-20 hover:border-[#137fec]/30 hover-lift cursor-pointer">
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-cool-gray-10">
                     <img
                         src={recipe.images?.[0] || "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=400"}
@@ -87,7 +87,7 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
                     {/* Like Heart Overlay */}
                     <button
                         onClick={handleLikeClick}
-                        className={`absolute top-1.5 left-1.5 p-1.5 rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-cool-gray-90 focus-visible:ring-offset-1 ${canInteract ? 'hover:bg-white' : 'opacity-60 cursor-not-allowed'}`}
+                        className={`absolute top-1.5 left-1.5 p-1.5 rounded-md bg-white/80 backdrop-blur-sm shadow-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#137fec] focus-visible:ring-offset-1 ${canInteract ? 'hover:bg-white' : 'opacity-60 cursor-not-allowed'}`}
                         title={canInteract ? (isLiked ? 'Unlike' : 'Like') : isGuest ? 'Login to like' : 'Pending accounts cannot like recipes'}
                         aria-label={isLiked ? 'Unlike recipe' : 'Like recipe'}
                         aria-pressed={isLiked}
@@ -106,12 +106,12 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
                     <div className="mb-1.5 flex items-center justify-between">
                         <div className="flex items-center gap-1 flex-wrap">
                             {categories.slice(0, 2).map((category) => (
-                                <Badge key={category} variant="outline" className="text-[8px] uppercase tracking-wider px-1.5 py-0.5">
+                                <Badge key={category} variant="outline" className="text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded-md">
                                     {category}
                                 </Badge>
                             ))}
                             {categories.length > 2 && (
-                                <Badge variant="outline" className="text-[8px] uppercase tracking-wider px-1.5 py-0.5">
+                                <Badge variant="outline" className="text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded-md">
                                     +{categories.length - 2}
                                 </Badge>
                             )}

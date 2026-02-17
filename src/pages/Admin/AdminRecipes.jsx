@@ -12,7 +12,7 @@ const RecipeTable = ({ statusFilter, recipes, getAuthorName, handlePreview, upda
     const filtered = recipes.filter(r => r.status === statusFilter);
 
     return (
-        <div className="rounded-md border border-cool-gray-20 bg-white mt-4">
+        <div className="rounded-lg border border-cool-gray-20 bg-white mt-4 shadow-sm">
             <Table>
                 <TableHeader>
                     <TableRow>

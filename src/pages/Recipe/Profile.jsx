@@ -18,22 +18,7 @@ export function Profile() {
     const defaultTab = searchParams.get('tab') || 'recipes';
 
     const isOwnProfile = !userId || (currentUser && currentUser.id === userId);
-
-    // Guest users cannot view their own profile (they don't have one)
-    if (isGuest && isOwnProfile) {
-        return (
-            <div className="max-w-2xl mx-auto space-y-4 animate-page-in text-center py-16">
-                <h1 className="text-2xl font-bold text-cool-gray-90">Login to View Your Profile</h1>
-                <p className="text-cool-gray-60">
-                    Create an account to build your profile, save recipes, and share your own creations.
-                </p>
-                <div className="flex justify-center gap-3">
-                    <Button variant="primary" onClick={() => navigate('/login')}>Login</Button>
-                    <Button variant="outline" onClick={() => navigate('/signup')}>Sign Up</Button>
-                </div>
-            </div>
-        );
-    }
+    const shouldBlockGuestOwnProfile = isGuest && isOwnProfile;
 
     const profileUser = useMemo(() => {
         if (isOwnProfile) {
@@ -119,12 +104,27 @@ export function Profile() {
         setEditForm(prev => ({ ...prev, avatar: avatarUrl }));
     };
 
+    if (shouldBlockGuestOwnProfile) {
+        return (
+            <div className="max-w-2xl mx-auto space-y-4 animate-page-in text-center py-16">
+                <h1 className="text-2xl font-bold text-cool-gray-90">Login to View Your Profile</h1>
+                <p className="text-cool-gray-60">
+                    Create an account to build your profile, save recipes, and share your own creations.
+                </p>
+                <div className="flex justify-center gap-3">
+                    <Button variant="primary" onClick={() => navigate('/login')}>Login</Button>
+                    <Button variant="outline" onClick={() => navigate('/signup')}>Sign Up</Button>
+                </div>
+            </div>
+        );
+    }
+
     if (!profileUser) return <div className="p-10 text-center">User not found</div>;
 
     return (
         <div className="space-y-6 animate-page-in">
             {/* Profile Header */}
-            <div className="bg-white p-6 rounded-2xl border border-cool-gray-20 shadow-sm">
+            <div className="bg-white p-6 rounded-lg border border-cool-gray-20 shadow-sm">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
                     <img src={profileUser.avatar} alt={profileUser.username} className="h-20 w-20 rounded-full border-4 border-cool-gray-10" />
 
@@ -263,7 +263,7 @@ export function Profile() {
             </Modal>
 
             {/* Tabs */}
-            <Tabs value={defaultTab} onValueChange={(val) => setSearchParams({ tab: val })}>
+            <Tabs value={defaultTab} onValueChange={(val) => setSearchParams({ tab: val })} className="rounded-lg border border-cool-gray-20 bg-white p-4 shadow-sm">
                 <TabsList className="mb-4">
                     <TabsTrigger value="recipes">{isOwnProfile ? 'My Recipes' : 'Recipes'} ({myRecipes.length})</TabsTrigger>
                     <TabsTrigger value="favorites">Favorites ({favorites.length})</TabsTrigger>

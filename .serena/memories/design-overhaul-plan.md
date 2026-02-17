@@ -122,7 +122,7 @@ This memory contains the complete design overhaul implementation plan as documen
   - Fixture patterns for authentication state reuse (admin, user, guest)
   - Global Setup for saving auth states to storage files
   - Test Structure Best Practices with beforeEach/afterEach hooks and test.step() organization
-- All 8 Page Objects required for kitchen Odyssey screens (AuthPage, HomePage, SearchPage, RecipeDetailPage, CreateRecipePage, ProfilePage, AdminStatsPage, AdminRecipesPage, UserListPage)
+- All 8 Page Objects required for Kitchen Odyssey screens (AuthPage, HomePage, SearchPage, RecipeDetailPage, CreateRecipePage, ProfilePage, AdminStatsPage, AdminRecipesPage, UserListPage)
 
 **Section 7: Testing Implementation Guide** (Expanded Phase 14)
 - Detailed breakdown of tasks TASK-OV-114 through TASK-OV-128

@@ -2,7 +2,7 @@
 
 ## Current Status: Implementation Planning Complete
 
-**Project Name**: Kitchen Odyssey (branded as "CookHub" in UI)  
+**Project Name**: Kitchen Odyssey (branded as "Kitchen Odyssey" in UI)  
 **Technology Stack**: React 19 + Vite + Tailwind v4  
 **Architecture**: Client-only SPA with localStorage persistence  
 **Routing**: HashRouter  

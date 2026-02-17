@@ -17,7 +17,7 @@ export function AdminLayout() {
     }
 
     return (
-        <div className="min-h-screen bg-cool-gray-10 flex">
+        <div className="min-h-screen bg-[#f5f7fa] flex">
             <a
                 href="#main-content"
                 className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-cool-gray-90 focus:text-white focus:rounded-md focus:ring-2 focus:ring-offset-2 focus:ring-cool-gray-90"
@@ -25,7 +25,7 @@ export function AdminLayout() {
                 Skip to content
             </a>
             <Sidebar />
-            <main id="main-content" className="flex-1 ml-64 p-8 overflow-auto">
+            <main id="main-content" className="flex-1 ml-64 p-6 md:p-8 overflow-auto">
                 <div className="max-w-7xl mx-auto">
                     <Outlet />
                 </div>

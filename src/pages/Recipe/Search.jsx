@@ -187,7 +187,7 @@ export function Search() {
 
     return (
         <div className="space-y-6 animate-page-in">
-            <div className="flex flex-col gap-4 bg-white p-6 rounded-xl border border-cool-gray-20 shadow-sm">
+            <div className="flex flex-col gap-4 bg-white p-6 rounded-lg border border-cool-gray-20 shadow-sm">
                 <div className="relative group">
                     <SearchIcon className="absolute left-3 top-3.5 h-5 w-5 text-cool-gray-60" />
                     <Input

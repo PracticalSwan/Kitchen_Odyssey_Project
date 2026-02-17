@@ -1,4 +1,4 @@
-# Design System: Cookhub Home - Recipe Feed
+# Design System: Kitchen Odyssey Home - Recipe Feed
 
 **Project ID:** 12469199353397755583  
 **Device Type:** Desktop  
@@ -216,7 +216,7 @@
 
 ## 7. Screen-Specific Patterns
 
-### 7.1 Home (Cookhub Home - Recipe Feed)
+### 7.1 Home (Kitchen Odyssey Home - Recipe Feed)
 - Hero section with main CTA ("Surprise Me" for random recipe)
 - Search bar prominent, centered below hero
 - Featured recipes section (optional, highlighted cards)
@@ -304,7 +304,7 @@
 
 | Screen ID | Title | Design Pattern | Key Components |
 |------------|--------|----------------|----------------|
-| 6a35b85562824db1b1a501edc5f00fa9 | Cookhub Home - Recipe Feed | Hero + Grid | Hero section, search bar, recipe cards |
+| 6a35b85562824db1b1a501edc5f00fa9 | Kitchen Odyssey Home - Recipe Feed | Hero + Grid | Hero section, search bar, recipe cards |
 | 0c3d91cadee54c5588df173fe6274d6c | Search and Filtering Results | Sidebar + Grid | Filter sidebar, results grid, filter chips |
 | 8cac488c341249a2a1b03c0ca65b3778 | Search Results Empty State | Centered Empty | Empty message, illustration, retry button |
 | d4bb7f8218a042aa9b7270a97d6e3e6d | User Authentication | Centered Card | Login/Signup forms, social auth buttons |

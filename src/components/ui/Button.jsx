@@ -10,12 +10,12 @@ export function Button({
     children,
     ...props
 }) {
-    const baseStyles = "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
+    const baseStyles = "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
     const variants = {
-        primary: "bg-cool-gray-90 text-white hover:bg-black focus:ring-cool-gray-90",
-        secondary: "bg-cool-gray-20 text-cool-gray-90 hover:bg-cool-gray-30 focus:ring-cool-gray-20",
-        outline: "border border-cool-gray-30 bg-transparent hover:bg-cool-gray-10 text-cool-gray-90",
+        primary: "bg-brand text-white hover:bg-[#a90f27] focus:ring-brand",
+        secondary: "bg-[#137fec] text-white hover:bg-[#0f6fcd] focus:ring-[#137fec]",
+        outline: "border border-cool-gray-30 bg-white hover:bg-cool-gray-10 text-cool-gray-90",
         ghost: "bg-transparent hover:bg-cool-gray-10 text-cool-gray-90",
         danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600"
     };

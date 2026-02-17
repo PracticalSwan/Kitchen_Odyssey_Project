@@ -72,3 +72,23 @@ All documentation updated post-implementation and testing:
 - Design Overhaul (plan/design-overhaul-1.md) — currently On Hold; depends on Guest Mode + Random Recipe being completed first (PREREQ-OV-001, PREREQ-OV-002)
 - Playwright automated test suites (guest-mode.spec.js, random-recipe.spec.js) — not yet created as formal test files
 - Cross-browser testing (Chrome, Firefox, Edge, Safari)
+
+## Documentation & Branding Update (2026-02-14)
+
+- Project branding was standardized from "CookHub" to "Kitchen Odyssey" across UI copy and docs.
+- Updated UI brand labels in `src/layouts/AuthLayout.jsx`, `src/components/layout/Navbar.jsx`, and `src/components/layout/Sidebar.jsx`.
+- Demo credential emails remain `@cookhub.com` in `src/lib/storage.js`, `src/pages/Auth/Login.jsx`, and `README.md`.
+- Fixed auth-page branding alignment by centering logo/title lockup in `src/layouts/AuthLayout.jsx` so "Kitchen Odyssey" appears centered under the logo on both Login and Signup pages.
+
+## Session Documentation Sync (2026-02-14)
+
+- README branding section now explicitly states demo credentials remain `@cookhub.com`.
+- Reverted prior demo-email domain substitutions and verified source-of-truth demo credentials are unchanged.
+
+## Session UI Refinement Delta (2026-02-14)
+
+- Additional UI polish updates were applied across shared primitives and core pages (rounded corners, focus rings, hover states, table sticky headers, spacing/shadows, and brand-accent refinements).
+- Layout and branding refinements were applied in `Navbar`, `Sidebar`, `AuthLayout`, `RootLayout`, and `AdminLayout`.
+- UI primitive updates were applied in `Button`, `Badge`, `Card`, `Input`, `Modal`, `Table`, and `Tabs`.
+- Page-level styling updates were applied in `Admin/UserList`, `Admin/AdminRecipes`, `Recipe/Home`, `Recipe/Search`, `Recipe/RecipeDetail`, `Recipe/Profile`, `Recipe/CreateRecipe`, and auth pages.
+- Typography/font setup updates are present in `index.html` and `src/index.css` (Work Sans preconnect/import + theme/font adjustments).
