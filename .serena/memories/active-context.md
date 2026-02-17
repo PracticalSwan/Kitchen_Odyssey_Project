@@ -45,11 +45,21 @@ All three implementation phases are complete:
 
 ## Migration Plan Docs Update (2026-02-17)
 - Documentation-only continuation completed; implementation was intentionally not started.
-- Backend folder naming standardized to `Project2/Kitchen_Odyssey_Backend` across migration architecture and supporting docs.
+- Backend folder naming standardized to `Project2/kitchen-odyssey-backend` (kebab-case) across migration architecture and supporting docs.
 - Architecture plan hardened for Atlas free-tier operations (pool limits, pagination/projection/lean guardrails, retention/TTL, quota alerting).
 - Deployment target in migration plan set to Azure VM; preview platforms kept optional.
 - Consistency fixes applied: `VITE_USE_BACKEND_FOR_REVIEWS` typo fixed, CORS env aligned to `ALLOWED_ORIGINS`, security headers wording aligned to Next.js middleware/route responses.
-- Remaining next step (when approved): create `Kitchen_Odyssey_Backend` and execute Phase 2 scaffolding tasks only.
+- Remaining next step (when approved): create `kitchen-odyssey-backend` and execute Phase 2 scaffolding tasks only.
+
+## Migration Plan Code Modernization (2026-02-18)
+- All code snippets in migration plan verified against Next.js 16.1.6 and Mongoose 9.0.1 via Context7.
+- **Next.js 16 proxy.js**: All `middleware.js` references updated to `proxy.js` (SEC-007, TASK-005, TASK-042). New Section 3.5 added covering 5 critical Next.js 16 API patterns.
+- **Async params/headers**: Route handler examples updated to `await params` and async `headers()`/`cookies()` patterns.
+- **Response.json()**: Preferred over `NextResponse.json()` for simple responses.
+- **MongoDB Atlas**: Connection verified working. EC-010 connection code updated to Mongoose cached promise pattern with `.then(() => mongoose)`.
+- **CORS**: Added `proxy.js` global CORS alternative alongside route-handler approach in Section 3.3.
+- **Security doc**: Framework note and checklist updated for `proxy.js` and Node.js runtime.
+- Implementation boundary maintained: documentation-only, no code scaffold changes.
 
 
 ## Architecture Plan Streamlining (2026-02-17)

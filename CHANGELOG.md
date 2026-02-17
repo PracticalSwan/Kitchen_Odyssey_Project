@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed - 2026-02-18
+
+#### Migration Plan Code Modernization (Documentation Only)
+- **Next.js 16 proxy.js** — All `middleware.js` references updated to `proxy.js` across migration plan (SEC-007, TASK-005, TASK-042) and security doc
+- **Next.js 16 API Patterns** — New Section 3.5 added to migration plan covering async params, async headers/cookies, `Response.json()`, `after()` API, and proxy.js usage
+- **MongoDB Atlas** — Connection verified; EC-010 connection code updated to Mongoose cached promise pattern
+- **CORS** — Added `proxy.js` global CORS alternative alongside route-handler approach
+- **Security doc** — Framework note and checklist updated for `proxy.js` and Node.js runtime
+
+#### Files Modified
+- `plan/architecture-nextjs-mongodb-migration-1.md` (8 edits — frontmatter, SEC-007, TASK-005, TASK-042, EC-010, Sections 3.3–3.7)
+- `docs/security-considerations-1.md` (3 edits — framework note, checklist, last_updated)
+
+---
+
 ### Fixed - 2026-02-17
 
 #### Code Quality

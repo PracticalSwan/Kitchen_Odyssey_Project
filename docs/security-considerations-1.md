@@ -2,7 +2,7 @@
 goal: Define security best practices and patterns for Kitchen Odyssey backend services
 version: 1.0
 date_created: 2026-02-17
-last_updated: 2026-02-17
+last_updated: 2026-02-18
 owner: Project Team
 status: 'Planned'
 tags: ['security', 'nosql-injection', 'auth', 'jwt', 'csrf', 'rate-limiting', 'owasp']
@@ -14,7 +14,7 @@ tags: ['security', 'nosql-injection', 'auth', 'jwt', 'csrf', 'rate-limiting', 'o
 
 This document outlines security best practices and implementation patterns for the Kitchen Odyssey backend services. It covers authentication, authorization, NoSQL injection prevention, and protection against common web vulnerabilities following OWASP guidelines.
 
-**Framework Note:** The target backend is `Project2/kitchen-odyssey-backend` using Next.js route handlers. Any Express-style snippets in this document are reference patterns and must be translated to equivalent Next.js middleware/route utilities during implementation.
+**Framework Note:** The target backend is `Project2/kitchen-odyssey-backend` using Next.js 16 route handlers. Next.js 16 renamed `middleware.js` to `proxy.js` (export `proxy(request)` instead of `middleware(request)`, runs on Node.js runtime). Any Express-style snippets in this document are reference patterns and must be translated to equivalent Next.js `proxy.js`/route handler utilities during implementation.
 
 ---
 
@@ -941,7 +941,7 @@ describe('Authorization', () => {
 - [ ] All environment variables are set (no defaults in code)
 - [ ] JWT_SECRET is minimum 32 characters
 - [ ] HTTPS is enforced in production
-- [ ] Security headers are configured (framework-native policy via Next.js middleware/headers)
+- [ ] Security headers are configured (framework-native policy via Next.js `proxy.js` and route handler headers)
 - [ ] CORS is properly configured
 - [ ] Rate limiting is enabled
 - [ ] Input validation is on all endpoints

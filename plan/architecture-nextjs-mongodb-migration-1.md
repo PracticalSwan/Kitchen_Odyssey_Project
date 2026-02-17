@@ -1,5 +1,10 @@
 ---
 goal: Migrate Kitchen Odyssey from frontend-only localStorage architecture to split Frontend + Next.js Backend + MongoDB Atlas while preserving all existing logic and design-overhaul compatibility
+last_updated: 2026-02-18
+revision_notes: >
+  Updated for Next.js 16 breaking changes (middleware.js→proxy.js, async params/headers/cookies),
+  Mongoose recommended cached connection pattern, MongoDB Atlas connection verified,
+  added Section 3.5 (Next.js 16 API Patterns), updated CORS with proxy.js alternative.
 ---
 
 # Introduction
@@ -37,7 +42,7 @@ This plan defines a deterministic migration path from the current localStorage-b
 - **SEC-004**: Protect against common API abuse patterns (rate limits on auth and write-heavy routes).
 - **SEC-005**: Protect against NoSQL injection attacks for MongoDB queries.
 - **SEC-006**: Implement CSRF protection for state-changing operations.
-- **SEC-007**: Add security headers via Next.js middleware/route responses (`middleware.js` and route handler headers) or equivalent framework-native controls.
+- **SEC-007**: Add security headers via Next.js proxy/route responses (`proxy.js` and route handler headers) or equivalent framework-native controls. **Note:** Next.js 16 renamed `middleware.js` to `proxy.js` — the export is now `export function proxy(request)` instead of `export function middleware(request)`. Proxy runs on Node.js runtime (not Edge).
 - **SEC-008**: Implement request size limits to prevent DoS via large payloads.
 - **SEC-009**: Use HTTPS-only in production with secure cookie flags.
 - **SEC-010**: Implement token-based authentication with secure token storage and refresh mechanism.
@@ -305,6 +310,55 @@ export function buildCorsHeaders(origin) {
 // 2) Attach CORS headers to normal responses
 ```
 
+**Alternative: CORS via `proxy.js` (Next.js 16 proxy, preferred for global CORS):**
+```javascript
+// src/proxy.js — handles CORS globally for all /api routes
+import { NextResponse } from 'next/server';
+
+const allowedOrigins = new Set(
+  (process.env.ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean)
+);
+
+export function proxy(request) {
+  const origin = request.headers.get('origin') ?? '';
+
+  // Handle preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: getCorsHeaders(origin),
+    });
+  }
+
+  const response = NextResponse.next();
+  if (allowedOrigins.has(origin)) {
+    Object.entries(getCorsHeaders(origin)).forEach(([k, v]) =>
+      response.headers.set(k, v)
+    );
+  }
+  return response;
+}
+
+function getCorsHeaders(origin) {
+  if (!allowedOrigins.has(origin)) return {};
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
+    'Access-Control-Allow-Headers':
+      'X-CSRF-Token, X-Requested-With, Accept, Content-Type, Authorization, X-Guest-ID',
+    Vary: 'Origin',
+  };
+}
+
+export const config = { matcher: ['/api/:path*'] };
+```
+
+> **Decision:** Use the `proxy.js` approach for global CORS + security headers, and the route-handler `buildCorsHeaders` helper as a fallback for routes that need custom CORS behavior.
+
 ### 3.4 Backend Bootstrap (Project Already Created)
 
 **Status:** ✅ Completed - Backend project exists at `Project2/kitchen-odyssey-backend`
@@ -316,13 +370,100 @@ export function buildCorsHeaders(origin) {
 - Directory: `src/` structure enabled
 - Package Manager: npm
 - Scripts: `dev`, `build`, `start`, `lint` available
+- MongoDB Atlas: ✅ Connected (verified — `sample_mflix`, `admin`, `local` databases accessible)
 
 **Notes:**
 - Run backend commands from inside `Project2/kitchen-odyssey-backend`.
 - Do not move backend under `Kitchen_Odyssey`; both must remain sibling folders.
 - All API routes will be created under `src/app/api/v1/` directory structure.
 
-### 3.5 Health Check Endpoint
+### 3.5 Next.js 16 API Patterns (Critical)
+
+The following patterns are **mandatory** for all route handler code in the backend. These reflect breaking changes in Next.js 16 that differ from older Next.js documentation.
+
+**1. Route handler `params` is now a Promise (must be `await`ed):**
+```javascript
+// src/app/api/v1/recipes/[id]/route.js
+export async function GET(request, { params }) {
+  const { id } = await params; // REQUIRED: params is a Promise in Next.js 16
+  // ... use id
+}
+
+export async function PATCH(request, { params }) {
+  const { id } = await params;
+  // ... use id
+}
+```
+
+**2. `headers()` and `cookies()` from `next/headers` are now async:**
+```javascript
+import { cookies, headers } from 'next/headers';
+
+export async function GET(request) {
+  const cookieStore = await cookies();   // async in Next.js 16
+  const headersList = await headers();   // async in Next.js 16
+
+  const token = cookieStore.get('access_token');
+  const origin = headersList.get('origin');
+  // ...
+}
+```
+
+**3. Prefer `Response.json()` for simple responses:**
+```javascript
+// Preferred: standard Web API
+export async function GET() {
+  return Response.json({ success: true, data: { ... } });
+}
+
+// Use NextResponse only when you need cookies, redirects, or rewrites
+import { NextResponse } from 'next/server';
+
+export async function POST(request) {
+  const response = NextResponse.json({ success: true, data: { ... } });
+  response.cookies.set('access_token', token, { httpOnly: true, secure: true });
+  return response;
+}
+```
+
+**4. `after()` API for post-response work (logging, analytics):**
+```javascript
+import { after } from 'next/server';
+
+export async function POST(request) {
+  const result = await processRequest(request);
+
+  // Run after the response is sent to the client
+  after(async () => {
+    await logActivity({ type: 'recipe', text: `Recipe created: ${result.title}` });
+  });
+
+  return Response.json({ success: true, data: result });
+}
+```
+
+**5. Proxy file (formerly middleware) at `src/proxy.js`:**
+```javascript
+// src/proxy.js — Next.js 16 renamed middleware.js to proxy.js
+// Runs on Node.js runtime (not Edge)
+import { NextResponse } from 'next/server';
+
+export function proxy(request) {
+  // Security headers, CORS preflight, auth checks, etc.
+  const response = NextResponse.next();
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  return response;
+}
+
+export const config = {
+  matcher: ['/api/:path*'],
+};
+```
+
+> **Migration note:** If upgrading from older Next.js, run `npx @next/codemod@latest middleware-to-proxy .` to auto-rename.
+
+### 3.6 Health Check Endpoint
 
 **Response Format:**
 ```json
@@ -341,7 +482,7 @@ export function buildCorsHeaders(origin) {
 
 **Endpoint:** `GET /api/v1/health`
 
-### 3.6 Migration Cutover Strategy
+### 3.7 Migration Cutover Strategy
 
 **Pre-Migration:**
 - Full backup of MongoDB Atlas data
@@ -659,24 +800,37 @@ function getDateInTimezone(utcDate, timezone) {
 
 **Impact:** Slow queries, connection saturation, or storage pressure can break parity and user experience.
 
+**Status:** ✅ MongoDB Atlas connection verified — databases `sample_mflix`, `admin`, `local` are accessible. The `kitchen_odyssey_dev` database will be auto-created when Mongoose models are first used.
+
 **Solution:**
 ```javascript
-// Reuse one connection in Next.js runtime to avoid connection storms
+// Mongoose-recommended cached connection pattern for Next.js / serverless
+// Prevents connection storms by caching the connection promise (not the resolved value)
+import mongoose from 'mongoose';
+
 let cachedConnection = null;
 
 export async function getDb() {
   if (cachedConnection) return cachedConnection;
 
-  cachedConnection = await mongoose.connect(process.env.MONGODB_URI, {
-    maxPoolSize: Number(process.env.MONGODB_MAX_POOL_SIZE ?? 10),
-    minPoolSize: Number(process.env.MONGODB_MIN_POOL_SIZE ?? 0),
-    serverSelectionTimeoutMS: Number(
-      process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS ?? 5000
-    )
-  });
+  // Cache the connection *promise* so concurrent callers share the same connect()
+  cachedConnection = mongoose
+    .connect(process.env.MONGODB_URI, {
+      dbName: process.env.MONGODB_DB_NAME ?? 'kitchen_odyssey_dev',
+      maxPoolSize: Number(process.env.MONGODB_MAX_POOL_SIZE ?? 10),
+      minPoolSize: Number(process.env.MONGODB_MIN_POOL_SIZE ?? 0),
+      serverSelectionTimeoutMS: Number(
+        process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS ?? 5000
+      ),
+    })
+    .then(() => mongoose);
 
+  await cachedConnection;
   return cachedConnection;
 }
+```
+
+> **Why `.then(() => mongoose)`?** Caching the *promise* (not the resolved connection) ensures that if two route handlers call `getDb()` simultaneously during a cold start, Mongoose only opens one connection instead of two. This is the official Mongoose pattern for Lambda / serverless environments and applies equally to Next.js API route handlers.
 
 // Use projection + lean + bounded pagination for read-heavy queries
 export async function listRecipes(cursor) {
@@ -847,7 +1001,7 @@ const results = await Recipe.find({
 
 | Task | Description | Completed | Date |
 | -------- | --------------------- | --------- | ---------- |
-| TASK-005 | Create backend workspace folder `Project2/kitchen-odyssey-backend` with Next.js App Router API project layout (`src/app/api`, `src/lib`, `src/models`, `src/repositories`, `src/services`, `src/middlewares`, `tests`). | ✅ | 2026-02-17 |
+| TASK-005 | Create backend workspace folder `Project2/kitchen-odyssey-backend` with Next.js App Router API project layout (`src/app/api`, `src/lib`, `src/models`, `src/repositories`, `src/services`, `tests`). **Note:** Next.js 16 uses `proxy.js` (at `src/proxy.js` with `src/` structure) instead of a `middlewares` folder. The single `proxy.js` file replaces the old `middleware.js`. | ✅ | 2026-02-17 |
 | TASK-006 | Add backend environment templates: `Project2/kitchen-odyssey-backend/.env.example` including `MONGODB_URI`, `JWT_SECRET`, `ALLOWED_ORIGINS`, `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX_AUTH`, `RATE_LIMIT_MAX_WRITE`, `RATE_LIMIT_MAX_READ`, and Mongo pool settings. |  |  |
 | TASK-007 | Add backend config modules: `Project2/kitchen-odyssey-backend/src/lib/config.js` with schema validation for all env vars. |  |  |
 | TASK-008 | Add backend health check endpoint: `Project2/kitchen-odyssey-backend/src/app/api/v1/health/route.js` returning version, db connectivity, uptime, and dependency status. |  |  |
@@ -928,7 +1082,7 @@ const results = await Recipe.find({
 | TASK-039 | Add rate limiting and abuse prevention utilities in `Project2/kitchen-odyssey-backend/src/lib/security/rateLimit.js` for auth/write endpoints. |  |  |
 | TASK-040 | Add CSRF protection checks for state-changing route handlers. |  |  |
 | TASK-041 | Add NoSQL injection prevention in all MongoDB query builders. |  |  |
-| TASK-042 | Add framework-native security headers via `middleware.js` and route response headers. |  |  |
+| TASK-042 | Add framework-native security headers via `proxy.js` (Next.js 16 proxy, formerly middleware) and route response headers. The proxy file lives at `src/proxy.js` and exports `export function proxy(request)`. Use `npx @next/codemod@latest middleware-to-proxy .` if migrating from older Next.js middleware. |  |  |
 | TASK-043 | Add request size limits to prevent DoS via large payloads. |  |  |
 | TASK-044 | Add structured logging and correlation IDs in `src/lib/observability/logger.js` and request context middleware. |  |  |
 | TASK-045 | Add metrics endpoints and counters in `src/app/api/v1/metrics/route.js` including error rates, latency, and DB query timings. |  |  |
