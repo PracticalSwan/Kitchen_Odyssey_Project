@@ -15,7 +15,7 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { Heart, Bookmark, Trash2, Edit, Check, Share2, Star, Clock } from 'lucide-react';
-import { cn, normalizeCategories } from '../../lib/utils';
+import { cn, normalizeCategories, formatCount } from '../../lib/utils';
 
 export function RecipeDetail() {
     const { id } = useParams();                    // Recipe ID from URL
@@ -27,10 +27,44 @@ export function RecipeDetail() {
     const [recipe, setRecipe] = useState(null);
     const [author, setAuthor] = useState(null);
     const [reviews, setReviews] = useState([]);
+    const [users, setUsers] = useState([]);  // Store users for review enrichment
+
+    // Helper function to enrich reviews with user data
+    const enrichReviews = (reviewsToEnrich) => {
+        return reviewsToEnrich.map(review => {
+            if (review.username && review.avatar) return review; // Already has user data
+            const reviewUser = users.find(u => (u._id || u.id) === review.userId);
+            if (!reviewUser) {
+                // User not found - add fallback username
+                return {
+                    ...review,
+                    username: 'Unknown User',
+                    avatar: null,
+                };
+            }
+            return {
+                ...review,
+                username: reviewUser.username,
+                avatar: reviewUser.avatar || reviewUser.avatarUrl || null,
+            };
+        });
+    };
 
     // Form state for review submission
     const [newComment, setNewComment] = useState('');
     const [rating, setRating] = useState(5);
+
+    // Debug: Log canInteract state
+    useEffect(() => {
+        console.log('RecipeDetail Debug:', {
+            user: user ? { id: user._id || user.id, username: user.username, role: user.role, status: user.status } : null,
+            canInteract,
+            isGuest,
+            isAdmin,
+            isPending,
+            isSuspended
+        });
+    }, [user, canInteract, isGuest, isAdmin, isPending, isSuspended]);
 
     // Interaction state
     const [isLiked, setIsLiked] = useState(false);
@@ -63,15 +97,39 @@ export function RecipeDetail() {
                 if (!found) { navigate('/'); return; }
                 if (found.status !== 'published' && !isAdmin && !isOwnerViewing) { navigate('/'); return; }
 
-                const users = await storage.getUsers();
+                const [fetchedUsers, recipeReviews] = await Promise.all([
+                    storage.getUsers().catch(() => []),
+                    storage.getReviews(id).catch(() => []),
+                ]);
                 if (cancelled) return;
 
-                const recipeReviews = await storage.getReviews(id);
-                if (cancelled) return;
+                const users = fetchedUsers;
+
+                // Store users for enrichment after updates
+                setUsers(users);
+
+                // Enrich reviews with user data (username, avatar) for proper display
+                const enrichedReviews = recipeReviews.map(review => {
+                    if (review.username && review.avatar) return review; // Already has user data
+                    const reviewUser = users.find(u => (u._id || u.id) === review.userId);
+                    if (!reviewUser) {
+                        // User not found - add fallback username
+                        return {
+                            ...review,
+                            username: 'Unknown User',
+                            avatar: null,
+                        };
+                    }
+                    return {
+                        ...review,
+                        username: reviewUser.username,
+                        avatar: reviewUser.avatar || reviewUser.avatarUrl || null,
+                    };
+                });
 
                 setRecipe(found);
                 setLikeCount(found.likedBy?.length || 0);
-                setReviews(recipeReviews);
+                setReviews(enrichedReviews);
                 setAuthor(users.find(u => (u._id || u.id) === found.authorId));
 
                 if (user) {
@@ -126,7 +184,7 @@ export function RecipeDetail() {
                 avatar: user.avatar, rating, comment: newComment
             });
             const updatedReviews = await storage.getReviews(id);
-            setReviews(updatedReviews);
+            setReviews(enrichReviews(updatedReviews));
             setNewComment('');
         } catch (err) { toast.error(formatError(err)); }
     };
@@ -138,7 +196,7 @@ export function RecipeDetail() {
         try {
             await storage.deleteReview(deleteReviewId);
             const updatedReviews = await storage.getReviews(id);
-            setReviews(updatedReviews);
+            setReviews(enrichReviews(updatedReviews));
             setDeleteReviewId(null);
         } catch (err) { toast.error(formatError(err)); }
     };
@@ -160,8 +218,12 @@ export function RecipeDetail() {
         try {
             await navigator.clipboard.writeText(window.location.href);
             setShareCopied(true);
-            window.setTimeout(() => setShareCopied(false), 1500);  // Reset feedback after 1.5s
-        } catch { setShareCopied(false); }
+            toast.success('Link copied to clipboard!');
+            window.setTimeout(() => setShareCopied(false), 1500);
+        } catch {
+            toast.error('Failed to copy link');
+            setShareCopied(false);
+        }
     };
 
     const isOwner = user && recipe?.authorId === (user._id || user.id);
@@ -193,78 +255,36 @@ export function RecipeDetail() {
                     className="h-[400px] w-full object-cover"
                 />
                 <div className="absolute bottom-0 left-0 z-[2] w-full p-8">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                        <div>
-                            <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">{recipe.title}</h1>
-                            <div className="flex flex-wrap items-center gap-3 text-sm text-white/90">
-                                {author ? (
-                                    <Link to={`/users/${author._id || author.id}`} className="flex items-center gap-1.5">
-                                        {author.avatar ? (
-                                            <img src={author.avatar} className="h-6 w-6 rounded-full border border-white/50 object-cover" alt="" />
-                                        ) : (
-                                            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/50 bg-warm-white/20 text-[10px] font-bold text-white">
-                                                {author.username.charAt(0).toUpperCase()}
-                                            </span>
-                                        )}
-                                        <span className="font-medium">By {author.username}</span>
-                                    </Link>
-                                ) : (
-                                    <span className="flex items-center gap-1.5">
+                    <div>
+                        <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">{recipe.title}</h1>
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-white/90">
+                            {author ? (
+                                <Link to={`/users/${author._id || author.id}`} className="flex items-center gap-1.5">
+                                    {author.avatar ? (
+                                        <img src={author.avatar} className="h-6 w-6 rounded-full border border-white/50 object-cover" alt="" />
+                                    ) : (
                                         <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/50 bg-warm-white/20 text-[10px] font-bold text-white">
-                                            ?
+                                            {author.username.charAt(0).toUpperCase()}
                                         </span>
-                                        <span className="font-medium">By Unknown</span>
+                                    )}
+                                    <span className="font-medium">By {author.username}</span>
+                                </Link>
+                            ) : (
+                                <span className="flex items-center gap-1.5">
+                                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/50 bg-warm-white/20 text-[10px] font-bold text-white">
+                                        ?
                                     </span>
-                                )}
-                                <span className="h-1 w-1 rounded-full bg-warm-white/60"></span>
-                                <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" /> {totalTime} min</span>
-                                {recipe.difficulty && (
-                                    <>
-                                        <span className="h-1 w-1 rounded-full bg-warm-white/60"></span>
-                                        <span className="capitalize">{recipe.difficulty}</span>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-3">
-                            <button
-                                type="button"
-                                onClick={handleToggleLike}
-                                className={cn(
-                                    "flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium backdrop-blur-sm transition-all",
-                                    isLiked
-                                        ? 'bg-warm-white/25 text-white ring-1 ring-white/40'
-                                        : 'bg-warm-white/10 text-white/80 ring-1 ring-white/20 hover:bg-warm-white/20',
-                                    !canInteract && 'cursor-not-allowed opacity-60'
-                                )}
-                                disabled={!canInteract}
-                            >
-                                <Heart className={cn('h-5 w-5', isLiked && 'fill-white')} />
-                                {likeCount > 0 && <span>{likeCount}</span>} Like
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleToggleFavorite}
-                                className={cn(
-                                    "flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium backdrop-blur-sm transition-all",
-                                    isFavorited
-                                        ? 'bg-warm-white/25 text-white ring-1 ring-white/40'
-                                        : 'bg-warm-white/10 text-white/80 ring-1 ring-white/20 hover:bg-warm-white/20',
-                                    !canInteract && 'cursor-not-allowed opacity-60'
-                                )}
-                                disabled={!canInteract}
-                            >
-                                <Bookmark className={cn('h-5 w-5', isFavorited && 'fill-white')} />
-                                Save
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleShare}
-                                className="flex items-center gap-2 rounded-lg bg-warm-white/10 px-3 py-2.5 text-sm font-medium text-white/80 ring-1 ring-white/20 backdrop-blur-sm transition-all hover:bg-warm-white/20"
-                            >
-                                <Share2 className="h-5 w-5" />
-                                {shareCopied && <span>Copied!</span>}
-                            </button>
+                                    <span className="font-medium">By Unknown</span>
+                                </span>
+                            )}
+                            <span className="h-1 w-1 rounded-full bg-warm-white/60"></span>
+                            <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" /> {totalTime} min</span>
+                            {recipe.difficulty && (
+                                <>
+                                    <span className="h-1 w-1 rounded-full bg-warm-white/60"></span>
+                                    <span className="capitalize">{recipe.difficulty}</span>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -284,17 +304,64 @@ export function RecipeDetail() {
                 </div>
             )}
 
-            {/* Owner Controls */}
-            {isOwner && (
-                <div className="flex flex-wrap items-center gap-3">
-                    <Button variant="outline" size="sm" onClick={handleEditRecipe} className="gap-1.5">
-                        <Edit className="h-4 w-4" /> Edit
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleDeleteRecipe} className="gap-1.5 border-red-200 text-red-500 hover:bg-red-50">
-                        <Trash2 className="h-4 w-4" /> Delete
-                    </Button>
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                {/* Left: Owner Controls */}
+                <div className="flex flex-wrap items-center gap-2">
+                    {isOwner && (
+                        <>
+                            <Button variant="outline" size="sm" onClick={handleEditRecipe} className="h-9 gap-1.5">
+                                <Edit className="h-4 w-4" /> Edit
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={handleDeleteRecipe} className="h-9 gap-1.5 border-red-200 text-red-500 hover:bg-red-50">
+                                <Trash2 className="h-4 w-4" /> Delete
+                            </Button>
+                        </>
+                    )}
                 </div>
-            )}
+
+                {/* Right: Interaction Buttons */}
+                <div className="flex flex-wrap items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={handleToggleLike}
+                        className={cn(
+                            "flex h-9 items-center gap-1.5 rounded-lg px-4 text-sm font-medium transition-all",
+                            isLiked
+                                ? 'bg-brand-accent text-white'
+                                : 'border border-warm-gray-20 bg-warm-white text-charcoal hover:bg-warm-gray-10',
+                            !canInteract && 'cursor-not-allowed opacity-60'
+                        )}
+                        disabled={!canInteract}
+                    >
+                        <Heart className={cn('h-4 w-4', isLiked && 'fill-white')} />
+                        {likeCount > 0 && <span>{formatCount(likeCount)}</span>} Like
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleToggleFavorite}
+                        className={cn(
+                            "flex h-9 items-center gap-1.5 rounded-lg px-4 text-sm font-medium transition-all",
+                            isFavorited
+                                ? 'bg-brand-accent text-white'
+                                : 'border border-warm-gray-20 bg-warm-white text-charcoal hover:bg-warm-gray-10',
+                            !canInteract && 'cursor-not-allowed opacity-60'
+                        )}
+                        disabled={!canInteract}
+                    >
+                        <Bookmark className={cn('h-4 w-4', isFavorited && 'fill-white')} />
+                        Save
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleShare}
+                        className="flex h-9 items-center gap-2 rounded-lg border border-warm-gray-20 bg-warm-white px-4 text-sm font-medium text-charcoal transition-all hover:bg-warm-gray-10"
+                    >
+                        <Share2 className="h-4 w-4" />
+                        {shareCopied && <span>Copied!</span>}
+                    </button>
+                </div>
+            </div>
 
             {/* Content Grid */}
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-[2fr_1fr]">
@@ -321,8 +388,9 @@ export function RecipeDetail() {
                     {/* Instructions - Timeline */}
                     <section>
                         <h3 className="mb-6 text-2xl font-bold text-charcoal">Instructions</h3>
+                        {(recipe.instructions || []).length > 0 ? (
                         <ol className="relative ml-3 space-y-8 border-l border-warm-gray-20 pl-8">
-                            {(recipe.instructions || []).map((step, i) => (
+                            {recipe.instructions.map((step, i) => (
                                 <li key={i} className="relative">
                                     <span className="absolute -left-[41px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-brand-accent text-xs font-bold text-white ring-4 ring-white">
                                         {i + 1}
@@ -332,6 +400,9 @@ export function RecipeDetail() {
                                 </li>
                             ))}
                         </ol>
+                        ) : (
+                            <p className="text-sm text-warm-gray-50">No instructions provided.</p>
+                        )}
                     </section>
                 </div>
 
@@ -344,7 +415,7 @@ export function RecipeDetail() {
                             <span className="text-sm text-warm-gray-40">{(recipe.ingredients || []).length} items</span>
                         </div>
                         <ul className="space-y-3">
-                            {(recipe.ingredients || []).map((ing, i) => (
+                            {(recipe.ingredients || []).length > 0 ? (recipe.ingredients || []).map((ing, i) => (
                                 <li key={i} role="checkbox" aria-checked={!!checkedIngredients[i]} tabIndex="0"
                                     className={cn(
                                         "flex items-start gap-3 rounded-lg bg-warm-white p-3 text-sm shadow-sm ring-1 ring-warm-gray-20 outline-none transition-colors hover:ring-brand-accent/30 cursor-pointer",
@@ -361,7 +432,9 @@ export function RecipeDetail() {
                                     </span>
                                     <span className={cn("text-warm-gray-70", checkedIngredients[i] && 'line-through text-warm-gray-40')}>{ing.quantity} {ing.unit} {ing.name}</span>
                                 </li>
-                            ))}
+                            )) : (
+                                <li className="text-sm text-warm-gray-50 py-2">No ingredients listed.</li>
+                            )}
                         </ul>
                         {Object.values(checkedIngredients).some(Boolean) && (
                             <button type="button" onClick={() => setCheckedIngredients({})}
@@ -419,7 +492,11 @@ export function RecipeDetail() {
                                         </span>
                                     )}
                                     <div>
-                                        <Link to={`/users/${review.userId}`} className="text-sm font-semibold text-charcoal hover:text-brand-accent transition-colors">{review.username}</Link>
+                                        {review.username === 'Unknown User' ? (
+                                            <span className="text-sm font-semibold text-warm-gray-50">{review.username}</span>
+                                        ) : (
+                                            <Link to={`/users/${review.userId}`} className="text-sm font-semibold text-charcoal hover:text-brand-accent transition-colors">{review.username}</Link>
+                                        )}
                                         <div className="flex text-[12px]">
                                             {[1, 2, 3, 4, 5].map(star => (
                                                 <span key={star} className={review.rating >= star ? 'text-amber-400' : 'text-warm-gray-30'}>&#9733;</span>

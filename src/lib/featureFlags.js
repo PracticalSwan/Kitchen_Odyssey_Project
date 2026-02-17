@@ -1,3 +1,6 @@
+// Feature flags - Backend is now required for all operations
+// Guest mode uses minimal localStorage for session only
+
 function parseBoolean(input, fallback = false) {
   if (input === undefined || input === null || input === '') return fallback;
   const normalized = `${input}`.trim().toLowerCase();
@@ -5,6 +8,5 @@ function parseBoolean(input, fallback = false) {
 }
 
 export const featureFlags = {
-  useBackendApi: parseBoolean(import.meta.env.VITE_USE_BACKEND_API, false),
-  enableReadFallback: parseBoolean(import.meta.env.VITE_ENABLE_READ_FALLBACK, true),
+  useBackendApi: parseBoolean(import.meta.env.VITE_USE_BACKEND_API, true),
 };

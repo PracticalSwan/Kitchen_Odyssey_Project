@@ -16,7 +16,7 @@ import { useToast, formatError } from '../../components/ui/Toast';
 import { useAuth } from '../../context/AuthContext';
 import { cn, normalizeCategories } from '../../lib/utils';
 
-export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
+export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay, usersMap, ratingsMap }) {
     const { user, canInteract, isGuest } = useAuth();
     const toast = useToast();
     const [isLiked, setIsLiked] = useState(false);
@@ -33,22 +33,28 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
     const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
     const timeLabel = totalTime >= 60 ? `${Math.round(totalTime / 60)} hr` : `${totalTime} min`;
 
-    // Load author and rating data
+    // Use pre-fetched data from parent if available, otherwise fetch individually
     useEffect(() => {
         let cancelled = false;
+
         (async () => {
             try {
-                const [users, avg] = await Promise.all([
-                    storage.getUsers(),
-                    storage.getAverageRating(recipeId),
-                ]);
+                // Use parent-provided maps if available, otherwise fetch
+                const resolvedAuthor = usersMap
+                    ? (usersMap.get(recipe.authorId) || null)
+                    : await storage.getUsers().then(users => users.find(u => (u._id || u.id) === recipe.authorId) || null);
+                const resolvedAvg = ratingsMap
+                    ? (ratingsMap.get(recipeId) || 0)
+                    : await storage.getAverageRating(recipeId);
+
                 if (cancelled) return;
-                setAuthor(users.find(u => (u._id || u.id) === recipe.authorId) || null);
-                setDisplayRating(avg > 0 ? avg.toFixed(1) : null);
+                setAuthor(resolvedAuthor);
+                setDisplayRating(resolvedAvg > 0 ? resolvedAvg.toFixed(1) : null);
             } catch (err) { toast.error(formatError(err)); }
         })();
+
         return () => { cancelled = true; };
-    }, [recipeId, recipe.authorId]);
+    }, [recipeId, recipe.authorId, usersMap, ratingsMap]);
 
     // Sync like/favorite state with API and window events
     useEffect(() => {

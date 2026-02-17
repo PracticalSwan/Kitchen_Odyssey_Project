@@ -9,6 +9,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed - 2026-02-17
 
+#### Auth Session Stability (User Not Downgraded to Guest)
+- Token refresh now treats transient refresh failures (network/5xx/429) as retriable API errors instead of immediate session expiration.
+- Session-expired logout event is now emitted only for terminal refresh auth failures (401/403).
+- `storageApi.getCurrentUser()` now returns `null` on 401 instead of throwing, preventing false guest fallback during normal unauthenticated checks.
+- Search history now uses `AuthContext` identity (user/guest) directly and passes explicit `userId` for read/write/clear operations.
+- Prevented implicit guest-mode restoration on generic restore-session API errors in `AuthContext`.
+- Added focused regression test scenario in `tests/guest-transitions.spec.js` for transient refresh failure behavior.
+
+### Fixed - 2026-02-18
+
+#### Auth Login Regression
+- Backend login validation now checks `email` format and non-empty `password` only.
+- Restored compatibility for seeded/demo accounts while preserving strong-password requirements on signup.
+- Invalid credentials now surface expected login errors instead of blocking on password policy checks.
+
+#### API Client 401 Refresh Scope
+- Token refresh retry is now skipped for `/auth/login`, `/auth/signup`, `/auth/refresh`, and `/auth/logout`.
+- Prevents incorrect "Session expired" messaging during failed login attempts.
+
+### Changed - 2026-02-18
+
+#### Comprehensive Regression Coverage Expansion
+- Expanded `tests/comprehensive.spec.js` with additional scenarios:
+  - Search history persistence after reload
+  - Updating your own review (upsert behavior validation)
+  - Admin metric/report calculation consistency
+  - User management search by email
+- Full validation:
+  - `npx playwright test tests/comprehensive.spec.js --reporter=line` → **110/110 passing**
+  - `npm test` in `kitchen-odyssey-backend` → **87/87 passing**
+
+### Changed - 2026-02-18
+
+#### Backend-Only Architecture
+- **BREAKING**: Removed localStorage fallback for authenticated users - backend API now required
+- All authenticated operations (CRUD, auth, interactions) require backend connectivity
+- Guest mode retains minimal localStorage for session ID, search history, and view tracking only
+- Removed `VITE_ENABLE_READ_FALLBACK` environment variable and `withReadFallback`/`withWriteFallback` wrapper functions
+- Simplified `storageApi.js` from 501 to 310 lines (38% reduction)
+- Guest mode provides read-only offline access (browsing, search, view tracking)
+
+#### Authentication & Session Management
+- Implemented automatic JWT token refresh on 401 errors with promise-based concurrency handling
+- Added session expiration event (`auth:session-expired`) for automatic logout
+- Token refresh mechanism prevents race conditions when multiple requests fail simultaneously
+- Access tokens expire after 15 minutes, refresh tokens after 7 days
+- Clean logout flow when token refresh fails
+
+#### Bug Fixes - 2026-02-18
+
+#### Review User Display
+- Fixed reviews showing unknown users ("?") after posting/updating/deleting
+- Reviews now automatically enriched with user data (username/avatar) from users list
+- Enrichment applies consistently: on initial load, after submission, after deletion
+- Fallback to "?" avatar and "Unknown" username when user not found in users list
+
+### Changed - 2026-02-18
+
+#### Recipe Detail View Layout
+- Moved Like, Save, and Share buttons from image overlay to under the image
+- Action buttons now appear at same level as Edit/Delete buttons for better UX
+- Button layout refined:
+  - Edit/Delete buttons positioned on the left side (owner only)
+  - Like/Save/Share buttons positioned on the right side
+  - All 5 buttons now have consistent height (`h-9`) and sizing
+- Added `formatCount()` utility to display like counts with K/M suffixes:
+  - Counts < 1,000: displays as-is (e.g., 999)
+  - Counts >= 1,000 and < 1,000,000: displays with K suffix (e.g., 1K, 2K, 999K)
+  - Counts >= 1,000,000: displays with M suffix (e.g., 1M, 2M, 999M)
+
+### Fixed - 2026-02-17
+
 #### Frontend Resilience (API Fallback)
 - Strengthened `storageApi` write-path resilience in backend mode.
 - When `VITE_USE_BACKEND_API=true` and `VITE_ENABLE_READ_FALLBACK=true`, recoverable API failures (network/5xx) now safely fall back to local storage for:
@@ -20,6 +92,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Test Hygiene
 - Fixed ESLint errors in `tests/comprehensive.spec.js` (removed unused helper, completed share button assertion) so lint no longer fails on unused symbols.
+
+#### Comprehensive Regression Stabilization
+- Reworked `tests/comprehensive.spec.js` for deterministic full-stack execution:
+  - forced serial execution for this suite to avoid shared-account race conditions against backend status updates
+  - replaced brittle/ambiguous locators with stricter, component-aligned selectors
+  - aligned admin navigation checks with real sidebar navigation flow for `/admin/users` and `/admin/recipes`
+  - corrected signup mismatch validation path (birthday required before password mismatch check)
+  - scoped owner edit/delete assertions to avoid collisions with review delete controls
+- Added explicit backend data reset workflow for repeatable end-to-end runs using:
+  - `node src/scripts/seed.js --clean`
+- Final validation after stabilization:
+  - `npx playwright test tests/comprehensive.spec.js` → 106/106 passing
+  - `npm test` in `kitchen-odyssey-backend` → 82/82 passing
 
 ### Added — MongoDB Data Seeding
 

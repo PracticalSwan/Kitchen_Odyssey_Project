@@ -14,6 +14,73 @@ const inFlight = new Map();
 const requestInterceptors = [];
 const responseInterceptors = [];
 
+// Token refresh state
+let refreshPromise = null;  // Single promise for concurrent refresh attempts
+
+function getCsrfToken() {
+  if (typeof document === 'undefined') return null;
+  return document.cookie
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith('ko_csrf='))
+    ?.split('=')
+    .slice(1)
+    .join('=') || null;
+}
+
+class SessionRefreshError extends Error {
+  constructor(message, { status = 0, code = 'SESSION_REFRESH_FAILED', isTerminal = false } = {}) {
+    super(message);
+    this.name = 'SessionRefreshError';
+    this.status = status;
+    this.code = code;
+    this.isTerminal = isTerminal;
+  }
+}
+
+async function refreshAccessToken() {
+  let response;
+  try {
+    response = await fetch(`${API_BASE}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch {
+    throw new SessionRefreshError('Unable to reach authentication server');
+  }
+
+  if (!response.ok) {
+    const body = await parseResponseBody(response).catch(() => null);
+    const status = response.status;
+    const code = body?.error?.code || 'SESSION_REFRESH_FAILED';
+    const message = body?.error?.message || 'Session refresh failed';
+    const isTerminal = status === 401 || status === 403;
+
+    // Only end the session for terminal auth failures.
+    if (isTerminal) {
+      try {
+        const csrfToken = getCsrfToken();
+        await fetch(`${API_BASE}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+          },
+        });
+      } catch { /* ignore logout error */ }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth:session-expired'));
+      }
+    }
+
+    throw new SessionRefreshError(message, { status, code, isTerminal });
+  }
+
+  return await parseResponseBody(response);
+}
+
 class ApiError extends Error {
   constructor(status, code, message, details = null) {
     super(message);
@@ -38,15 +105,7 @@ async function parseResponseBody(response) {
 
 function buildFetchConfig(options = {}) {
   const method = (options.method || 'GET').toUpperCase();
-  const csrfToken = typeof document !== 'undefined'
-    ? document.cookie
-      .split(';')
-      .map((part) => part.trim())
-      .find((part) => part.startsWith('ko_csrf='))
-      ?.split('=')
-      .slice(1)
-      .join('=')
-    : null;
+  const csrfToken = getCsrfToken();
 
   const config = {
     ...options,
@@ -126,6 +185,10 @@ async function executeRequest(path, options = {}) {
   const url = `${API_BASE}${path}`;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const retries = options.retries ?? DEFAULT_RETRIES;
+  const isAuthEndpoint = path.startsWith('/auth/login')
+    || path.startsWith('/auth/signup')
+    || path.startsWith('/auth/refresh')
+    || path.startsWith('/auth/logout');
 
   let attempt = 0;
   while (true) {
@@ -135,6 +198,32 @@ async function executeRequest(path, options = {}) {
       const body = await parseResponseBody(response);
 
       if (!response.ok || (body && body.success === false)) {
+        // Handle 401 Unauthorized - try to refresh token
+        if (response.status === 401 && !options._isRetry && !isAuthEndpoint) {
+          // Use shared promise for concurrent refresh attempts
+          if (!refreshPromise) {
+            refreshPromise = refreshAccessToken().finally(() => {
+              refreshPromise = null;  // Clear after completion
+            });
+          }
+
+          try {
+            await refreshPromise;
+            // Retry the original request with new token
+            return executeRequest(path, { ...options, _isRetry: true });
+          } catch (refreshError) {
+            if (refreshError instanceof SessionRefreshError && !refreshError.isTerminal) {
+              throw new ApiError(
+                refreshError.status || 503,
+                refreshError.code || 'SESSION_REFRESH_FAILED',
+                refreshError.message || 'Session refresh failed. Please try again.',
+              );
+            }
+            // Terminal auth refresh failure.
+            throw new ApiError(401, 'UNAUTHORIZED', 'Session expired. Please login again.');
+          }
+        }
+
         throw new ApiError(
           response.status,
           body?.error?.code || 'UNKNOWN_ERROR',

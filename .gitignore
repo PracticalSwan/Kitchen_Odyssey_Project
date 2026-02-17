@@ -56,10 +56,7 @@ build/
 # Testing
 coverage/
 .nyc_output/
-tests/
-playwright.config.js
 test-results/
-tests/
 playwright-report/
 
 # OS specific files

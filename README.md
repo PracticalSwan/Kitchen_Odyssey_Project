@@ -3,7 +3,7 @@
 ![Development Status](https://img.shields.io/badge/status-active-brightgreen)
 ![React](https://img.shields.io/badge/React-19.2.0-blue)
 ![Vite](https://img.shields.io/badge/Vite-7.2.4-646cff)
-![Playwright Tests](https://img.shields.io/badge/Tests-32%20Passing-green)
+![Playwright Tests](https://img.shields.io/badge/Tests-Comprehensive%20Suite%20Passing-green)
 
 A modern recipe-sharing platform built with React 19 and Vite, featuring moderated content publication, role-based access control, and comprehensive discovery tools.
 
@@ -11,7 +11,7 @@ A modern recipe-sharing platform built with React 19 and Vite, featuring moderat
 
 ## Overview
 
-Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content publication, user onboarding workflows, and comprehensive discovery tools. The application uses client-side storage with localStorage for lightweight, demonstration-ready deployment, with backend migration in progress.
+Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content publication, user onboarding workflows, and comprehensive discovery tools. The application uses a split architecture with React + Vite frontend and Next.js backend API, with MongoDB Atlas for persistent storage.
 
 ### Key Capabilities
 
@@ -21,6 +21,7 @@ Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content 
 - Profile customization with avatars, bios, and cooking levels
 - Status workflow: Pending → Active (contributor) or Suspended
 - Session management and activity tracking for DAU metrics
+- Resilient token refresh flow: transient refresh failures no longer downgrade authenticated users into guest mode
 
 **Recipe Management**
 - Create, edit, and delete recipes with rich metadata
@@ -65,13 +66,14 @@ All dashboard metrics are computed from real-time data, refreshed on user/recipe
 
 **Recipe Trends Full Report** - Complete category breakdown with visual progress bars, recipe counts, and like counts. Close button only.
 
-**Guest Mode** - Browse recipes without account creation. Full access to search, filtering, and viewing content. Read-only access to reviews and ratings. No analytics tracking or session logging.
+**Guest Mode** - Browse recipes without account creation. Full access to search, filtering, and viewing content. Read-only access to reviews and ratings. Uses localStorage for session ID only (no backend persistence).
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js v18 or higher
 - npm (included with Node.js)
+- MongoDB Atlas account (for backend storage)
 
 ### Installation
 
@@ -80,14 +82,22 @@ All dashboard metrics are computed from real-time data, refreshed on user/recipe
 git clone <repository-url>
 cd Kitchen_Odyssey
 
-# Install dependencies
+# Install frontend dependencies
 npm install
 
-# Start development server
-npm run dev
+# Start backend (in ../kitchen-odyssey-backend)
+cd ../kitchen-odyssey-backend
+npm install
+npm run dev    # Backend on http://localhost:3000
+
+# Start frontend (in Kitchen_Odyssey)
+cd Kitchen_Odyssey
+npm run dev     # Frontend on http://localhost:5173
 ```
 
-The application will be available at `http://localhost:5173`
+The application requires both backend and frontend running:
+- **Backend API**: http://localhost:3000/api/v1
+- **Frontend UI**: http://localhost:5173
 
 ### Build for Production
 
@@ -102,17 +112,16 @@ npm run preview
 npm run lint
 ```
 
-### Runtime Feature Flags
+### Environment Configuration
 
-The frontend supports hybrid runtime modes during backend migration:
+Frontend environment variables (`.env`):
 
-| Flag | Description |
-|------|-------------|
-| `VITE_USE_BACKEND_API=true` | Enables backend API mode |
-| `VITE_USE_BACKEND_API=false` | Uses local storage mode (default) |
-| `VITE_ENABLE_READ_FALLBACK=true` | API failures fall back to local storage |
+| Flag | Description | Default |
+|------|-------------|---------|
+| `VITE_USE_BACKEND_API` | Enables backend API mode | `true` |
+| `VITE_API_BASE_URL` | Backend API base URL | `http://localhost:3000/api/v1` |
 
-**Note:** When backend mode is enabled with read fallback enabled, recoverable API failures (network/5xx) fall back to local storage for resilient browsing and core interactions.
+**Note:** Backend mode is required for all authenticated operations. Guest mode uses localStorage for session ID only.
 
 ### Testing
 
@@ -126,15 +135,31 @@ npx playwright test --reporter=list
 # Run specific test file
 npx playwright test tests/guest-mode.spec.js
 
+# Run comprehensive end-to-end regression tests
+npx playwright test tests/comprehensive.spec.js --reporter=list
+
 # Run tests in headed mode (visible browser)
 npx playwright test --headed
 ```
 
-**Test Coverage (32 automated tests):**
+**Test Coverage:**
+- `comprehensive.spec.js` — Full regression coverage for auth, guest mode, discovery/search, recipe interactions, profile flows, admin dashboard, user management, recipe moderation, and sign out.
+- Extended comprehensive scenarios also validate review-upsert updates, search-history persistence after reload, admin metric/report consistency, and user-email search in admin management.
+- `guest-transitions.spec.js` - Includes a transient refresh failure regression check to ensure logged-in users are not switched to Guest UI state.
 - `guest-mode.spec.js` — 13 tests (functionality + blocking)
 - `guest-analytics.spec.js` — 4 tests (analytics isolation)
 - `guest-transitions.spec.js` — 5 tests (mode transitions)
 - `random-recipe.spec.js` — 11 tests (Surprise Me feature)
+
+**Backend validation + clean reset for deterministic runs:**
+```bash
+# Backend tests
+cd ../kitchen-odyssey-backend
+npm test
+
+# Reset database seed data after E2E runs
+node src/scripts/seed.js --clean
+```
 
 ## Project Team
 
@@ -185,10 +210,11 @@ Kitchen_Odyssey/
 - **date-fns 4.1.0** - Date manipulation
 - **clsx 2.1.1 + tailwind-merge 3.4.0** - Intelligent class merging
 
-**Data Storage:**
-- **localStorage** - Client-side persistence (demonstration mode)
-- **Pre-populated test data** - Multiple users, recipes, and accounts ready for testing
-- **Backend API** - MongoDB Atlas integration (migration in progress)
+**Backend Integration:**
+- **Backend API** - Next.js 16.1.6 with MongoDB Atlas
+- **Authentication** - JWT with HttpOnly cookies (access + refresh tokens)
+- **Data Storage** - MongoDB Atlas (`kitchen_odyssey` database)
+- **Guest Mode** - Minimal localStorage for session ID only (no backend persistence)
 
 ## Design System
 
@@ -232,17 +258,18 @@ See [DESIGN.md](DESIGN.md) for complete design specifications with 60-30-10 harm
 
 ## Reset Application Data
 
-After code changes to seed data, reset localStorage to apply changes:
+After code changes to seed data, reset the backend database:
 
-**Option 1: Browser Console**
-```javascript
-import { storage } from './src/lib/storage.js';
-storage.resetData();
+**Backend (kitchen-odyssey-backend):**
+```bash
+# Drop and re-seed MongoDB Atlas database
+cd ../kitchen-odyssey-backend
+node src/scripts/seed.js --clean
 ```
 
-**Option 2: DevTools**
-- Open DevTools → Application → Local Storage
-- Delete all `kitchen_odyssey_*` entries, then refresh
+**Frontend (Guest Mode Only):**
+- Guest mode uses localStorage for session ID only
+- To reset guest session: Open DevTools → Application → Local Storage → Delete `kitchen_odyssey_guest_id`
 
 ## Test Credentials
 

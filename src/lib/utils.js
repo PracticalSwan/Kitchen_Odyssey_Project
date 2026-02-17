@@ -26,3 +26,9 @@ export const normalizeCategories = (value) => {
     if (typeof value === 'string' && value.trim()) return [value]
     return []
 }
+
+export const formatCount = (count) => {
+    if (count < 1000) return count.toString();
+    if (count < 1000000) return Math.floor(count / 1000) + 'K';
+    return Math.floor(count / 1000000) + 'M';
+}

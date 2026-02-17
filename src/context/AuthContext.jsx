@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
                 const currentUser = await storage.getCurrentUser();
                 if (currentUser) {
                     setUser(currentUser);
+                    setIsGuest(false);
                 } else {
                     // No active session — check for guest mode
                     try {
@@ -40,18 +41,23 @@ export function AuthProvider({ children }) {
                 }
             } catch (error) {
                 console.error("Failed to load user session", error);
-                // Check for guest mode even on API failure
-                try {
-                    const guestId = localStorage.getItem('kitchen_odyssey_guest_id');
-                    if (guestId) {
-                        setIsGuest(true);
-                    }
-                } catch { /* ignore */ }
+                // Do not auto-enter guest mode on transient API failures.
             } finally {
                 setLoading(false);
             }
         }
         restoreSession();
+
+        // Handle session expiration event from API client
+        const handleSessionExpired = () => {
+            setUser(null);
+            setIsGuest(false);
+        };
+
+        window.addEventListener('auth:session-expired', handleSessionExpired);
+        return () => {
+            window.removeEventListener('auth:session-expired', handleSessionExpired);
+        };
     }, []);
 
     // Activity tracking: the backend records lastActive on each authenticated request

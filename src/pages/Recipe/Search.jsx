@@ -9,6 +9,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { storageApi as storage } from '../../lib/storageApiAdapter';
+import { useAuth } from '../../context/AuthContext';
 import { useToast, formatError } from '../../components/ui/Toast';
 import { RecipeCard } from '../../components/recipe/RecipeCard';
 import { Input } from '../../components/ui/Input';
@@ -26,6 +27,7 @@ const SORT_OPTIONS = [
 
 export function Search() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const { user, isGuest } = useAuth();
     const toast = useToast();
     const query = searchParams.get('q') || '';
     const urlCategory = searchParams.get('category') || 'All';
@@ -33,14 +35,12 @@ export function Search() {
     const sortParam = searchParams.get('sort');
     const urlSort = SORT_OPTIONS.some(opt => opt.value === sortParam) ? sortParam : 'trending';
 
-    const getCurrentUserId = async () => {
-        try {
-            const user = await storage.getCurrentUser();
-            return user?.id || user?._id || (storage.getOrCreateGuestId ? `guest:${storage.getOrCreateGuestId()}` : null);
-        } catch {
-            return storage.getOrCreateGuestId ? `guest:${storage.getOrCreateGuestId()}` : null;
-        }
-    };
+    const resolvedUserId = useMemo(() => {
+        const currentUserId = user?._id || user?.id;
+        if (currentUserId) return currentUserId;
+        if (!isGuest) return null;
+        return storage.getOrCreateGuestId ? `guest:${storage.getOrCreateGuestId()}` : null;
+    }, [user, isGuest]);
 
     const [recipes, setRecipes] = useState([]);
 
@@ -65,15 +65,14 @@ export function Search() {
                 setRecipes(allRecipes.filter(r => r.status === 'published'));
             } catch (err) { toast.error(formatError(err)); }
             try {
-                const userId = await getCurrentUserId();
-                if (userId) {
-                    const history = await storage.getSearchHistory(userId);
+                if (resolvedUserId) {
+                    const history = await storage.getSearchHistory(resolvedUserId);
                     setSearchHistory((history || []).slice(0, 5));
                 }
             } catch (err) { toast.error(formatError(err)); }
         };
         init();
-    }, []);
+    }, [resolvedUserId, toast]);
 
     // Debounce keyword before logging to storage (1.5s delay)
     useEffect(() => {
@@ -125,7 +124,7 @@ export function Search() {
             window.removeEventListener('recipeUpdated', refreshRecipes);
             window.removeEventListener('favoriteToggled', refreshRecipes);
         };
-    }, []);
+    }, [toast]);
 
     // Log search to history after debounce (skip initial mount)
     useEffect(() => {
@@ -139,17 +138,16 @@ export function Search() {
 
         const logSearch = async () => {
             try {
-                await storage.addSearchHistory({ query: trimmedKeyword });
+                await storage.addSearchHistory({ userId: resolvedUserId, query: trimmedKeyword });
                 lastLoggedKeywordRef.current = trimmedKeyword;
-                const userId = await getCurrentUserId();
-                if (userId) {
-                    const history = await storage.getSearchHistory(userId);
+                if (resolvedUserId) {
+                    const history = await storage.getSearchHistory(resolvedUserId);
                     setSearchHistory((history || []).slice(0, 5));
                 }
             } catch (err) { toast.error(formatError(err)); }
         };
         logSearch();
-    }, [debouncedKeyword]);
+    }, [debouncedKeyword, resolvedUserId, toast]);
 
     // Filter and sort recipes
     const filteredRecipes = useMemo(() => {
@@ -218,9 +216,9 @@ export function Search() {
 
     const clearHistory = async () => {
         try {
-            await storage.clearSearchHistory();
+            await storage.clearSearchHistory(resolvedUserId);
+            setSearchHistory([]);
         } catch (err) { toast.error(formatError(err)); }
-        setSearchHistory([]);
     };
 
     const hasActiveFilters = (filters.category?.length > 0) || filters.difficulty !== 'All';

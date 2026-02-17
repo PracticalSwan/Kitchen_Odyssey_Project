@@ -7,6 +7,7 @@
  * Route protection is handled at the layout level (AuthLayout, RootLayout, AdminLayout)
  * rather than through wrapper components for better performance and cleaner code.
  */
+import { lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/ui/Toast';
@@ -15,17 +16,17 @@ import { AuthLayout } from './layouts/AuthLayout';
 import { RootLayout } from './layouts/RootLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 
-import { Login } from './pages/Auth/Login';
-import { Signup } from './pages/Auth/Signup';
-import { Home } from './pages/Recipe/Home';
-import { Search } from './pages/Recipe/Search';
-import { RecipeDetail } from './pages/Recipe/RecipeDetail';
-import { CreateRecipe } from './pages/Recipe/CreateRecipe';
-import { Profile } from './pages/Recipe/Profile';
-
-import { AdminStats } from './pages/Admin/AdminStats';
-import { UserList } from './pages/Admin/UserList';
-import { AdminRecipes } from './pages/Admin/AdminRecipes';
+// Code-split page components for better initial load performance
+const Login = lazy(() => import('./pages/Auth/Login').then(m => ({ default: m.Login })));
+const Signup = lazy(() => import('./pages/Auth/Signup').then(m => ({ default: m.Signup })));
+const Home = lazy(() => import('./pages/Recipe/Home').then(m => ({ default: m.Home })));
+const Search = lazy(() => import('./pages/Recipe/Search').then(m => ({ default: m.Search })));
+const RecipeDetail = lazy(() => import('./pages/Recipe/RecipeDetail').then(m => ({ default: m.RecipeDetail })));
+const CreateRecipe = lazy(() => import('./pages/Recipe/CreateRecipe').then(m => ({ default: m.CreateRecipe })));
+const Profile = lazy(() => import('./pages/Recipe/Profile').then(m => ({ default: m.Profile })));
+const AdminStats = lazy(() => import('./pages/Admin/AdminStats').then(m => ({ default: m.AdminStats })));
+const UserList = lazy(() => import('./pages/Admin/UserList').then(m => ({ default: m.UserList })));
+const AdminRecipes = lazy(() => import('./pages/Admin/AdminRecipes').then(m => ({ default: m.AdminRecipes })));
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
     <AuthProvider>
       <ErrorBoundary>
       <Router>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-warm-gray-60">Loading...</div>}>
         <Routes>
           {/* Auth Routes - No authentication required, minimal layout */}
           <Route element={<AuthLayout />}>
@@ -66,6 +68,7 @@ function App() {
           {/* Catch All - Redirect unknown routes to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
       </Router>
       </ErrorBoundary>
     </AuthProvider>

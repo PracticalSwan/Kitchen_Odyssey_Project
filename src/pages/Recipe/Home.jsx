@@ -46,13 +46,36 @@ export function Home() {
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const [randomSuggestion, setRandomSuggestion] = useState(null);
     const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
+    const [usersMap, setUsersMap] = useState(null);
+    const [ratingsMap, setRatingsMap] = useState(null);
     const navigate = useNavigate();
 
     const loadRecipes = useCallback(async () => {
         try {
             setIsLoading(true);
-            const recipes = await storage.getRecipes();
-            setAllPublished(recipes.filter(r => r.status === 'published'));
+            const [recipes, users] = await Promise.all([
+                storage.getRecipes(),
+                storage.getUsers(),
+            ]);
+            const published = recipes.filter(r => r.status === 'published');
+            setAllPublished(published);
+
+            // Build users lookup map
+            const uMap = new Map();
+            users.forEach(u => uMap.set(u._id || u.id, u));
+            setUsersMap(uMap);
+
+            // Batch-fetch ratings for all published recipes
+            const ratingEntries = await Promise.all(
+                published.map(async (r) => {
+                    const rid = r._id || r.id;
+                    try {
+                        const avg = await storage.getAverageRating(rid);
+                        return [rid, avg];
+                    } catch { return [rid, 0]; }
+                })
+            );
+            setRatingsMap(new Map(ratingEntries));
         } catch (err) {
             toast.error(formatError(err));
         } finally {
@@ -256,7 +279,7 @@ export function Home() {
                     <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                         {visibleRecipes.length > 0 ? (
                             visibleRecipes.map(recipe => (
-                                <RecipeCard key={recipe._id || recipe.id} recipe={recipe} onFavoriteToggle={loadRecipes} />
+                                <RecipeCard key={recipe._id || recipe.id} recipe={recipe} onFavoriteToggle={loadRecipes} usersMap={usersMap} ratingsMap={ratingsMap} />
                             ))
                         ) : (
                             <p className="col-span-full text-center text-warm-gray-60 py-10">

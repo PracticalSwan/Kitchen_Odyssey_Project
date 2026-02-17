@@ -52,8 +52,18 @@ export function Signup() {
             return;
         }
 
-        if (formData.password.length < 4) {
-            setError('Password must be at least 4 characters');
+        if (formData.password.length < 8) {
+            setError('Password must be at least 8 characters');
+            return;
+        }
+
+        if (!/[A-Z]/.test(formData.password)) {
+            setError('Password must include at least one uppercase letter');
+            return;
+        }
+
+        if (!/[0-9]/.test(formData.password)) {
+            setError('Password must include at least one number');
             return;
         }
 
