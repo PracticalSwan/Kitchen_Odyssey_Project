@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
-import { LayoutDashboard, Users, FileText, LogOut, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LogOut } from 'lucide-react';
 
 const NAV_ITEMS = [
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -11,7 +11,7 @@ const NAV_ITEMS = [
 ];
 
 export function Sidebar() {
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -49,7 +49,25 @@ export function Sidebar() {
                 })}
             </div>
 
-            <div className="border-t border-cool-gray-20 p-4">
+            <div className="border-t border-cool-gray-20 p-4 space-y-3">
+                <div className="flex items-center gap-3 rounded-lg bg-cool-gray-10 px-3 py-2.5">
+                    {user?.avatar ? (
+                        <img
+                            src={user.avatar}
+                            alt={user?.username || 'Admin'}
+                            className="h-9 w-9 rounded-full object-cover border border-cool-gray-20"
+                        />
+                    ) : (
+                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand/10 text-sm font-semibold text-brand">
+                            {(user?.username || 'A').slice(0, 1).toUpperCase()}
+                        </span>
+                    )}
+                    <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-cool-gray-90">{user?.username || 'Admin'}</p>
+                        <p className="text-[11px] text-cool-gray-60">{user?.role === 'admin' ? 'Super Admin' : 'Admin'}</p>
+                    </div>
+                </div>
+
                 <button
                     onClick={handleLogout}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
