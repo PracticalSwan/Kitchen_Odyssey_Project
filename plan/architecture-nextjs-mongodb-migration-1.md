@@ -5,7 +5,7 @@ goal: Migrate Kitchen Odyssey from frontend-only localStorage architecture to sp
 # Introduction
 
 
-This plan defines a deterministic migration path from the current localStorage-based architecture to a split system with the existing React/Vite frontend (`Project2/Kitchen_Odyssey`) and a new Next.js backend service in the sibling folder `Project2/Kitchen_Odyssey_Backend` (currently not created yet), backed by MongoDB Atlas Free Tier. The plan explicitly preserves all existing logic and event behavior, aligns with `plan/design-overhaul-1.md`, and includes exhaustive testing for functional, integration, regression, security, performance, accessibility, and edge-case coverage.
+This plan defines a deterministic migration path from the current localStorage-based architecture to a split system with the existing React/Vite frontend (`Project2/Kitchen_Odyssey`) and a new Next.js backend service in the sibling folder `Project2/kitchen-odyssey-backend` (created with Next.js 16.1.6, JavaScript, App Router, `src/` structure), backed by MongoDB Atlas Free Tier. The plan explicitly preserves all existing logic and event behavior, aligns with `plan/design-overhaul-1.md`, and includes exhaustive testing for functional, integration, regression, security, performance, accessibility, and edge-case coverage.
 
 ## 1. Requirements & Constraints
 
