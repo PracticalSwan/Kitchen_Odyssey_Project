@@ -63,7 +63,7 @@ export function AuthProvider({ children }) {
             window.removeEventListener('beforeunload', handleExit);
             window.removeEventListener('pagehide', handleExit);
         };
-    }, [user]);
+    }, [user, isGuest]);
 
     useEffect(() => {
         if (!user?.id) return;

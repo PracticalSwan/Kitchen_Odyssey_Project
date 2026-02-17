@@ -1,39 +1,11 @@
 ﻿---
 goal: Migrate Kitchen Odyssey from frontend-only localStorage architecture to split Frontend + Next.js Backend + MongoDB Atlas while preserving all existing logic and design-overhaul compatibility
-version: 2.1
-date_created: 2026-02-17
-last_updated: 2026-02-17
-owner: Project Team
-status: 'Planned'
-tags: ['architecture', 'migration', 'nextjs', 'mongodb-atlas', 'api', 'testing', 'non-breaking', 'design-overhaul', 'security', 'edge-cases']
 ---
 
 # Introduction
 
-![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
 
 This plan defines a deterministic migration path from the current localStorage-based architecture to a split system with the existing React/Vite frontend (`Project2/Kitchen_Odyssey`) and a new Next.js backend service in the sibling folder `Project2/Kitchen_Odyssey_Backend` (currently not created yet), backed by MongoDB Atlas Free Tier. The plan explicitly preserves all existing logic and event behavior, aligns with `plan/design-overhaul-1.md`, and includes exhaustive testing for functional, integration, regression, security, performance, accessibility, and edge-case coverage.
-
-## Changelog
-
-### Version 2.1 (2026-02-17)
-- **Folder Layout Lock-In**: Standardized backend folder path to `Project2/Kitchen_Odyssey_Backend` across requirements, tasks, dependencies, and file map.
-- **Deployment Target Fix**: Switched primary deployment strategy to Azure VM (project-aligned) instead of Vercel-first assumptions.
-- **Atlas Free-Tier Hardening**: Added mandatory connection/query/index/retention controls and threshold-based monitoring strategy.
-- **Deterministic Bootstrap**: Added explicit backend bootstrap steps for a folder that does not yet exist.
-- **Flag Consistency**: Standardized rollout toggle to `VITE_USE_BACKEND_API`.
-- **Next.js Alignment**: Replaced Express-style security wording with Next.js route-handler and middleware-oriented controls.
-
-### Version 2.0 (2026-02-17)
-- **Major Expansion**: Added comprehensive edge cases section with 10+ scenarios
-- **Authentication Strategy**: Added dedicated section on JWT auth, session management, token refresh
-- **Deployment Considerations**: Added CORS, environment-specific configurations, deployment targets
-- **New Tasks**: Added 15+ tasks across phases covering gaps (dev config, missing endpoints, security hardening)
-- **API Contract**: Expanded to cover all storage.js functions (stats, activity, search history)
-- **Security Enhancements**: Added CSRF, NoSQL injection prevention, helmet.js, request size limits
-- **Frontend Integration**: Added optimistic updates, request deduplication, auth interceptors
-- **Testing Strategy**: Added dual-mode testing approach with detailed test execution plan
-- **Supporting Documents**: References to new supporting docs for API contract, data mapping, security, testing
 
 ## 1. Requirements & Constraints
 
@@ -1116,57 +1088,7 @@ MONGODB_URI=mongodb+srv://.../kitchen_odyssey_test
 - Use transactions for isolation
 - Cleanup after test completion
 
-## 8. Alternatives
-
-- **ALT-001**: Use only Next.js full-stack (move frontend into Next.js app).
-  - Rejected because current requirement keeps existing frontend project and minimizes disruption to design-overhaul sequencing.
-- **ALT-002**: Keep localStorage and add backend only for analytics.
-  - Rejected because it does not satisfy durable multi-user data consistency and admin moderation integrity.
-- **ALT-003**: Use Firebase/Supabase instead of MongoDB Atlas.
-  - Rejected due to explicit requirement for MongoDB Atlas Free.
-- **ALT-004**: Big-bang cutover without fallback.
-  - Rejected due to high regression risk and requirement to not break existing logic.
-- **ALT-005**: Use session-based auth instead of JWT.
-  - Rejected because JWT provides better scalability and simpler state management.
-- **ALT-006**: Migrate frontend to Next.js App Router.
-  - Rejected due to scope; keeping Vite frontend minimizes disruption.
-
-## 9. Dependencies
-
-- **DEP-001**: Existing frontend project at `Project2/Kitchen_Odyssey`.
-- **DEP-002**: Existing plan `Kitchen_Odyssey/plan/design-overhaul-1.md`.
-- **DEP-003**: Existing guest mode and random suggestion plans already completed.
-- **DEP-004**: Node.js LTS runtime for frontend and backend workspaces.
-- **DEP-005**: MongoDB Atlas Free cluster and credentials.
-- **DEP-006**: Playwright framework in frontend and test runner setup for backend.
-- **DEP-007**: CI pipeline capable of running dual-workspace test jobs.
-- **DEP-008**: `Kitchen_Odyssey/plan/docs/api-contract-specification-1.md` (detailed OpenAPI contract)
-- **DEP-009**: `Kitchen_Odyssey/plan/docs/migration-data-mapping-1.md` (field-by-field mapping)
-- **DEP-010**: `Kitchen_Odyssey/plan/docs/security-considerations-1.md` (security patterns)
-- **DEP-011**: `Kitchen_Odyssey/plan/docs/testing-strategy-1.md` (detailed testing approach)
-
-## 10. Files
-
-- **FILE-001**: `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-1.md` (this plan)
-- **FILE-002**: `Kitchen_Odyssey/plan/docs/api-contract-specification-1.md` (OpenAPI contract details)
-- **FILE-003**: `Kitchen_Odyssey/plan/docs/migration-data-mapping-1.md` (localStorage â†’ Mongo mapping)
-- **FILE-004**: `Kitchen_Odyssey/plan/docs/security-considerations-1.md` (NoSQL injection, auth patterns)
-- **FILE-005**: `Kitchen_Odyssey/plan/docs/testing-strategy-1.md` (dual-mode testing details)
-- **FILE-006**: `Kitchen_Odyssey/plan/compatibility-matrix-localstorage-to-api-1.md`
-- **FILE-007**: `Kitchen_Odyssey/plan/dependency-map-design-overhaul-and-backend-migration-1.md`
-- **FILE-008**: `Kitchen_Odyssey/src/lib/apiClient.js`
-- **FILE-009**: `Kitchen_Odyssey/src/lib/storageApiAdapter.js`
-- **FILE-010**: `Kitchen_Odyssey/src/lib/eventsBridge.js`
-- **FILE-011**: `Kitchen_Odyssey/src/lib/featureFlags.js`
-- **FILE-012**: `Project2/Kitchen_Odyssey_Backend/app/api/v1/**`
-- **FILE-013**: `Project2/Kitchen_Odyssey_Backend/models/**`
-- **FILE-014**: `Project2/Kitchen_Odyssey_Backend/repositories/**`
-- **FILE-015**: `Project2/Kitchen_Odyssey_Backend/services/**`
-- **FILE-016**: `Project2/Kitchen_Odyssey_Backend/lib/security/**`
-- **FILE-017**: `Project2/Kitchen_Odyssey_Backend/tests/**`
-- **FILE-018**: `Project2/Kitchen_Odyssey_Backend/docs/openapi.yaml`
-
-## 11. Testing
+## 8. Test Matrix
 
 - **TEST-001**: Baseline snapshot tests (current localStorage behavior) must pass before migration starts.
 - **TEST-002**: API unit tests for every repository/service function: success + failure + boundary cases.
@@ -1191,7 +1113,7 @@ MONGODB_URI=mongodb+srv://.../kitchen_odyssey_test
 - **TEST-021**: Timezone tests: daily stats aggregation across timezones, UTC storage correctness.
 - **TEST-022**: Storage limit tests: MongoDB Atlas free-tier quota monitoring, TTL/retention behavior, and archival triggers.
 
-## 12. Risks & Assumptions
+## 9. Risks & Assumptions
 
 ### Risks
 
@@ -1228,30 +1150,5 @@ MONGODB_URI=mongodb+srv://.../kitchen_odyssey_test
 - **ASSUMPTION-008**: All timestamps will be stored in UTC for consistency.
 - **ASSUMPTION-009**: Image upload is out of scope for v1.0 migration (URL-only approach).
 - **ASSUMPTION-010**: Guest view history will not migrate to user accounts on signup.
-
-## 13. Related Specifications / Further Reading
-
-### Project Plans
-- `Kitchen_Odyssey/plan/design-overhaul-1.md`
-- `Kitchen_Odyssey/plan/feature-guest-mode-1.md`
-- `Kitchen_Odyssey/plan/feature-random-recipe-suggestion-1.md`
-
-### Supporting Documentation (docs/)
-- `Kitchen_Odyssey/plan/docs/api-contract-specification-1.md` - Complete API endpoint documentation
-- `Kitchen_Odyssey/plan/docs/migration-data-mapping-1.md` - Field-by-field localStorage â†’ MongoDB mapping
-- `Kitchen_Odyssey/plan/docs/security-considerations-1.md` - NoSQL injection prevention, auth patterns
-- `Kitchen_Odyssey/plan/docs/testing-strategy-1.md` - Dual-mode testing approach
-
-### Source Code
-- `Kitchen_Odyssey/src/lib/storage.js` - Current localStorage implementation
-- `Kitchen_Odyssey/src/context/AuthContext.jsx` - Authentication context
-- `Kitchen_Odyssey/tests/*.spec.js` - Existing test suites
-
-### External References
-- Next.js App Router API documentation
-- MongoDB Atlas documentation
-- Playwright testing documentation
-- JWT authentication best practices
-- OWASP API Security Top 10
 
 

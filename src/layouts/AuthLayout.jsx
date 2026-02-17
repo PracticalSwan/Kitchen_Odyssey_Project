@@ -4,9 +4,9 @@ import Logo from '../assets/Logo.png';
 
 export function AuthLayout() {
     return (
-        <div className="min-h-screen grid lg:grid-cols-5 bg-[#f5f7fa]">
+        <div className="min-h-screen grid lg:grid-cols-5 bg-white">
             {/* Left: Form */}
-            <div className="flex flex-col items-center justify-center p-8 bg-[#f5f7fa] lg:col-span-3">
+            <div className="flex flex-col items-center justify-center p-8 bg-white lg:col-span-3">
                 <div className="w-full max-w-md space-y-6 rounded-xl border border-cool-gray-20 bg-white p-8 shadow-sm">
                     <div className="flex justify-center mb-6">
                         <img src={Logo} alt="Kitchen Odyssey Logo" className="h-14 w-auto" />

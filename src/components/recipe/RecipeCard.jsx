@@ -5,19 +5,21 @@ import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { storage } from '../../lib/storage';
 import { useAuth } from '../../context/AuthContext';
-import { cn } from '../../lib/utils';
+import { cn, normalizeCategories } from '../../lib/utils';
 
 export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
     const { user, canInteract, isGuest } = useAuth();
     const [isLiked, setIsLiked] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
+    const [optimisticLikeCount, setOptimisticLikeCount] = useState(null);
 
-    const reviews = storage.getReviews(recipe.id) || [];
     const averageRating = storage.getAverageRating(recipe.id);
     const displayRating = averageRating > 0 ? averageRating.toFixed(1) : null;
 
+    const categories = normalizeCategories(recipe.categories ?? recipe.category);
     const author = storage.getUsers().find(u => u.id === recipe.authorId);
     const authorName = author ? author.username : `User ${recipe.authorId}`;
+    const likeCount = optimisticLikeCount ?? (recipe.likedBy?.length || 0);
 
     const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
     const timeLabel = totalTime >= 60 ? `${Math.round(totalTime / 60)} hr` : `${totalTime} min`;
@@ -43,6 +45,7 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
         if (!user || !canInteract) return;
         const result = storage.toggleLike(user.id, recipe.id);
         setIsLiked(result.liked);
+        setOptimisticLikeCount(result.count);
         if (onFavoriteToggle) onFavoriteToggle();
         window.dispatchEvent(new CustomEvent('recipeUpdated'));
     };
@@ -96,6 +99,17 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
 
                 {/* Info */}
                 <div className="flex flex-col flex-1 p-3 gap-2">
+                    {/* Category tags */}
+                    {categories.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            {categories.slice(0, 3).map((cat) => (
+                                <Badge key={cat} variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-full capitalize">
+                                    {cat}
+                                </Badge>
+                            ))}
+                        </div>
+                    )}
+
                     <div className="flex items-start justify-between gap-1">
                         <h3 className="text-sm font-bold text-cool-gray-90 line-clamp-1 group-hover:text-brand-accent flex-1">
                             {recipe.title}
@@ -115,13 +129,23 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
                         </button>
                     </div>
 
+                    <p className="text-xs leading-5 text-cool-gray-60 line-clamp-2">
+                        {recipe.description}
+                    </p>
+
                     {/* Rating */}
-                    {displayRating && (
-                        <div className="flex items-center gap-1" role="img" aria-label={`Rating: ${displayRating} out of 5`}>
-                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                            <span className="text-xs font-semibold text-cool-gray-90">{displayRating}</span>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-2 text-xs text-cool-gray-60">
+                        {displayRating && (
+                            <div className="flex items-center gap-1" role="img" aria-label={`Rating: ${displayRating} out of 5`}>
+                                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                                <span className="font-semibold text-cool-gray-90">{displayRating}</span>
+                            </div>
+                        )}
+                        <span className="inline-flex items-center gap-1">
+                            <Heart className="h-3.5 w-3.5" />
+                            {likeCount} {likeCount === 1 ? 'like' : 'likes'}
+                        </span>
+                    </div>
 
                     {/* Author + difficulty */}
                     <div className="mt-auto flex items-center justify-between text-[11px] text-cool-gray-60">

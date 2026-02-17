@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/Button';
 import { Search, X, Sparkles, Flame, Clock, Leaf, Cake, Sunrise, ThumbsUp, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { RecipeSuggestionModal } from '../../components/recipe/RecipeSuggestionModal';
-import { cn } from '../../lib/utils';
+import { cn, normalizeCategories } from '../../lib/utils';
 
 const FILTER_CHIPS = [
     { key: 'trending', label: 'Trending', icon: Flame },
@@ -24,7 +24,7 @@ const SORT_OPTIONS = [
     { value: 'title', label: 'A–Z' },
 ];
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 30;
 
 export function Home() {
     const [allPublished, setAllPublished] = useState(() =>
@@ -66,17 +66,20 @@ export function Home() {
                     break;
                 case 'vegetarian':
                     list = list.filter(r =>
-                        r.categories?.some(c => c.toLowerCase().includes('vegetarian') || c.toLowerCase().includes('vegan'))
+                        normalizeCategories(r.categories ?? r.category)
+                            .some(c => c.toLowerCase().includes('vegetarian') || c.toLowerCase().includes('vegan'))
                     );
                     break;
                 case 'desserts':
                     list = list.filter(r =>
-                        r.categories?.some(c => c.toLowerCase().includes('dessert') || c.toLowerCase().includes('baking'))
+                        normalizeCategories(r.categories ?? r.category)
+                            .some(c => c.toLowerCase().includes('dessert') || c.toLowerCase().includes('baking'))
                     );
                     break;
                 case 'breakfast':
                     list = list.filter(r =>
-                        r.categories?.some(c => c.toLowerCase().includes('breakfast'))
+                        normalizeCategories(r.categories ?? r.category)
+                            .some(c => c.toLowerCase().includes('breakfast'))
                     );
                     break;
                 case 'easy':
@@ -104,7 +107,7 @@ export function Home() {
     }, [allPublished, activeFilter, sortBy]);
 
     const visibleRecipes = filteredRecipes.slice(0, visibleCount);
-    const hasMore = visibleCount < filteredRecipes.length;
+    const hasMore = filteredRecipes.length > PAGE_SIZE && visibleCount < filteredRecipes.length;
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -172,7 +175,7 @@ export function Home() {
             {/* Filters + Sort Bar */}
             <section className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                    {FILTER_CHIPS.map(({ key, label, icon: Icon }) => (
+                    {FILTER_CHIPS.map(({ key, label, icon }) => (
                         <button
                             key={key}
                             onClick={() => handleFilterClick(key)}
@@ -183,7 +186,7 @@ export function Home() {
                                     : "bg-white text-cool-gray-60 border-cool-gray-20 hover:border-brand hover:text-brand"
                             )}
                         >
-                            <Icon className="h-4 w-4" />
+                            {React.createElement(icon, { className: 'h-4 w-4' })}
                             {label}
                         </button>
                     ))}

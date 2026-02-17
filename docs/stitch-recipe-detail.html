@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recipe Detail View - Cookhub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .custom-checkbox:checked + div {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased min-h-screen flex flex-col">
+<!-- Navbar -->
+<header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+<div class="px-40 flex h-16 items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-slate-900 dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight">Cookhub</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary text-sm font-medium transition-colors" href="#">Recipes</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary text-sm font-medium transition-colors" href="#">Meal Plans</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary text-sm font-medium transition-colors" href="#">Community</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center w-64 rounded-lg bg-slate-100 dark:bg-slate-800 px-3 py-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">search</span>
+<input class="w-full bg-transparent border-none text-sm ml-2 placeholder-slate-400 focus:ring-0 p-0 text-slate-900 dark:text-white" placeholder="Search recipes..." type="text"/>
+</div>
+<div class="relative group cursor-pointer">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-9 ring-2 ring-slate-200 dark:ring-slate-700" data-alt="User avatar profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCt93J9qGd4nw8itcpQRh_h6Xi30iSRCA6CLsXGAgIxGdFaQv9bRhHLDvz3u0CwbPOo5UG9ierah0SPg3V-Kyuhgb2DT4G6fmQqiRcxPNAL4mOMccBCyCjWo0hwSCwi_TC0Ahwl9uI6Wuhrsovrf4ekY4lvvXwdLydTeJtPvLd3XPyHGm8ed_2TnNdmW88eki6JdrlG-QaonJ2KLHROz-Sk-ERDWQcmSXihNXrEI_MtUSuE8fRDiM5Dd2kJu7DGzcAAaVs_HCZCB_lk");'></div>
+<!-- Status Indicator -->
+<div class="absolute bottom-0 right-0 size-3 bg-yellow-400 border-2 border-white dark:border-slate-900 rounded-full" title="Pending Approval"></div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 w-full max-w-[1280px] mx-auto px-6 md:px-12 lg:px-40 py-8">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap items-center gap-2 mb-6 text-sm text-slate-500 dark:text-slate-400">
+<a class="hover:text-primary transition-colors" href="#">Home</a>
+<span class="text-slate-300 dark:text-slate-600">/</span>
+<a class="hover:text-primary transition-colors" href="#">Recipes</a>
+<span class="text-slate-300 dark:text-slate-600">/</span>
+<span class="text-slate-900 dark:text-slate-100 font-medium">Soups</span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- Left Column: Content (60%) -->
+<div class="lg:col-span-7 space-y-8">
+<!-- Recipe Header -->
+<div>
+<h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white leading-tight mb-4">Rustic Roasted Tomato Basil Soup</h1>
+<div class="flex items-center justify-between flex-wrap gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10" data-alt="Author profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAKJW4TLJXEXNJSlvf8_ZGvatrSkC8kZv6fvDMxyU42k34E-w6ckS_1cRiMdJsl6iS6VBFg0JjlMn6Fk1S-Aki3Hk0oRx9JieiB5oyNm1NyNU0NSu-qchqOMcg5y9tgCFs230bZlmDzs-w4E93rgo6XKYlUTpEn5PqVQBGCs5NEnJGIGMXbH5sKQEBdDPNMr98mUTNIgDkbCFDG2T9sFeGSFnRJMvFsHQXJW08X1leGY61-sAZnKKgwXG0R_3fTgGK8oMhJhnf5WvfP");'></div>
+<div>
+<p class="text-slate-900 dark:text-white font-semibold text-sm">Sarah Jenkins</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Posted 2 hours ago • 45 min prep</p>
+</div>
+</div>
+<!-- Interaction Bar (Disabled for Pending) -->
+<div class="flex items-center gap-2 group relative">
+<!-- Tooltip container -->
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-lg">
+                                Account pending approval
+                                <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45"></div>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" disabled="">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+<span class="font-medium text-sm">Like</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" disabled="">
+<span class="material-symbols-outlined text-[20px]">bookmark</span>
+<span class="font-medium text-sm">Save</span>
+</button>
+<button class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" disabled="">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Hero Image -->
+<div class="w-full aspect-video rounded-xl overflow-hidden shadow-sm">
+<div class="w-full h-full bg-center bg-no-repeat bg-cover hover:scale-105 transition-transform duration-700" data-alt="Bowl of tomato soup with basil" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAxOcI-OXr3ZGGMdTCqw5loirAX8TAbRVNqfFjIWDQRmePZ4TO-2rpQEC4Po7CkpKoHWcgDjgoEAZDfW61mFSKkBgknxDKpXf_ri6v3Lz__njctm-A-ThNwC2F3E7VQ0_Htkm7YQlJ5vZHpPQjSOApMzisFFxGDpSFwwBuoInkYIwTeU6aedN5uuvOSk0qCP0MXtDmuYBVABu3Stl0RRvftdipahKjL5HwPrVYFCTR8Kutzgcuz3747hvfcebcPPMyzsWwLucJEaHD8");'></div>
+</div>
+<!-- Description -->
+<p class="text-slate-600 dark:text-slate-300 leading-relaxed text-lg">
+                    This rustic roasted tomato basil soup is the ultimate comfort food. Made with fresh roma tomatoes, garlic, onions, and plenty of fresh basil, it's rich, creamy without heavy cream, and perfect for a chilly evening. Serve with a grilled cheese sandwich for the complete experience.
+                </p>
+<!-- Instructions -->
+<div class="pt-4">
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Instructions</h3>
+<ol class="space-y-8 relative border-l border-slate-200 dark:border-slate-800 ml-3 pl-8">
+<li class="relative">
+<span class="absolute -left-[41px] top-0 flex items-center justify-center size-6 rounded-full bg-primary text-white text-xs font-bold ring-4 ring-background-light dark:ring-background-dark">1</span>
+<h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Roast the Tomatoes</h4>
+<p class="text-slate-600 dark:text-slate-300">Preheat oven to 400°F (200°C). Line a large baking sheet with parchment paper. Place halved tomatoes and garlic cloves on the baking sheet. Drizzle generously with olive oil and season with salt and pepper. Roast for 40-45 minutes, until soft and charred.</p>
+</li>
+<li class="relative">
+<span class="absolute -left-[41px] top-0 flex items-center justify-center size-6 rounded-full bg-primary text-white text-xs font-bold ring-4 ring-background-light dark:ring-background-dark">2</span>
+<h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Sauté Onions</h4>
+<p class="text-slate-600 dark:text-slate-300">While tomatoes are roasting, heat a tablespoon of olive oil in a large pot over medium heat. Add the chopped onions and cook until translucent and golden, about 5-7 minutes. Add red pepper flakes if using.</p>
+</li>
+<li class="relative">
+<span class="absolute -left-[41px] top-0 flex items-center justify-center size-6 rounded-full bg-primary text-white text-xs font-bold ring-4 ring-background-light dark:ring-background-dark">3</span>
+<h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Simmer and Blend</h4>
+<p class="text-slate-600 dark:text-slate-300">Add the roasted tomatoes, garlic, and any juices from the pan into the pot with onions. Pour in the vegetable broth. Bring to a boil, then reduce heat and simmer for 10 minutes. Stir in fresh basil. Use an immersion blender to blend until smooth.</p>
+</li>
+<li class="relative">
+<span class="absolute -left-[41px] top-0 flex items-center justify-center size-6 rounded-full bg-primary text-white text-xs font-bold ring-4 ring-background-light dark:ring-background-dark">4</span>
+<h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Serve</h4>
+<p class="text-slate-600 dark:text-slate-300">Season with more salt and pepper if needed. Serve hot, garnished with fresh basil leaves, a drizzle of olive oil, or croutons.</p>
+</li>
+</ol>
+</div>
+</div>
+<!-- Right Column: Sidebar (40%) -->
+<div class="lg:col-span-5 space-y-8">
+<!-- Ingredients Card (Sticky) -->
+<div class="sticky top-24">
+<div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-8">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Ingredients</h3>
+<span class="text-sm text-slate-500 dark:text-slate-400">8 items</span>
+</div>
+<div class="space-y-3">
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="custom-checkbox mt-1 size-5 rounded border-slate-300 text-primary focus:ring-primary/25 dark:border-slate-600 dark:bg-slate-700" type="checkbox"/>
+<div class="text-slate-700 dark:text-slate-200 text-sm leading-relaxed select-none group-hover:text-primary transition-colors">
+                                    3 lbs Roma tomatoes, halved
+                                </div>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="custom-checkbox mt-1 size-5 rounded border-slate-300 text-primary focus:ring-primary/25 dark:border-slate-600 dark:bg-slate-700" type="checkbox"/>
+<div class="text-slate-700 dark:text-slate-200 text-sm leading-relaxed select-none group-hover:text-primary transition-colors">
+                                    6 cloves garlic, peeled
+                                </div>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="custom-checkbox mt-1 size-5 rounded border-slate-300 text-primary focus:ring-primary/25 dark:border-slate-600 dark:bg-slate-700" type="checkbox"/>
+<div class="text-slate-700 dark:text-slate-200 text-sm leading-relaxed select-none group-hover:text-primary transition-colors">
+                                    1 yellow onion, chopped
+                                </div>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="custom-checkbox mt-1 size-5 rounded border-slate-300 text-primary focus:ring-primary/25 dark:border-slate-600 dark:bg-slate-700" type="checkbox"/>
+<div class="text-slate-700 dark:text-slate-200 text-sm leading-relaxed select-none group-hover:text-primary transition-colors">
+                                    1/2 cup fresh basil leaves, packed
+                                </div>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="custom-checkbox mt-1 size-5 rounded border-slate-300 text-primary focus:ring-primary/25 dark:border-slate-600 dark:bg-slate-700" type="checkbox"/>
+<div class="text-slate-700 dark:text-slate-200 text-sm leading-relaxed select-none group-hover:text-primary transition-colors">
+                                    2 cups vegetable broth
+                                </div>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="custom-checkbox mt-1 size-5 rounded border-slate-300 text-primary focus:ring-primary/25 dark:border-slate-600 dark:bg-slate-700" type="checkbox"/>
+<div class="text-slate-700 dark:text-slate-200 text-sm leading-relaxed select-none group-hover:text-primary transition-colors">
+                                    3 tbsp Olive oil, divided
+                                </div>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="custom-checkbox mt-1 size-5 rounded border-slate-300 text-primary focus:ring-primary/25 dark:border-slate-600 dark:bg-slate-700" type="checkbox"/>
+<div class="text-slate-700 dark:text-slate-200 text-sm leading-relaxed select-none group-hover:text-primary transition-colors">
+                                    1/2 tsp Red pepper flakes (optional)
+                                </div>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="custom-checkbox mt-1 size-5 rounded border-slate-300 text-primary focus:ring-primary/25 dark:border-slate-600 dark:bg-slate-700" type="checkbox"/>
+<div class="text-slate-700 dark:text-slate-200 text-sm leading-relaxed select-none group-hover:text-primary transition-colors">
+                                    Salt and black pepper to taste
+                                </div>
+</label>
+</div>
+</div>
+<!-- Reviews Section -->
+<div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Reviews (12)</h3>
+<div class="flex items-center text-yellow-500">
+<span class="material-symbols-outlined text-[20px] fill-current">star</span>
+<span class="ml-1 text-sm font-semibold text-slate-900 dark:text-white">4.8</span>
+</div>
+</div>
+<!-- Review Input (Disabled) -->
+<div class="mb-6 relative group">
+<textarea class="w-full rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:ring-0 cursor-not-allowed opacity-60" disabled="" placeholder="Write a review..." rows="3"></textarea>
+<!-- Tooltip Overlay -->
+<div class="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-white/50 dark:bg-black/20 rounded-lg backdrop-blur-[1px]">
+<div class="px-3 py-1.5 bg-slate-800 text-white text-xs rounded shadow-lg">
+                                    Account pending approval
+                                </div>
+</div>
+</div>
+<!-- Review List -->
+<div class="space-y-6">
+<!-- Review 1 -->
+<div class="border-b border-slate-100 dark:border-slate-700 last:border-0 pb-6 last:pb-0">
+<div class="flex items-start justify-between mb-2">
+<div class="flex items-center gap-2">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-8" data-alt="Reviewer avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAa0mgSy4nQSNHXp9tilip2ZcRB-wsUNuBl1Pt9ig81MQJuTmMMbevp_vmwTEGe2PhFWwdd84jYPjh3AWRIVGlyeVzTZ5mlnwGj477vwxrz8oLjgwHLD4HiNP-4KhgZChtzNY5Tehj5XBJk6-oTABg06c3wUNgWW6M8KMqAhHNfY21bLoEI-PDrHodtbuOxr8lay6llcm0oM7U1Hz20Nn07f3q369Ecrhi1UeIh-CoYMu_zIBuhKM4WdakASsTNDnLRTiAGfCxi16rU");'></div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Michael Chen</p>
+<div class="flex text-yellow-400 text-[12px]">
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+</div>
+</div>
+</div>
+<span class="text-xs text-slate-400">2d ago</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-300">Absolutely delicious! I added a bit of heavy cream at the end for extra richness, but it's great on its own.</p>
+</div>
+<!-- Review 2 (User's own review - simulating appearance) -->
+<div class="border-b border-slate-100 dark:border-slate-700 last:border-0 pb-6 last:pb-0">
+<div class="flex items-start justify-between mb-2">
+<div class="flex items-center gap-2">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-8 ring-2 ring-primary/20" data-alt="Your avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAatWicOi32atXGGvuKTmtRTokNlDkR9qDc0VRITga_qmP3Y9JPV2Y0SoRofDSlYwUV5cCUO7lwQfEu7ZsZGGH37enIdiPcPKEBLTLrnO0Bd0tcVvl3foYg5uS0SNlSYDguTnkW4YEwNi-mJX8atn5IU2pS6CB8V9PGuUCyjIqD6Qt46SZavlYU9-8Iux-Omepg1Y-Ks7JKpx9FNR-XzAGiEY3iXmvwt1xoG_6KeXhBSgVzzSCi3DrtD5TcYI4Mnzxnx23bywJ_4b_N");'></div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">You</p>
+<div class="flex text-yellow-400 text-[12px]">
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+<span class="material-symbols-outlined text-[14px] fill-current">star</span>
+<span class="material-symbols-outlined text-[14px] text-slate-200 dark:text-slate-600">star</span>
+</div>
+</div>
+</div>
+<button class="text-slate-400 hover:text-red-500 transition-colors" title="Delete review">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-300">Made this for dinner last night. Very easy to follow steps.</p>
+</div>
+</div>
+<button class="w-full mt-6 py-2 text-sm font-medium text-primary hover:text-blue-600 transition-colors">
+                            View all 12 reviews
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Simple Footer -->
+<footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-8 mt-12">
+<div class="px-6 md:px-12 lg:px-40 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-sm text-slate-500 dark:text-slate-400">© 2023 Cookhub. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-sm text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary" href="#">Privacy</a>
+<a class="text-sm text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary" href="#">Terms</a>
+<a class="text-sm text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>

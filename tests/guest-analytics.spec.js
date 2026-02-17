@@ -16,13 +16,6 @@ test.describe('Guest Analytics Verification', () => {
   });
 
   test('ViewCountNotTracked — guest views do not increment recipe view counts or daily_stats.views', async ({ page }) => {
-    // Capture daily_stats before viewing recipe
-    const statsBefore = await page.evaluate(() => {
-      const raw = localStorage.getItem('cookhub_daily_stats');
-      return raw ? JSON.parse(raw) : null;
-    });
-    const viewsBefore = statsBefore?.views?.length || 0;
-
     // View a recipe detail page
     const firstRecipe = page.locator('a[href*="#/recipes/recipe-"]').first();
     await firstRecipe.click();

@@ -13,7 +13,7 @@ export function Button({
     const baseStyles = "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
     const variants = {
-        primary: "bg-brand text-white hover:bg-[#a90f27] focus:ring-brand",
+        primary: "bg-brand text-white hover:bg-[#1E40AF] focus:ring-brand",
         secondary: "bg-brand-accent text-white hover:bg-brand-accent/85 focus:ring-brand-accent",
         outline: "border border-cool-gray-30 bg-white hover:bg-cool-gray-10 text-cool-gray-90",
         ghost: "bg-transparent hover:bg-cool-gray-10 text-cool-gray-90",

@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #C8102E;
-  --color-brand-accent: #137fec;
-  --color-cool-gray-90: #21272A;
-  --color-cool-gray-70: #4D5358;
-  --color-cool-gray-60: #697077;
-  --color-cool-gray-40: #A2A9B0;
-  --color-cool-gray-30: #C1C7CD;
-  --color-cool-gray-20: #DDE1E6;
-  --color-cool-gray-10: #F2F4F8;
+  --color-brand: #1D4ED8;
+  --color-brand-accent: #3B82F6;
+  --color-cool-gray-90: #0F172A;
+  --color-cool-gray-70: #334155;
+  --color-cool-gray-60: #475569;
+  --color-cool-gray-40: #94A3B8;
+  --color-cool-gray-30: #CBD5E1;
+  --color-cool-gray-20: #E2E8F0;
+  --color-cool-gray-10: #EFF6FF;
 
   --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
 
@@ -44,8 +44,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color: #21272A;
-  background-color: #f5f7fa;
+  color: #0F172A;
+  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -59,8 +59,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #f5f7fa;
-  color: #21272A;
+  background: #ffffff;
+  color: #0F172A;
 }
 
 button,

@@ -2,57 +2,61 @@
 
 A collaborative web application for sharing, discovering, and managing recipes with role-based access control and a comprehensive approval workflow.
 
-![Development Status](https://img.shields.io/badge/status-active-brightgreen)
-![License](LICENSE)
-![React Version](https://img.shields.io/badge/React-19.2.0--61DAFB)
+[![Development Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com)
+[![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
+[![React Version](https://img.shields.io/badge/React-19.2.0-blue)](https://react.dev)
 
-## Branding Update (2026-02-14)
+## Overview
 
-- Project branding name is now **Kitchen Odyssey**.
-- UI labels previously showing CookHub have been updated to Kitchen Odyssey.
-- Demo account emails remain unchanged and continue using `@cookhub.com`.
-- Internal localStorage key prefixes (for example, `cookhub_*`) remain unchanged for backward compatibility.
+Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content publication, user onboarding workflows, and comprehensive discovery tools. The application uses client-side storage with localStorage for lightweight, demonstration-ready deployment.
 
-## Features
+**Key Capabilities:**
+- Role-based access control (Admin, Contributor, Guest)
+- Recipe approval workflow with content moderation
+- Guest mode for read-only browsing without account creation
+- Advanced search, filtering, and quality-based recommendations
+- Real-time analytics and activity logging
+- Full recipe lifecycle management with engagement features
 
-### Core Functionality
-- User authentication with role-based access control (Admin, Contributor, User)
-- Guest mode for browsing without account creation (read-only)
-- Recipe submission with admin approval workflow
-- Full recipe lifecycle management (Create, Read, Update, Delete)
-- Advanced discovery with search, filtering, and sorting
-- Random recipe suggestion with quality-based recommendations
+### User Management
+- User registration with admin-activated accounts
+- Three-tier role system: Admin, Contributor, Guest
+- Profile customization with avatars, bios, and cooking levels
+- Status workflow: Pending → Active (contributor) or Suspended
+- Session management and activity tracking
 
-### User Experience
-- Profile management with customizable profiles
-- Recipe ratings and reviews (one per user per recipe)
-- Favorites/saved recipes collection
-- Interactive ingredient checklist
-- Admin dashboard with analytics and metrics
-- Activity tracking with real-time updates
-- Daily Active Users (DAU) tracking with session heartbeat
+### Recipe Management
+- Create, edit, and delete recipes with rich metadata
+- Categories, difficulty levels, preparation/cooking times
+- Ingredient lists with quantities and units
+- Step-by-step instructions with time estimates
+- Submission workflow: Pending → Published or Rejected
+- Only published recipes visible to non-admin users
 
-### Admin Capabilities
-- User activation and management
+### Discovery & Engagement
+- Advanced search with keyword matching
+- Filter by category, difficulty, and time
+- Discover (Home) filter chips support both `category` and `categories` recipe schemas
+- Sort by newest, most viewed, or most liked
+- Interactive ingredient checklists
+- Recipe ratings (1-5 stars) with reviews
+- Like and favorite recipes
+- "Surprise Me" quality-based random suggestions (≥5 likes, ≥1 review)
+- View counts and engagement analytics
+
+### Admin Controls
+- Real-time dashboard with platform analytics
+- User activation, deactivation, and suspension
 - Recipe approval and content moderation
-- Site-wide analytics and engagement metrics
-- Activity logging for admin actions
+- Activity logging for audit trails
+- Daily Active Users (DAU) tracking with session heartbeat
+- Search history and engagement metrics
 
-## Architecture
-
-The system uses a client-side storage approach with localStorage, making it lightweight and suitable for demonstration and development purposes.
-
-**User Workflow:**
-1. Registration creates an account with "Pending" status
-2. Admin reviews and activates user accounts
-3. Contributors submit recipes for admin approval
-4. Active users can view, like, review, and favorite published recipes
-
-**User Roles:**
-- **Admins** - Platform oversight, user activation, recipe approval, analytics
-- **Contributors** (Active Users) - Full platform access, create recipes, engage with content
-- **Guest/Pending** - Browse recipes while awaiting admin approval
-- **Guest Mode Users** - Browse without account (read-only, no analytics tracking)
+### Guest Mode
+- Browse recipes without account creation
+- Full access to search, filtering, and viewing content
+- Read-only access to reviews and ratings
+- No analytics tracking or session logging
 
 ## Getting Started
 
@@ -105,12 +109,12 @@ npx playwright test tests/guest-mode.spec.js
 npx playwright test --headed
 ```
 
-**Test Suite Overview:**
-- **32 automated tests** covering Guest Mode and Random Recipe Suggestion features
-- `tests/guest-mode.spec.js` — 13 tests (functionality + blocking)
-- `tests/guest-analytics.spec.js` — 4 tests (analytics isolation)
-- `tests/guest-transitions.spec.js` — 5 tests (mode transitions)
-- `tests/random-recipe.spec.js` — 11 tests (Surprise Me feature)
+**Test Coverage:**
+- **32 automated tests** covering Guest Mode and Random Recipe Suggestion
+- `guest-mode.spec.js` — 13 tests (functionality + blocking)
+- `guest-analytics.spec.js` — 4 tests (analytics isolation)
+- `guest-transitions.spec.js` — 5 tests (mode transitions)
+- `random-recipe.spec.js` — 11 tests (Surprise Me feature)
 
 ## Project Team
 
@@ -125,77 +129,51 @@ npx playwright test --headed
 Kitchen_Odyssey/
 ├── src/
 │   ├── components/          # Reusable UI components
-│   │   ├── layout/          # Navigation & layout
-│   │   ├── recipe/          # Recipe-specific components
-│   │   │   ├── RecipeCard.jsx
-│   │   │   └── RecipeSuggestionModal.jsx
-│   │   └── ui/              # Generic UI primitives
-│   ├── context/             # React context for state management
+│   │   ├── layout/         # Navigation & layout components
+│   │   ├── recipe/         # Recipe-specific components
+│   │   └── ui/            # Generic UI primitives
+│   ├── context/             # React contexts for state management
 │   ├── layouts/             # Layout templates
-│   ├── lib/                 # Utilities & helpers
-│   │   ├── storage.js       # LocalStorage & seed data
-│   │   └── utils.js         # Helper functions
+│   ├── lib/                # Utilities (storage.js, utils.js)
 │   ├── pages/               # Page components
-│   │   ├── Auth/            # Authentication pages
-│   │   ├── Admin/           # Admin panels
-│   │   └── Recipe/          # Recipe & user features
+│   │   ├── Auth/          # Login and signup
+│   │   ├── Admin/         # Admin dashboard and panels
+│   │   └── Recipe/        # Recipe pages and user features
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
-├── tests/                   # Playwright automated tests
+├── tests/                  # Playwright E2E tests
 │   ├── guest-mode.spec.js
 │   ├── guest-analytics.spec.js
 │   ├── guest-transitions.spec.js
 │   └── random-recipe.spec.js
-├── docs/
-│   └── testing/             # Testing documentation
-│       ├── guest-mode-devtools-checklist.md
-│       └── guest-mode-browser-compatibility.md
-├── plan/                    # Feature implementation plans
-│   ├── feature-guest-mode-1.md
-│   ├── feature-random-recipe-suggestion-1.md
-│   └── design-overhaul-1.md
-├── public/                  # Static assets
-├── playwright.config.js     # Playwright test configuration
-├── package.json
-├── vite.config.js
-└── README.md
+├── docs/                   # Testing documentation
+├── plan/                   # Feature implementation plans
+├── public/                 # Static assets
+└── guides/                 # Setup guides
 ```
 
 ## Technology Stack
 
-### Frontend Framework
-- React 19.2.0 - Modern UI library
-- React Router DOM 7.12.0 - Client-side routing
-
-### Styling
-- Tailwind CSS 4.1.18 - Utility-first CSS framework
-- Tailwind Merge 3.4.0 - Intelligent class merging
-- Lucide React 0.562.0 - Icon library
+### Frontend
+- **React 19.2.0** - Modern UI library with hooks
+- **React Router DOM 7.13.0** - Client-side routing
+- **Vite 7.2.4** - Fast build tool with HMR
+- **Tailwind CSS 4.1.18** - Utility-first styling
+- **Lucide React 0.562.0** - Icon library
 
 ### Development Tools
-- Vite 7.2.4 - Fast build tool with HMR
-- ESLint 9.39.1 - Code quality tool
-- Playwright 1.58.2 - End-to-end testing framework
+- **ESLint 9.39.1** - Code quality and linting
+- **Playwright 1.58.2** - End-to-end testing
+- **date-fns 4.1.0** - Date manipulation
+- **clsx 2.1.1** - Conditional className utility
+- **tailwind-merge 3.4.0** - Intelligent class merging
 
-### Utilities
-- Clsx 2.1.1 - Conditional className utility
-- date-fns 4.1.0 - Date formatting and manipulation
+### Data Storage
+- **localStorage** - Client-side persistence with comprehensive seed data
+- **Pre-populated test data** - Multiple users, recipes, and accounts ready for testing
 
-## Data Storage
-
-The application uses browser localStorage for persistence with comprehensive seed data for immediate testing.
-
-### Stored Data
-- User accounts (credentials, profiles, roles, status)
-- Recipes (content, status, metadata)
-- Reviews and ratings (one per user per recipe)
-- Session data (current logged-in user)
-- Search history (queries with timestamps)
-- Daily stats (views, active users)
-- Activity logs (admin actions)
-
-### Test Credentials
+## Test Credentials
 
 **Admin Accounts:**
 | Email | Password | Name |
@@ -204,70 +182,21 @@ The application uses browser localStorage for persistence with comprehensive see
 | olivia@cookhub.com | admin | Olivia Admin |
 | marcus@cookhub.com | admin | Marcus Admin |
 
-**User Accounts:** Multiple test users with various roles and statuses are pre-configured.
+Additional test users with various roles are pre-configured.
 
-> **Note:** See [DESIGN.md](DESIGN.md) for complete system architecture and design documentation.
-
-### Reset Data
-
-```javascript
-// Clear all localStorage data
-localStorage.clear();
-location.reload();
-
-// Or use the storage utility
-import { storage } from './src/lib/storage';
-storage.resetData();
-```
-
-## Key Features by User Role
-
-### Admin Dashboard
-
-- **Analytics Dashboard:** Real-time metrics and site-wide analytics
-  - Total users, new users, contributors
-  - Published vs. pending recipes
-  - Daily views and DAU tracking with hourly heartbeat
-- **User Management:** View, activate, deactivate, and delete user accounts
-- **Recipe Management:** Approve, reject, and moderate recipe submissions
-- **Activity Logging:** Track all admin actions (user status changes, recipe approvals)
-
-### Contributor (Active User)
-
-- **Profile Management:** Edit biography, avatar, location, and cooking skill level
-- **Recipe Creation:** Submit comprehensive recipes with images, ingredients, and instructions
-- **My Recipes:** View, edit, delete, and track approval status of submitted recipes
-- **Discovery:** Browse all approved recipes from the community
-- **Search & Filter:** Keyword search with URL persistence, category/difficulty filters, multi-option sorting
-- **Favorites:** Save recipes to personal collection
-- **Reviews & Ratings:** Rate recipes (1-5 stars), write reviews, update or delete reviews
-- **Engagement:** Like recipes, view counts, track popularity
-- **Surprise Me:** Quality-based random recipe suggestions (≥5 likes and ≥1 review)
-
-### Guest/Pending User
-
-- **Browse:** View all approved recipes with full details
-- **Search & Filter:** Full access to search, filtering, and viewing reviews/ratings
-- **Limitations:** Cannot create recipes, like, favorite, or write reviews until account approved
-
-### Guest Mode (No Account)
-
-- **Read-Only Browsing:** Discover recipes without account creation
-- **Same Capabilities as Guest/Pending:** Search, filter, view reviews/ratings
-- **Analytics Isolation:** No tracking of views, no DAU counting, no activity logging
+> [!NOTE]
+> Demo account emails use `@cookhub.com` domain for backward compatibility. Internal localStorage keys use `cookhub_*` prefix.
 
 ## Documentation
 
-- [DESIGN.md](DESIGN.md) - System architecture and design system
-- [PROPOSAL.md](PROPOSAL.md) - Project proposal and specifications
-- [guides/](guides/) - Setup guides and implementation documentation
-- [plan/](plan/) - Feature implementation plans and design documents
-  - [feature-guest-mode-1.md](plan/feature-guest-mode-1.md) - Guest Mode implementation plan (Completed)
-  - [feature-random-recipe-suggestion-1.md](plan/feature-random-recipe-suggestion-1.md) - Random Recipe Suggestion plan (Completed)
-  - [design-overhaul-1.md](plan/design-overhaul-1.md) - Design Overhaul plan (Completed)
-- [docs/testing/](docs/testing/) - Testing documentation and checklists
-  - [guest-mode-devtools-checklist.md](docs/testing/guest-mode-devtools-checklist.md) - Chrome DevTools testing procedures
-  - [guest-mode-browser-compatibility.md](docs/testing/guest-mode-browser-compatibility.md) - Cross-browser testing matrix
+- [DESIGN.md](DESIGN.md) — System architecture and design system
+- [PROPOSAL.md](PROPOSAL.md) — Project proposal and specifications
+- [guides/](guides/) — Setup guides and implementation documentation
+- [plan/](plan/) — Feature plans and design documents
+  - [feature-guest-mode-1.md](plan/feature-guest-mode-1.md) — Guest Mode implementation
+  - [feature-random-recipe-suggestion-1.md](plan/feature-random-recipe-suggestion-1.md) — Random Recipe Suggestion
+  - [design-overhaul-1.md](plan/design-overhaul-1.md) — Design system overhaul
+- [docs/testing/](docs/testing/) — Testing documentation and checklists
 
 ---
 

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recipe Detail - Pending User</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3b82f6", 
+                        "primary-dark": "#2563eb",
+                        "background-light": "#f0f4f8",
+                        "background-dark": "#0f172a",
+                        "content-text": "#1e293b",
+                        "muted-text": "#64748b",
+                        "accent-blue": "#eff6ff",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>.tooltip-container:hover .tooltip-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-content-text antialiased">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-blue-100 bg-white/80 px-10 py-3 backdrop-blur-md dark:border-white/10 dark:bg-background-dark/80">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<span class="material-symbols-outlined text-[32px]">soup_kitchen</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] dark:text-white">Cookhub</h2>
+</div>
+<nav class="hidden items-center gap-9 lg:flex">
+<a class="text-sm font-medium leading-normal hover:text-primary dark:text-gray-200" href="#">Home</a>
+<a class="text-sm font-medium leading-normal text-primary" href="#">Recipes</a>
+<a class="text-sm font-medium leading-normal hover:text-primary dark:text-gray-200" href="#">Community</a>
+<a class="text-sm font-medium leading-normal hover:text-primary dark:text-gray-200" href="#">Profile</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-6">
+<label class="hidden min-w-40 max-w-64 md:flex">
+<div class="group flex w-full items-center rounded-lg bg-blue-50 px-3 py-2 dark:bg-white/5">
+<span class="material-symbols-outlined mr-2 text-muted-text">search</span>
+<input class="w-full bg-transparent text-sm placeholder:text-muted-text focus:outline-none dark:text-white" placeholder="Search recipes..."/>
+</div>
+</label>
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-end text-xs leading-none">
+<span class="font-bold dark:text-white">Mario Chef</span>
+<span class="text-primary font-medium">Pending Approval</span>
+</div>
+<div class="size-10 rounded-full bg-cover bg-center ring-2 ring-blue-100 dark:ring-white/10" data-alt="User profile picture of a chef" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDJ4qJdz2xfxcaeUhvKqoea-ZbT4koauwyz4oExGhqDBIXWDoIdGJMIqaWzZkniYwz7XFC2M_M6crJR4sJHBlt2SQ03C-7-1qIWIdWsKFGHAyAwvoSWX1wOSoWzOLrWdcVkHjWNmFOE-R47KMtYRH_o5tBt8U3ZAzI6P03J_wsA853J-lp6DeKjTyBD-EgFEUAWoqxc4H6_rxcPVcG95hxFJno8zEonZc7IiKpsJbw8EjyMDYK0vjI_lDART6dQr6v8dLVWd_ZSSEzt");'></div>
+</div>
+</div>
+</header>
+<main class="flex flex-1 justify-center py-8">
+<div class="layout-content-container flex w-full max-w-[960px] flex-col px-6">
+<div class="mb-6 flex flex-wrap gap-2 text-sm">
+<a class="font-medium text-muted-text hover:text-primary hover:underline" href="#">Home</a>
+<span class="text-muted-text">/</span>
+<a class="font-medium text-muted-text hover:text-primary hover:underline" href="#">Recipes</a>
+<span class="text-muted-text">/</span>
+<span class="font-medium text-content-text dark:text-white">Wild Mushroom Risotto</span>
+</div>
+<div class="relative mb-8 overflow-hidden rounded-xl shadow-sm">
+<div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+<img alt="Overhead shot of wild mushroom risotto in a rustic bowl" class="h-[400px] w-full object-cover" data-alt="Wild Mushroom Risotto plated elegantly" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2iOp_ZPtxlt6HUNTwO9d-MD_taoZ8Gcvu7Ds5yDU1ntsyEGgoTkI8al6VL4Uc3OOJ1J7Q0rlMtYMxJEtpro7doUdlfdez6x-0FS5l_aIVpvuA9Tf8ps1qtXTMrfCywIgM_aYD4RJvKUgVxVxFxj4tc714d_3BJ8fLGL2Kp-sUHa6fwwUjbPrQohkW-sgxiV6HvYG5utp_F63Z9JSjxCWIBNquYqCbv0LkiK97biMcNf-V85AEtb6KLWT2Bodl_HRkw2GHmjWBjuJ7"/>
+<div class="absolute bottom-0 left-0 w-full p-8">
+<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+<div>
+<h1 class="mb-2 text-4xl font-bold text-white shadow-sm">Wild Mushroom Risotto</h1>
+<div class="flex items-center gap-4 text-white/90">
+<div class="flex items-center gap-1.5">
+<div class="size-6 overflow-hidden rounded-full border border-white/50 bg-gray-200">
+<img alt="Chef Mario portrait" class="h-full w-full object-cover" data-alt="Chef Mario portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDC4AM0EY2VFbFJ-Z1w46f-NYAScoH2136ctFCYDSkDLq_IOzOKckcNJ0HJoSbnGz7BJSN4kuk1mu2iYV1yijibUSBAhMgbs_9CNZ5MgAg1eFviGD-liB51Y-OodCNUdOPRu7DqNcZshENoxv-IKggy4imEevnMFWjWoPCC7gkx6zRiyN_rnZNLtxdFdXGAM_3s3ivB4tlUciQNK0VbmXd0S2NYejtXouMZ0c4ZYod7BXajNVOd2rRCSEmPK3YiW8qGtFe13HIzwO22"/>
+</div>
+<span class="font-medium">By Chef Mario</span>
+</div>
+<span class="h-1 w-1 rounded-full bg-white/60"></span>
+<span>45 mins</span>
+<span class="h-1 w-1 rounded-full bg-white/60"></span>
+<span>Intermediate</span>
+<span class="h-1 w-1 rounded-full bg-white/60"></span>
+<span>4 Servings</span>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="tooltip-container relative">
+<button aria-disabled="true" class="flex cursor-not-allowed items-center gap-2 rounded-lg bg-blue-900/40 px-4 py-2.5 text-blue-100/60 backdrop-blur-sm transition-all hover:bg-blue-900/50 ring-1 ring-blue-400/20" disabled="">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+<span class="font-medium">Like</span>
+</button>
+<div class="tooltip-content invisible absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 translate-y-2 rounded-lg bg-slate-900 px-3 py-2 text-center text-xs font-medium text-white opacity-0 shadow-lg transition-all duration-200 after:absolute after:top-full after:left-1/2 after:-ml-1 after:border-4 after:border-transparent after:border-t-slate-900 z-20">
+                                    Account pending approval. You cannot interact with recipes yet.
+                                </div>
+</div>
+<div class="tooltip-container relative">
+<button aria-disabled="true" class="flex cursor-not-allowed items-center gap-2 rounded-lg bg-blue-900/40 px-4 py-2.5 text-blue-100/60 backdrop-blur-sm transition-all hover:bg-blue-900/50 ring-1 ring-blue-400/20" disabled="">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+<span class="material-symbols-outlined text-[20px]">bookmark</span>
+<span class="font-medium">Save</span>
+</button>
+<div class="tooltip-content invisible absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 translate-y-2 rounded-lg bg-slate-900 px-3 py-2 text-center text-xs font-medium text-white opacity-0 shadow-lg transition-all duration-200 after:absolute after:top-full after:left-1/2 after:-ml-1 after:border-4 after:border-transparent after:border-t-slate-900 z-20">
+                                    Account pending approval. You cannot interact with recipes yet.
+                                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-12 lg:grid-cols-[2fr_1fr]">
+<div class="flex flex-col gap-10">
+<section>
+<h3 class="mb-4 text-xl font-bold text-content-text dark:text-white">Description</h3>
+<p class="leading-relaxed text-gray-600 dark:text-gray-300">
+                            This creamy, comforting Wild Mushroom Risotto is packed with the deep, earthy flavors of porcini and cremini mushrooms. Slowly cooked with arborio rice and finished with fresh parmesan and butter, it's the perfect dish for a cozy evening or an elegant dinner party.
+                        </p>
+</section>
+<section>
+<h3 class="mb-4 text-xl font-bold text-content-text dark:text-white">Ingredients</h3>
+<ul class="flex flex-col gap-3">
+<li class="flex items-center gap-3 rounded-lg bg-white p-3 shadow-sm ring-1 ring-blue-100 dark:bg-white/5 dark:ring-white/10">
+<div class="flex size-5 items-center justify-center rounded border border-blue-200 bg-transparent text-primary">
+</div>
+<span class="text-content-text dark:text-gray-200">2 cups Arborio rice</span>
+</li>
+<li class="flex items-center gap-3 rounded-lg bg-white p-3 shadow-sm ring-1 ring-blue-100 dark:bg-white/5 dark:ring-white/10">
+<div class="flex size-5 items-center justify-center rounded border border-blue-200 bg-transparent text-primary"></div>
+<span class="text-content-text dark:text-gray-200">1 lb Mixed wild mushrooms</span>
+</li>
+<li class="flex items-center gap-3 rounded-lg bg-white p-3 shadow-sm ring-1 ring-blue-100 dark:bg-white/5 dark:ring-white/10">
+<div class="flex size-5 items-center justify-center rounded border border-blue-200 bg-transparent text-primary"></div>
+<span class="text-content-text dark:text-gray-200">6 cups Vegetable broth</span>
+</li>
+<li class="flex items-center gap-3 rounded-lg bg-white p-3 shadow-sm ring-1 ring-blue-100 dark:bg-white/5 dark:ring-white/10">
+<div class="flex size-5 items-center justify-center rounded border border-blue-200 bg-transparent text-primary"></div>
+<span class="text-content-text dark:text-gray-200">1/2 cup Dry white wine</span>
+</li>
+</ul>
+</section>
+<section class="mt-4">
+<h3 class="mb-4 text-xl font-bold text-content-text dark:text-white">Reviews (24)</h3>
+<div class="relative overflow-hidden rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 dark:border-white/10 dark:bg-white/5">
+<div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-blue-50/60 backdrop-blur-[2px] dark:bg-black/40">
+<div class="flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm text-white shadow-lg">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>Interactions disabled for pending accounts</span>
+</div>
+<button class="mt-3 text-sm font-medium text-primary hover:underline">Check account status</button>
+</div>
+<div class="flex gap-4 opacity-40 blur-sm grayscale">
+<div class="size-10 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+<div class="flex-1 space-y-3">
+<div class="h-10 w-full rounded-lg bg-white border border-gray-200 dark:bg-black dark:border-gray-700"></div>
+<div class="flex justify-end">
+<div class="h-9 w-24 rounded-lg bg-gray-300 dark:bg-gray-600"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 flex flex-col gap-6">
+<div class="flex gap-4">
+<div class="size-10 shrink-0 rounded-full bg-gray-200 bg-cover bg-center" data-alt="Reviewer profile image" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAFfDMlUeWKsWKwVV7VzhD_Y5hqJFI_AitBTfMTI-XQz76MrZsc0gCmUcw63aYSZ5jeBWmSiXWkww8zUgTfZyeFCGF7W6Af4jWdI6m3V7kd85tmcoQ_UpGkUmRJozKUX5JBW8Ay6DAFHAXf1suQKY5wEDR82uas76Runihyt-Ne-Qv_knF88wNXovrGPHiPg-89yjJsL80eKpyVnNoQ-GfCOdYmpfQ11IceAgKv9dCBncBdvHUR-Fd-9zcROommhp-Do6IboVSVssmi");'></div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-bold text-content-text dark:text-white">Sarah Jenkins</span>
+<span class="text-xs text-muted-text">2 days ago</span>
+</div>
+<div class="mb-1 flex text-yellow-400">
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+</div>
+<p class="text-sm text-gray-600 dark:text-gray-300">Absolutely delicious! The key is definitely stirring constantly. My family loved it.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="size-10 shrink-0 rounded-full bg-gray-200 bg-cover bg-center" data-alt="Reviewer profile image" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBufIoYRJYEgIVUahlLUCvRSgbACOpv5thQzF-g0E79hU_oAgcQIDb8fYX1pf7apyHjw1nSe86r2qF3WWW4xWgd7If-Rfj_NgeuA3CX3PGm4py43Ldy56i_FVMD-L7g8sX3SfRd0FLiJ6S8GKUW8tav0LyAD6eyNQLh5OFVZIw1abb1o66B1WsBIvWpaTPoqf3-RUpG4inp8qparXjSiEF5peJA7fiIyPkSbdesIKPeUfzixmAY_XCO-sT65RuAJZPLMA9a-HXu4_5t");'></div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-bold text-content-text dark:text-white">Mike Ross</span>
+<span class="text-xs text-muted-text">1 week ago</span>
+</div>
+<div class="mb-1 flex text-yellow-400">
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] text-gray-300">star</span>
+</div>
+<p class="text-sm text-gray-600 dark:text-gray-300">Great recipe, but I added a bit more wine than suggested. Turned out great.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<div class="flex flex-col gap-6">
+<div class="rounded-xl border border-blue-100 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+<h4 class="mb-4 font-bold text-content-text dark:text-white">Nutrition per serving</h4>
+<div class="flex flex-col gap-3">
+<div class="flex justify-between border-b border-gray-100 pb-2 text-sm dark:border-white/10">
+<span class="text-muted-text">Calories</span>
+<span class="font-medium text-content-text dark:text-white">420 kcal</span>
+</div>
+<div class="flex justify-between border-b border-gray-100 pb-2 text-sm dark:border-white/10">
+<span class="text-muted-text">Protein</span>
+<span class="font-medium text-content-text dark:text-white">12g</span>
+</div>
+<div class="flex justify-between border-b border-gray-100 pb-2 text-sm dark:border-white/10">
+<span class="text-muted-text">Carbs</span>
+<span class="font-medium text-content-text dark:text-white">58g</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-muted-text">Fat</span>
+<span class="font-medium text-content-text dark:text-white">14g</span>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900/30 dark:bg-blue-900/10">
+<div class="mb-2 flex items-center gap-2 text-primary dark:text-blue-400">
+<span class="material-symbols-outlined">info</span>
+<h4 class="font-bold">Pending Status</h4>
+</div>
+<p class="text-sm leading-relaxed text-blue-900/80 dark:text-blue-200/80">
+                            Your account is currently under review by our moderation team. Full access will be restored once approved, usually within 24 hours.
+                        </p>
+<button class="mt-3 w-full rounded-lg bg-primary py-2 text-sm font-bold text-white transition hover:bg-primary-dark dark:bg-primary/80 dark:hover:bg-primary">
+                            View Status Details
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

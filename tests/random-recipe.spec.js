@@ -131,8 +131,6 @@ test.describe('Random Recipe Suggestion', () => {
 
     // Views count should not have increased for guest
     if (statsBefore && statsAfter) {
-      const viewsBefore = statsBefore.views?.length || 0;
-      const viewsAfter = statsAfter.views?.length || 0;
       // Guest views should not be recorded — views count should stay same or not include guest entries
       const guestViews = (statsAfter.views || []).filter(v => v.includes('guest'));
       expect(guestViews.length).toBe(0);
@@ -169,3 +167,4 @@ test.describe('Random Recipe Suggestion', () => {
     expect(titles.size).toBeGreaterThanOrEqual(3);
   });
 });
+

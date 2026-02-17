@@ -14,6 +14,8 @@ tags: ['security', 'nosql-injection', 'auth', 'jwt', 'csrf', 'rate-limiting', 'o
 
 This document outlines security best practices and implementation patterns for the Kitchen Odyssey backend services. It covers authentication, authorization, NoSQL injection prevention, and protection against common web vulnerabilities following OWASP guidelines.
 
+**Framework Note:** The target backend is `Project2/Kitchen_Odyssey_Backend` using Next.js route handlers. Any Express-style snippets in this document are reference patterns and must be translated to equivalent Next.js middleware/route utilities during implementation.
+
 ---
 
 ## 1. Authentication Security
