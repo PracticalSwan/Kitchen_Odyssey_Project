@@ -39,7 +39,7 @@ export function Sidebar() {
                                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                                 isActive
                                     ? "bg-brand text-[#FFFFFF]"
-                                    : "text-cool-gray-60 hover:bg-cool-gray-10 hover:text-[#137fec]"
+                                    : "text-cool-gray-60 hover:bg-cool-gray-10 hover:text-brand-accent"
                             )}
                         >
                             <item.icon className={cn("h-4 w-4", isActive ? "text-[#FFFFFF]" : "text-inherit")} />

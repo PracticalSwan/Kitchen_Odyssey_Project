@@ -7,11 +7,11 @@ export function Badge({ className, variant = "default", children, ...props }) {
         warning: "bg-yellow-100 text-yellow-800",
         error: "bg-red-100 text-red-800",
         outline: "border border-cool-gray-30 text-cool-gray-60",
-        secondary: "bg-[#137fec]/10 text-[#0f6fcd]"
+        secondary: "bg-brand-accent/10 text-brand-accent"
     };
 
     return (
-        <div className={cn("inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#137fec] focus:ring-offset-2", variants[variant], className)} {...props}>
+        <div className={cn("inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2", variants[variant], className)} {...props}>
             {children}
         </div>
     );

@@ -157,7 +157,7 @@ export function AdminStats() {
                     <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                             <CardTitle>Recent Activity</CardTitle>
-                            <button type="button" className="text-xs font-medium text-[#137fec] hover:underline">View All</button>
+                            <button type="button" className="text-xs font-medium text-brand-accent hover:underline">View All</button>
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -196,7 +196,7 @@ export function AdminStats() {
                                     <TrendingUp className="h-3.5 w-3.5" />
                                 </div>
                                 <div className="h-2 rounded-full bg-cool-gray-10">
-                                    <div className="h-2 w-4/5 rounded-full bg-[#137fec]" />
+                                    <div className="h-2 w-4/5 rounded-full bg-brand-accent" />
                                 </div>
                             </div>
 
@@ -219,7 +219,7 @@ export function AdminStats() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-0 bg-[#137fec] text-white">
+                    <Card className="border-0 bg-brand-accent text-white">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-white">Pro Tip</CardTitle>
                         </CardHeader>
@@ -227,7 +227,7 @@ export function AdminStats() {
                             <p className="text-xs leading-5 text-white/90">{proTipMessage}</p>
                             <Button
                                 size="sm"
-                                className="mt-3 h-8 bg-white text-[#137fec] hover:bg-white/90"
+                                className="mt-3 h-8 bg-white text-brand-accent hover:bg-white/90"
                                 onClick={() => navigate('/admin/recipes')}
                             >
                                 {proTipActionLabel}

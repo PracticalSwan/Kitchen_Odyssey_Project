@@ -36,8 +36,6 @@ test.describe('Guest Mode Functionality', () => {
   test('GuestBrowsing — can view Home page and recipe cards', async ({ page }) => {
     await enterGuestMode(page);
     // Home page heading
-    await expect(page.getByRole('heading', { name: 'Share Your Culinary Masterpiece' })).toBeVisible();
-    // Recipe cards visible
     await expect(page.getByRole('heading', { name: 'Fresh from the Kitchen' })).toBeVisible();
     // At least one recipe link
     const recipeLinks = page.locator('a[href*="#/recipes/recipe-"]');

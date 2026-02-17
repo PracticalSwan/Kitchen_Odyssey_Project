@@ -14,7 +14,7 @@ export function Button({
 
     const variants = {
         primary: "bg-brand text-white hover:bg-[#a90f27] focus:ring-brand",
-        secondary: "bg-[#137fec] text-white hover:bg-[#0f6fcd] focus:ring-[#137fec]",
+        secondary: "bg-brand-accent text-white hover:bg-brand-accent/85 focus:ring-brand-accent",
         outline: "border border-cool-gray-30 bg-white hover:bg-cool-gray-10 text-cool-gray-90",
         ghost: "bg-transparent hover:bg-cool-gray-10 text-cool-gray-90",
         danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600"

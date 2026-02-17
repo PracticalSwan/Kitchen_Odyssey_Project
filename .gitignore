@@ -56,6 +56,8 @@ build/
 # Testing
 coverage/
 .nyc_output/
+tests/
+playwright.config.js
 
 # OS specific files
 Thumbs.db
@@ -67,6 +69,7 @@ Thumbs.db
 *.code-workspace
 .vscode/settings.json
 .claude/
+CLAUDE.md
 
 # Temporary files
 tmp/

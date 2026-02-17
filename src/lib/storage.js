@@ -1,5 +1,5 @@
 // Simple ID Generator
-const generateId = () => Math.random().toString(36).substr(2, 9);
+const generateId = () => Math.random().toString(36).substring(2, 11);
 
 const STORAGE_KEYS = {
     USERS: 'cookhub_users',
@@ -36,9 +36,9 @@ const SEED_DATA = {
             password: 'admin',
             birthday: '1990-01-01',
             role: 'admin',
-            status: 'active',
+            status: 'inactive',
             joinedDate: new Date().toISOString(),
-            lastActive: new Date().toISOString(),
+            lastActive: null,
             avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
             bio: 'System Administrator',
             location: 'Server Room',
@@ -55,9 +55,9 @@ const SEED_DATA = {
             password: 'admin',
             birthday: '1986-04-12',
             role: 'admin',
-            status: 'active',
+            status: 'inactive',
             joinedDate: new Date('2025-09-01').toISOString(),
-            lastActive: new Date(Date.now() - 7200000).toISOString(),
+            lastActive: null,
             avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=olivia-admin',
             bio: 'Content moderation lead.',
             location: 'Boston',
@@ -74,9 +74,9 @@ const SEED_DATA = {
             password: 'admin',
             birthday: '1983-11-22',
             role: 'admin',
-            status: 'active',
+            status: 'inactive',
             joinedDate: new Date('2025-10-05').toISOString(),
-            lastActive: new Date(Date.now() - 5400000).toISOString(),
+            lastActive: null,
             avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=marcus-admin',
             bio: 'Operations admin.',
             location: 'Seattle',
@@ -93,9 +93,9 @@ const SEED_DATA = {
             password: 'user',
             birthday: '1995-06-15',
             role: 'user',
-            status: 'active',
+            status: 'inactive',
             joinedDate: new Date('2025-06-15').toISOString(),
-            lastActive: new Date(Date.now() - 3600000).toISOString(),
+            lastActive: null,
             avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=john',
             bio: 'Love cooking italian food!',
             location: 'New York',
@@ -188,9 +188,9 @@ const SEED_DATA = {
             password: 'sarah123',
             birthday: '1991-07-09',
             role: 'user',
-            status: 'active',
+            status: 'inactive',
             joinedDate: new Date('2025-12-28').toISOString(),
-            lastActive: new Date(Date.now() - 1800000).toISOString(),
+            lastActive: null,
             avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
             bio: 'Healthy meal prep enthusiast.',
             location: 'San Diego',
@@ -207,9 +207,9 @@ const SEED_DATA = {
             password: 'daniel123',
             birthday: '1989-05-30',
             role: 'user',
-            status: 'active',
+            status: 'inactive',
             joinedDate: new Date('2025-12-05').toISOString(),
-            lastActive: new Date(Date.now() - 4000000).toISOString(),
+            lastActive: null,
             avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=daniel',
             bio: 'Street food lover.',
             location: 'Miami',
@@ -657,7 +657,6 @@ export const storage = {
                 if (user.status === 'active' || user.status === 'inactive') {
                     user.status = 'inactive';
                 }
-                user.lastActive = new Date().toISOString(); // Update one last time
                 storage.saveUser(user);
             }
         }

@@ -6,7 +6,8 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card, CardContent } from '../../components/ui/Card';
 import { RECIPE_CATEGORIES, RECIPE_DIFFICULTIES } from '../../lib/utils';
-import { Plus, Trash2, UploadCloud, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, ChevronRight } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 export function CreateRecipe() {
     const navigate = useNavigate();
@@ -313,7 +314,7 @@ export function CreateRecipe() {
                             <label className="text-sm font-medium text-cool-gray-60">Description</label>
                             <textarea
                                 id="description"
-                                className={`w-full rounded-lg border p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#137fec] ${errors.description ? 'border-red-400' : 'border-cool-gray-30'}`}
+                                className={cn('w-full rounded-lg border p-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent resize-none', errors.description ? 'border-red-400' : 'border-cool-gray-30')}
                                 rows={3}
                                 value={formData.description}
                                 onChange={handleChange}
@@ -382,7 +383,7 @@ export function CreateRecipe() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-cool-gray-60 mb-1 block">Difficulty</label>
-                                <select id="difficulty" className="w-full h-10 rounded-lg border border-cool-gray-30 px-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#137fec]" value={formData.difficulty} onChange={handleChange}>
+                                <select id="difficulty" className="w-full h-10 rounded-lg border border-cool-gray-30 px-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-accent" value={formData.difficulty} onChange={handleChange}>
                                     {RECIPE_DIFFICULTIES.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
@@ -449,9 +450,9 @@ export function CreateRecipe() {
                         {instructions.map((step, i) => (
                             <div key={i} className="space-y-1">
                                 <div className="flex gap-2 items-start">
-                                    <span className="flex-none flex items-center justify-center w-6 h-6 rounded-md bg-cool-gray-20 text-xs font-bold mt-2">{i + 1}</span>
+                                    <span className="flex-none flex items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-white text-xs font-bold mt-2">{i + 1}</span>
                                     <textarea
-                                        className={`flex-1 rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#137fec] ${errors[`instruction_${i}`] ? 'border-red-400' : 'border-cool-gray-30'}`}
+                                        className={cn('flex-1 rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent resize-none', errors[`instruction_${i}`] ? 'border-red-400' : 'border-cool-gray-30')}
                                         rows={2}
                                         placeholder={`Step ${i + 1}...`}
                                         value={step}

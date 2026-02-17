@@ -1,20 +1,36 @@
-UI layer: reusable components — Button (variants: primary/outline/ghost/danger + size: sm/default/lg/icon + isLoading + tertiary), Input (with floating label + validation states + helper text), Card (with image overlays/badge positioning/hover effects), Badge (variants: sm/md/lg sizes + icon badges), Table (sortable headers + status badges + checkbox rows + responsive overflow), Tabs (vertical/sidebar style + pill indicator + scrollable tabs), Modal (full-screen variant + backdrop blur + improved focus trapping). RecipeCard: reusable card with image (4:3 aspect ratio), difficulty/time badges in top-right image overlay, like/favorite buttons (respect guest mode), categories, title (2-3 lines max), star rating, description, author, view/like footer counts; accepts actionOverlay prop for custom overlays. Layout: Navbar — sticky top glass-morphism (backdrop-blur), "Kitchen Odyssey" brand text, Discover + My Recipes (if canInteract) links, Create button (primary #C8102E), profile avatar, logout, "Guest" badge when in guest mode; Sidebar (admin) — fixed left w-64, Kitchen Odyssey Admin brand, Dashboard/Users/Recipes nav links with icon+text and active state highlight, Sign Out at bottom. **DESIGN SYSTEM (Stitch Project ID 12469199353397755583):** Hybrid color system — #C8102E (Kitchen Odyssey brand wine red): Primary navigation, CTA buttons, hero gradients (#C8102E→#137fec); #137fec (Stitch blue/teal): Secondary buttons, hover states, active tabs/indicators, focus rings, status badges, card hover effects; Text/Background: Warm/cool gray scales (dark gray/black primary, medium gray secondary, light gray placeholder/disabled); **60-30-10 Rule Application**: 60% Primary Surfaces (#f5f7fa, #ffffff backgrounds, cards), 30% Secondary Elements (#e5e7eb borders, #6b7280 secondary text), 10% Brand Accents (#C8102E primary + #137fec secondary for CTAs, navigation, interactive highlights); **Design Tokens CSS Variables** (src/styles/design-tokens.css): Color tokens (primary, secondary, brand, status), Spacing tokens (exact Tailwind: 4=16px, 6=24px, 8=32px, 12=48px, 16=64px), Radius tokens (8px consistency), Transition tokens (fast=150ms, base=200ms, slow=300ms). Font: **Work Sans (Google Font)** with weight scale 300(light)/400(regular)/500(medium)/600(semi-bold)/700(bold). Typography — H1 (32-40px bold, line-height 1.1-1.2), H2 (20-24px semi-bold, line-height 1.2-1.3), H3 (16-18px 500-600, line-height 1.3-1.4), Body (14-16px regular, line-height 1.5-1.6), Small (12-14px 300-400, line-height 1.3-1.4). Border radius: **Consistent 8px** across buttons/cards/inputs/modals (Stitch "ROUND_EIGHT"); Badges: 4-6px pill shape. Responsive breakpoints — Mobile <640px (1 col), Small tablet 640-768px (2 col), Tablet 768-1024px (2-3 cols), Desktop 1024-1280px (4 col), Large >1280px (5 col). Spacing scale (Tailwind exact values) — 4=16px (small gaps/card grid/form field spacing), 6=24px (medium gaps/sections/sidebar spacing), 8=32px (large gaps/containers/wrappers), 12=48px (very large gaps/page margins/toplevel sections), 16=64px (extra large gaps/hero sections). Global: scrollbar-gutter stable, custom scrollbar, cursor:pointer on interactive elements, hover-lift utility (transform translateY -2px + shadow), animate-page-in (opacity+translateY 0.1s). Transitions: 0.2-0.3s using Tailwind utilities. Utils: cn() via clsx+twMerge, RECIPE_CATEGORIES (Breakfast/Lunch/Dinner/Dessert/Italian/Asian/Health), RECIPE_DIFFICULTIES (Easy/Medium/Hard), normalizeCategories(). Icons: lucide-react. Accessibility — WCAG AA (4.5:1 text, 3:1 large text), ARIA labels on all interactive elements, keyboard navigation (Tab/Enter/ESC), focus trapping in modals, screen reader announcements, heading hierarchy (H1→H2→H3 no skipping), form accessibility (labels, aria-describedby), touch targets >= 44x44px on mobile, color contrast compliance verified per web-testing checklist; **Accessibility Verification Checklist** (9 items): Color Contrast (4.5:1 body, 3:1 large text ≥18px), ARIA Labels (all interactive), Keyboard Navigation (logical Tab, Enter/Space, ESC), Focus Management (2px+ ring, modal trapping), Screen Reader (aria-live regions), Touch Targets (≥44x44px + 8px gap), Heading Hierarchy (H1→H2→H3 sequential), Form Accessibility (for/id labels, aria-describedby errors), Image Accessibility (alt text decorative alt="").
+UI layer: reusable components — Button (variants: primary/outline/ghost/danger/secondary + size: sm/default/lg/icon + isLoading), Input (icon prop, password toggle, brand-accent focus ring), Card (hover border brand-accent/25), Badge (secondary uses brand-accent/10), Table (sortable headers + status badges + checkbox rows), Tabs (active tab text brand-accent), Modal (backdrop blur + focus trapping).
 
-**Performance Patterns** (from design-overhaul v1.4 react-development skill): **Memoization Strategy**: React.memo for Card with large recipe arrays, useCallback for Button onClick handlers in parent components, virtualization for Table >50 rows (consider react-window); **Custom Hooks Reuse**: useDebounce (500ms delay for search input), useLocalStorage (memoized localStorage operations), useMediaQuery (responsive breakpoints); **Code Splitting**: React.lazy for RecipeCard and Modal components, Vite automatic code splitting, reduce initial JS bundle size (<100KB/route target).
+**Color System (Design Overhaul Completed):**
+- All `#137fec` hardcoded references eliminated from source files
+- Brand accent accessed exclusively via `brand-accent` Tailwind token
+- Token defined in src/index.css `@theme` block: `--color-brand-accent: #137fec`
+- Brand red: `#C8102E` (--color-brand), used for primary CTA, navigation, hero gradients
+- 60-30-10 Rule: 60% surfaces (#f5f7fa/#ffffff), 30% secondary (#e5e7eb/#6b7280), 10% brand accents
 
-**Component Composition Patterns** (from design-overhaul v1.4 react-development skill): **Button Composition**: children pattern for icon+text, icon-only variant with aria-label, className merging via cn(); **Card Composition**: image prop with wrapper, badges prop (absolute positioning top-right), footer prop (border-top section), children prop for main content; **Hooks Pattern**: useFormValidation (handleChange, handleBlur, validateField with validation schema), useDebounce (useEffect cleanup with setTimeout).
+**Design Tokens (src/index.css @theme block):**
+- Colors: --color-brand: #C8102E, --color-brand-accent: #137fec, --color-cool-gray-*
+- Radius: --radius-sm: 6px, --radius-md: 8px, --radius-lg: 12px, --radius-xl: 16px, --radius-full: 9999px
+- Animations: fade-in, slide-up, scale-in keyframes
 
-Random Recipe Suggestion: "Surprise Me" button added to Home.jsx hero section with prominent placement, RecipeSuggestionModal supports recipe image display with aspect ratio preservation and loading states, accessible (ARIA labels, focus management, screen reader announcements), quality constraints (>=5 likes, >=1 review).
+**Typography:** Work Sans (Google Font), weights 300-700, H1 32-40px, Body 14-16px
 
-Automated Testing (Aligned with Web-Testing Skill) — **Page Object Model architecture (8 Page Objects: AuthPage, HomePage, SearchPage, RecipeDetailPage, CreateRecipePage, ProfilePage, AdminStatsPage, AdminRecipesPage, UserListPage)**, **Fixtures for authentication state reuse (admin, user, guest)**, **Global setup for saving auth states to storage files**, Test structure with beforeEach/afterEach hooks and test.step() organization. Playwright + Chrome DevTools + axe-core integration with:
-- Visual regression tests (39 baseline screenshots: 13 screens × 3 viewports)
-- User flow tests (8 critical paths with Page Objects)
-- Accessibility tests via @axe-core/playwright (10 a11y categories including heading hierarchy, form accessibility, touch targets, image accessibility, color contrast)
-- Responsive tests (91 checks: 13 screens × 7 viewports: 375/414/768/1024/1280/1440/1920px)
-- Dynamic data tests (40 tests: 5 scenarios × 8 screens) catching hardcoded values
-- Cross-browser tests (24 checks: 3 browsers × 8 critical flows)
-- Performance benchmarks (Core Web Vitals: LCP < 2.5s, CLS < 0.1, TTI < 5s, bundle size < 100KB per route)
-- Console error tracking (via page.on('console') listener per web-testing troubleshooting pattern)
-- Network request monitoring (via page.on('request')/page.on('response') per web-testing network debugging pattern)
-- JavaScript exception handling (window.addEventListener('unhandledrejection'))
-- Comprehensive testing checklist (6 domains: functional, responsive, cross-browser, accessibility, performance, error handling totaling 45 items)
+**Layout Components:**
+- Navbar: sticky, ChefHat logo icon, active route highlighting, Search link, guest badge
+- Sidebar (admin): fixed left, hover text brand-accent
+- AuthLayout: gradient from-brand to-brand-accent, copyright footer
+
+**Page Patterns:**
+- Home: gradient hero "Fresh from the Kitchen", category filter pills, sort dropdown, load-more button
+- RecipeCard: dark overlay heart (top-right), timer badge, author avatar bar, star rating
+- Search: pill-based filters, centered layout, SearchX empty state
+- RecipeDetail: breadcrumbs (Link + ChevronRight), rounded-full instruction steps, amber review stars, 340px sticky sidebar
+- CreateRecipe: rounded-full step numbers bg-brand-accent, resize-none textareas
+- Profile: avatar selector brand-accent states, empty state links brand-accent
+- Admin: progress bars/links brand-accent, role filter focus ring brand-accent
+- Auth: social auth buttons (Google + GitHub), icon-enhanced inputs, error/success banners
+
+**Responsiveness:** Mobile <640px (1 col), Tablet 640-1024px (2-3 cols), Desktop >1024px (4-5 cols)
+**Accessibility:** WCAG AA, focus-visible outline brand-accent, 44x44px touch targets, modal focus trapping
+**Utils:** cn() via clsx+twMerge, lucide-react icons
+**Guest Mode Integration:** "Continue as Guest" button on Auth pages, guest badge in Navbar, restricted states
+**Random Recipe:** "Surprise Me" button in Home hero, RecipeSuggestionModal component

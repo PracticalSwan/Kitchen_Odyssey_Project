@@ -109,7 +109,7 @@ export function UserList() {
                     />
                 </div>
                 <select
-                    className="h-10 rounded-md border border-cool-gray-30 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cool-gray-90"
+                    className="h-10 rounded-md border border-cool-gray-30 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent"
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
                 >

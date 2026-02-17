@@ -264,7 +264,7 @@ storage.resetData();
 - [plan/](plan/) - Feature implementation plans and design documents
   - [feature-guest-mode-1.md](plan/feature-guest-mode-1.md) - Guest Mode implementation plan (Completed)
   - [feature-random-recipe-suggestion-1.md](plan/feature-random-recipe-suggestion-1.md) - Random Recipe Suggestion plan (Completed)
-  - [design-overhaul-1.md](plan/design-overhaul-1.md) - Design Overhaul plan (On Hold)
+  - [design-overhaul-1.md](plan/design-overhaul-1.md) - Design Overhaul plan (Completed)
 - [docs/testing/](docs/testing/) - Testing documentation and checklists
   - [guest-mode-devtools-checklist.md](docs/testing/guest-mode-devtools-checklist.md) - Chrome DevTools testing procedures
   - [guest-mode-browser-compatibility.md](docs/testing/guest-mode-browser-compatibility.md) - Cross-browser testing matrix

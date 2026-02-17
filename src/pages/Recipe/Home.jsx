@@ -1,29 +1,48 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { storage } from '../../lib/storage';
 import { RecipeCard } from '../../components/recipe/RecipeCard';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { Search, X, Sparkles } from 'lucide-react';
+import { Search, X, Sparkles, Flame, Clock, Leaf, Cake, Sunrise, ThumbsUp, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { RecipeSuggestionModal } from '../../components/recipe/RecipeSuggestionModal';
+import { cn } from '../../lib/utils';
+
+const FILTER_CHIPS = [
+    { key: 'trending', label: 'Trending', icon: Flame },
+    { key: 'quick', label: 'Under 30min', icon: Clock },
+    { key: 'vegetarian', label: 'Vegetarian', icon: Leaf },
+    { key: 'desserts', label: 'Desserts', icon: Cake },
+    { key: 'breakfast', label: 'Breakfast', icon: Sunrise },
+    { key: 'easy', label: 'Easy', icon: ThumbsUp },
+];
+
+const SORT_OPTIONS = [
+    { value: 'trending', label: 'Trending' },
+    { value: 'newest', label: 'Newest' },
+    { value: 'rating', label: 'Highest Rated' },
+    { value: 'title', label: 'A–Z' },
+];
+
+const PAGE_SIZE = 6;
 
 export function Home() {
-    const [recipes, setRecipes] = useState(() => {
-        const allRecipes = storage.getRecipes();
-        return allRecipes.filter(r => r.status === 'published');
-    });
+    const [allPublished, setAllPublished] = useState(() =>
+        storage.getRecipes().filter(r => r.status === 'published')
+    );
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeFilter, setActiveFilter] = useState(null);
+    const [sortBy, setSortBy] = useState('trending');
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const [randomSuggestion, setRandomSuggestion] = useState(null);
     const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
     const navigate = useNavigate();
 
     const loadRecipes = useCallback(() => {
-        const allRecipes = storage.getRecipes();
-        setRecipes(allRecipes.filter(r => r.status === 'published'));
+        setAllPublished(storage.getRecipes().filter(r => r.status === 'published'));
     }, []);
 
     useEffect(() => {
-        // Listen for updates to refresh
         const handleRefresh = () => loadRecipes();
         window.addEventListener('favoriteToggled', handleRefresh);
         window.addEventListener('recipeUpdated', handleRefresh);
@@ -32,6 +51,60 @@ export function Home() {
             window.removeEventListener('recipeUpdated', handleRefresh);
         };
     }, [loadRecipes]);
+
+    // Filter + sort
+    const filteredRecipes = useMemo(() => {
+        let list = [...allPublished];
+
+        if (activeFilter) {
+            switch (activeFilter) {
+                case 'quick':
+                    list = list.filter(r => {
+                        const m = parseInt(r.cookTime, 10);
+                        return !isNaN(m) && m <= 30;
+                    });
+                    break;
+                case 'vegetarian':
+                    list = list.filter(r =>
+                        r.categories?.some(c => c.toLowerCase().includes('vegetarian') || c.toLowerCase().includes('vegan'))
+                    );
+                    break;
+                case 'desserts':
+                    list = list.filter(r =>
+                        r.categories?.some(c => c.toLowerCase().includes('dessert') || c.toLowerCase().includes('baking'))
+                    );
+                    break;
+                case 'breakfast':
+                    list = list.filter(r =>
+                        r.categories?.some(c => c.toLowerCase().includes('breakfast'))
+                    );
+                    break;
+                case 'easy':
+                    list = list.filter(r => r.difficulty?.toLowerCase() === 'easy');
+                    break;
+                // trending = no extra filter
+            }
+        }
+
+        switch (sortBy) {
+            case 'newest':
+                list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                break;
+            case 'rating':
+                list.sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0));
+                break;
+            case 'title':
+                list.sort((a, b) => a.title.localeCompare(b.title));
+                break;
+            default: // trending — most reviews then rating
+                list.sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0) || (b.averageRating ?? 0) - (a.averageRating ?? 0));
+        }
+
+        return list;
+    }, [allPublished, activeFilter, sortBy]);
+
+    const visibleRecipes = filteredRecipes.slice(0, visibleCount);
+    const hasMore = visibleCount < filteredRecipes.length;
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -51,14 +124,19 @@ export function Home() {
         setRandomSuggestion(suggestion);
     };
 
+    const handleFilterClick = (key) => {
+        setActiveFilter(prev => (prev === key ? null : key));
+        setVisibleCount(PAGE_SIZE);
+    };
+
     return (
         <div className="space-y-8 animate-page-in">
             {/* Hero Section */}
-            <section className="relative -mt-8 py-16 px-4 text-center bg-gradient-to-r from-brand to-[#137fec] text-white rounded-b-3xl mb-10 overflow-hidden">
-                <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1495521841625-f46248f59218?auto=format&fit=crop&q=80')] bg-cover bg-center" />
+            <section className="relative -mt-8 py-16 px-4 text-center bg-gradient-to-br from-brand via-brand to-brand-accent text-white rounded-b-3xl mb-4 overflow-hidden">
+                <div className="absolute inset-0 opacity-15 bg-[url('https://images.unsplash.com/photo-1495521841625-f46248f59218?auto=format&fit=crop&q=80')] bg-cover bg-center" />
                 <div className="relative z-10 max-w-2xl mx-auto space-y-5">
-                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Share Your Culinary <span className="text-white/90">Masterpiece</span></h1>
-                    <p className="text-base text-cool-gray-30">Join our community of home cooks and professional chefs.</p>
+                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Fresh from the Kitchen</h1>
+                    <p className="text-base text-white/75">Discover thousands of recipes from home cooks worldwide.</p>
 
                     <form onSubmit={handleSearch} className="relative max-w-lg mx-auto">
                         <Search className="absolute left-3 top-3 h-5 w-5 text-cool-gray-60" />
@@ -91,22 +169,67 @@ export function Home() {
                 </div>
             </section>
 
-            {/* Featured/Feed Section */}
-            <section className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-cool-gray-90">Fresh from the Kitchen</h2>
-                    <Button variant="ghost" className="text-sm" onClick={() => navigate('/search')}>View All</Button>
+            {/* Filters + Sort Bar */}
+            <section className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                    {FILTER_CHIPS.map(({ key, label, icon: Icon }) => (
+                        <button
+                            key={key}
+                            onClick={() => handleFilterClick(key)}
+                            className={cn(
+                                "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors border",
+                                activeFilter === key
+                                    ? "bg-brand text-white border-brand"
+                                    : "bg-white text-cool-gray-60 border-cool-gray-20 hover:border-brand hover:text-brand"
+                            )}
+                        >
+                            <Icon className="h-4 w-4" />
+                            {label}
+                        </button>
+                    ))}
                 </div>
 
+                <div className="relative shrink-0">
+                    <label htmlFor="sort-select" className="sr-only">Sort recipes</label>
+                    <select
+                        id="sort-select"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="appearance-none rounded-lg border border-cool-gray-20 bg-white pl-3 pr-8 py-2 text-sm font-medium text-cool-gray-70 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+                    >
+                        {SORT_OPTIONS.map(opt => (
+                            <option key={opt.value} value={opt.value}>Sort by: {opt.label}</option>
+                        ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-cool-gray-40" />
+                </div>
+            </section>
+
+            {/* Recipe Grid */}
+            <section className="space-y-6">
                 <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {recipes.length > 0 ? (
-                        recipes.map(recipe => (
+                    {visibleRecipes.length > 0 ? (
+                        visibleRecipes.map(recipe => (
                             <RecipeCard key={recipe.id} recipe={recipe} onFavoriteToggle={loadRecipes} />
                         ))
                     ) : (
-                        <p className="col-span-full text-center text-cool-gray-60 py-10">No recipes published yet. Be the first!</p>
+                        <p className="col-span-full text-center text-cool-gray-60 py-10">
+                            {activeFilter ? 'No recipes match this filter.' : 'No recipes published yet. Be the first!'}
+                        </p>
                     )}
                 </div>
+
+                {hasMore && (
+                    <div className="text-center pt-2">
+                        <Button
+                            variant="outline"
+                            className="px-8"
+                            onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
+                        >
+                            Load More Recipes
+                        </Button>
+                    </div>
+                )}
             </section>
 
             <RecipeSuggestionModal

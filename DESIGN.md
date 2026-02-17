@@ -18,14 +18,14 @@
 **Primary Design Philosophy:**
 - Content-first approach with recipe cards as focal points
 - Distinct separation between sections using spacing and visual containers
-- Consistent visual language across all major screens (13 total)
+- Consistent visual language across all major screens (13 visible, including 2 Admin User Management variants)
 
 ---
 
 ## 2. Color Palette & Roles
 
 ### Primary Colors
-- **Brand Accent:** `#137fec` (Light Blue/Teal) - Primary action buttons, active states, emphasis highlights
+- **Brand Accent:** `#137fec` (Light Blue/Teal) - Primary action buttons, active states, emphasis highlights. Accessed via the `brand-accent` Tailwind token (defined as `--color-brand-accent` in `src/index.css`)
 - **Background:** White/Off-white - Base surface for card backgrounds and page containers
 - **Surface:** Light gray/white with subtle shadows - Card backgrounds, elevated sections
 
@@ -87,7 +87,7 @@
 
 ### 4.2 Buttons
 - **Border Radius:** 8px (consistent with cards)
-- **Primary:** Brand accent `#137fec` background, white text, hover darken
+- **Primary:** Brand accent (`brand-accent` token) background, white text, hover darken
 - **Secondary:** White/gray background, dark text, subtle border
 - **Tertiary:** Text-only buttons (link style), underline hover
 - **States:**
@@ -99,7 +99,7 @@
 ### 4.3 Inputs & Form Controls
 - **Border Radius:** 6-8px (slightly rounded)
 - **Border:** 1px solid #e5e7eb (light gray)
-- **Focus:** Brand accent ring/border `#137fec`
+- **Focus:** Brand accent ring/border (`brand-accent` token)
 - **Labels:** Above input, primary text color (dark gray)
 - **Helper Text:** Below input, smaller font (12-14px)
 - **Error State:** Red border/text with error message helper
@@ -217,11 +217,14 @@
 ## 7. Screen-Specific Patterns
 
 ### 7.1 Home (Kitchen Odyssey Home - Recipe Feed)
-- Hero section with main CTA ("Surprise Me" for random recipe)
+- Hero section: "Fresh from the Kitchen" heading with supporting subtext
+- Category filter pills below hero (Trending, Under 30min, Vegetarian, Desserts, Breakfast, Easy) with Material icons
+- Sort by dropdown (e.g., "Trending") for recipe feed ordering
 - Search bar prominent, centered below hero
-- Featured recipes section (optional, highlighted cards)
-- Recipe feed grid (4-5 columns)
-- Recipe cards with image, title, metadata (time, difficulty, likes)
+- Recipe feed grid (responsive columns)
+- Recipe cards with image, overlay favorite icon, timer/duration badge, title, star rating, author avatar + name, difficulty level
+- "Load More Recipes" button at bottom of feed (not pagination)
+- "Surprise Me" button for random recipe feature (per random-recipe plan; not visible in Stitch but required)
 
 ### 7.2 Search & Filtering
 - Left sidebar for filters (categories, difficulty, time range)
@@ -230,16 +233,23 @@
 - Empty state when no matches
 
 ### 7.3 Recipe Detail
+- Breadcrumb navigation (Home / Recipes / {Recipe Title})
 - Full-width hero image with title/metadata overlay
 - Tabbed content (Ingredients, Instructions, Reviews)
 - Ingredients: Checkable list, quantity styling
 - Instructions: Step numbering, time estimates per step
+- **Nutrition Info Panel:** Calories, Protein, Carbs, Fat displayed in a card below instructions
+- **Pending User Restriction:** Lock icons on Like/Save buttons, Reviews section locked, "Pending Status" info card at bottom with description and "View Status Details" link
 
 ### 7.4 Authentication (Login/Signup)
-- Centered card on page
-- Form fields with labels and helper text
-- Social auth placeholder buttons
-- "Continue as Guest" button (guest mode integration)
+- Split-screen layout showing Login and Signup as distinct states/variants
+- Login: "Welcome Back" heading, email (mail icon), password (lock + visibility toggle), "Forgot Password?" link, "Log In" button
+- Signup: Email, Password, Confirm Password, "Sign Up" button
+- Social auth with Google + GitHub logos ("Or continue with" divider)
+- Error state: Red "Authentication Failed" alert banner
+- Post-signup: Green "Account Pending Approval" success notice
+- Navbar: "Home" and "About" links + dark-mode toggle icon
+- "Continue as Guest" button (guest mode integration; not visible in Stitch but required per guest-mode plan)
 
 ### 7.5 User Profile
 - Profile header (avatar, name, bio, stats)
@@ -251,7 +261,13 @@
 - Stats cards in dashboard (users, recipes, daily active, pending)
 - Table layout for recipe/user management
 - Bulk actions (checkboxes, multi-select)
-- Status indicators (badges)
+- Status indicators (Role/Status badges with color coding)
+- **User Management Table enhancements:**
+  - "Add New User" button + "Export" button in header actions bar
+  - Role filter dropdown ("All Roles") and Status filter dropdown ("All Statuses")
+  - Pagination: "Showing X to Y of Z results", page numbers, Previous/Next buttons
+  - **Variant A:** Current sidebar nav (Admin Stats, User List, Admin Recipes)
+  - **Variant B:** Expanded sidebar nav (Dashboard, User Management, Recipes, Orders, Analytics, Settings)
 
 ---
 
@@ -282,7 +298,7 @@
 
 **Global Constants:**
 - Border Radius: 8px (buttons, cards, inputs)
-- Primary Color: `#137fec` (brand accent)
+- Primary Color: `#137fec` via `brand-accent` Tailwind token (no hardcoded hex in components)
 - Font: Work Sans (Google Font)
 - Spacing: Tailwind scale (4, 6, 8, 12, 16)
 
@@ -304,18 +320,19 @@
 
 | Screen ID | Title | Design Pattern | Key Components |
 |------------|--------|----------------|----------------|
-| 6a35b85562824db1b1a501edc5f00fa9 | Kitchen Odyssey Home - Recipe Feed | Hero + Grid | Hero section, search bar, recipe cards |
+| 6a35b85562824db1b1a501edc5f00fa9 | Cookhub Home - Recipe Feed | Hero + Grid | Hero section, category pills, sort dropdown, recipe cards, "Load More" |
 | 0c3d91cadee54c5588df173fe6274d6c | Search and Filtering Results | Sidebar + Grid | Filter sidebar, results grid, filter chips |
-| 8cac488c341249a2a1b03c0ca65b3778 | Search Results Empty State | Centered Empty | Empty message, illustration, retry button |
-| d4bb7f8218a042aa9b7270a97d6e3e6d | User Authentication | Centered Card | Login/Signup forms, social auth buttons |
-| caa7bca340144607854ef2514e1c5e93 | Recipe Detail View | Hero + Tabs | Full-width hero, tabbed content, review section |
+| f85a1327eda741199830866d7ac291b2 | Search Results Empty State | Centered Empty | Empty message, illustration, retry button |
+| d4bb7f8218a042aa9b7270a97d6e3e6d | User Authentication | Split-screen | Login/Signup variants, Google+GitHub social auth, error/pending banners |
+| caa7bca340144607854ef2514e1c5e93 | Recipe Detail View | Hero + Tabs | Full-width hero, tabbed content, review section, nutrition panel |
 | c2c636b8cc2b4c25af090b49dd2e028c | Create New Recipe Form | Multi-section | Form accordion, dynamic lists, image upload |
 | 3e4a18d80f1f412d922d3e89e602b580 | User Profile with Tabs | Header + Tabs | Profile header, tabbed content grids |
-| 22a3e2ccc0734dbea656ba07b0720db1 | Edit Profile Modal Interface | Modal Form | Profile edit form, save/cancel buttons |
+| 88f0e358ae8d4b63bcc6a00b464b0255 | Edit Profile Modal Interface | Modal Form | Profile edit form, save/cancel buttons |
 | eaa464a04f24435eb75999e84101439a | Admin Dashboard Overview | Stats Grid | Stats cards, quick actions, charts |
 | 173ac4fe760e4dd39f4426e92a2bee27 | Admin Recipe Management Table | Data Table | Recipe table, bulk actions, status badges |
-| 403a08a1375f49e3a54d8d016520c93c | Admin User Management Table | Data Table | User table, status dropdown, bulk actions |
-| 2c5f3d1da041441b93807d452c8ba469 | Pending User Restricted State | Restricted View | Restricted message, status indicator |
+| 403a08a1375f49e3a54d8d016520c93c | Admin User Management Table (V.A) | Data Table | User table, pagination, role/status filters, Export, Add New User |
+| a4f60a77581b4f5a915584c4e096e78e | Admin User Management Table (V.B) | Data Table | Same table, expanded sidebar (Dashboard/Users/Recipes/Orders/Analytics/Settings) |
+| c6e8592646c244938fc914893f3efa92 | Pending User Restricted State | Restricted View | Lock icons on actions, pending status card, nutrition panel |
 
 ---
 
@@ -323,7 +340,7 @@
 
 **Colors:**
 ```css
---primary: #137fec;
+--color-brand-accent: #137fec; /* accessed as brand-accent in Tailwind classes */
 --success: #22c55e; /* green */
 --warning: #f59e0b; /* amber */
 --error: #ef4444; /* red */
@@ -390,4 +407,6 @@
 ---
 
 **Generated from Stitch Project ID: 12469199353397755583**  
-**Date:** February 11, 2026
+**Date:** February 17, 2026  
+**Design Overhaul Completed:** June 2025 — All 17 source files updated. Every hardcoded `#137fec` reference replaced with the `brand-accent` Tailwind token. All 32 Playwright tests passing.  
+**Note:** Stitch project uses "Cookhub" branding; implementation uses "Kitchen Odyssey" branding.

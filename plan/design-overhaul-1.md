@@ -1,16 +1,16 @@
 ---
 goal: Complete Design Overhaul - Modernize UI based on Google Stitch designs while preserving all functionality
-version: 1.8
+version: 1.9
 date_created: 2026-02-11
-last_updated: 2026-02-14
+last_updated: 2026-02-17
 owner: Project Team
-status: 'On Hold'
+status: 'Completed'
 tags: ['design', 'ui-overhaul', 'stitch', 'components', 'responsive', 'accessibility', 'automated-testing', 'web-testing', 'performance', 'react-patterns', 'color-theory']
 ---
 
 # Introduction
 
-![Status: On Hold](https://img.shields.io/badge/status-On%20Hold-orange)
+![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)
 
 This implementation plan provides a complete design overhaul for the Kitchen Odyssey Recipe Sharing System, transforming the current UI to match modern Google Stitch designs while preserving all existing functionality, logic, and features. The overhaul updates all major screens (13 total) with improved visual hierarchy, modern component patterns, responsive layouts, and enhanced accessibility, ensuring seamless integration with Guest Mode and Random Recipe Suggestion features.
 
@@ -27,6 +27,16 @@ This implementation plan provides a complete design overhaul for the Kitchen Ody
 ---
 
 ## Changelog
+
+### Version 1.9 (2026-02-17)
+- **Stitch redesign analysis**: Updated plan to reflect remade screen designs from Stitch project (last updated 2026-02-17T07:33:31Z)
+- **Auth screen redesign** (Phase 1): Updated to split-screen Login/Signup layout with Google + GitHub social auth logos, red error alert banner ("Authentication Failed"), green post-signup "Account Pending Approval" notice, password visibility toggle, "Forgot Password?" link, dark mode toggle placeholder in navbar
+- **Home screen redesign** (Phase 2): Updated hero to "Fresh from the Kitchen" heading, added category filter pills (Trending, Under 30min, Vegetarian, Desserts, Breakfast, Easy), Sort by dropdown, "Load More Recipes" button, updated recipe card layout (overlay favorite icon, timer badge, author avatar bar with difficulty)
+- **Recipe Detail updates** (Phase 4): Added Nutrition per serving panel (Calories, Protein, Carbs, Fat), expanded pending user restriction pattern with lock icon UX from dedicated "Pending User Restricted State" screen, breadcrumb navigation pattern, "Pending Status" info card
+- **Admin User Management redesign** (Phase 8): Documented two design variants (Variant A: current sidebar nav vs. Variant B: expanded sidebar with Dashboard/User Management/Recipes/Orders/Analytics/Settings), added pagination component, role/status filter dropdowns, Export button, Add New User button
+- **Stitch screen reference mapping** (Section 12): Updated all screen IDs to match current Stitch project state (3 IDs changed, 1 new variant added)
+- **Reconciliation notes**: Added notes for "Continue as Guest" button (not in Stitch, kept per guest-mode feature) and "Surprise Me" button (not in Stitch, kept per random-recipe feature)
+- **Branding note**: Stitch project still uses "Cookhub" branding (title, navbar, footer) while app uses "Kitchen Odyssey" — implementation should use "Kitchen Odyssey" branding
 
 ### Version 1.8 (2026-02-14)
 - Session delta documentation update: recorded broad UI refinement changes across shared components, layouts, and admin/recipe/auth pages.
@@ -80,7 +90,7 @@ Detailed changes documented in Testing Methodology update above.
 
 ### Functional Requirements
 
-- **FREQ-OV-001**: All 13 screens from Stitch project must be implemented in new design
+- **FREQ-OV-001**: All 13 screens from Stitch project must be implemented in new design (includes 2 Admin User Management Table variants: Variant A with current sidebar, Variant B with expanded sidebar — see Phase 8)
 - **FREQ-OV-002**: No hardcoded data values in the UI (counts, names, images, metrics) - all data must come from:
   - `src/lib/storage.js` for recipe data, user data, metrics, search history, activity logs
   - `src/context/AuthContext.jsx` for user authentication state (user, isGuest, canInteract)
@@ -295,36 +305,59 @@ Detailed changes documented in Testing Methodology update above.
 
 ### Implementation Phase 1: Authentication Pages Redesign (Estimated: 3-4 hours)
 
-- GOAL-001: Redesign Login and Signup pages with modern card-based layout, integrated guest mode
+- GOAL-001: Redesign Login and Signup pages with modern split-screen layout, integrated guest mode
+
+**Stitch Redesign Notes (v1.9):**
+- Stitch "User Authentication" screen shows Login and Signup as split-screen variants on same page
+- Login: "Welcome Back" heading, email (mail icon), password (lock icon + visibility toggle), "Forgot Password?" link, "Log In" button
+- Social auth: Google + GitHub with actual logo images (not placeholder text) under "Or continue with" divider
+- Signup: Email, Password, Confirm Password, "Sign Up" button (simpler than original multi-section plan)
+- Error state: Red alert banner "Authentication Failed — Please check your email and password and try again."
+- Post-signup state: Green success banner "Account Pending Approval — We've received your request."
+- Navbar: "Home" and "About" links + dark_mode toggle icon
+- Footer: "© 2023 Cookhub Inc. All rights reserved." (use "Kitchen Odyssey" in implementation)
+- **Reconciliation**: "Continue as Guest" button is NOT shown in Stitch redesign but MUST be kept per PREREQ-OV-001 (guest-mode feature requirement) — position it below social auth or as tertiary action
 
 | Task    | Description                                                   | Completed | Date       |
 | -------- | ------------------------------------------------------------- | --------- | ---------- |
-| TASK-OV-001 | Update `src/pages/Auth/Login.jsx` - Redesign with card-based layout matching Stitch "User Authentication" screen |           |            |
-| TASK-OV-002 | Update `src/pages/Auth/Login.jsx` - Ensure "Continue as Guest" button (from guest mode plan) is integrated with new design |           |            |
-| TASK-OV-003 | Update `src/pages/Auth/Login.jsx` - Enhance form inputs with better spacing, focus states, validation feedback |           |            |
-| TASK-OV-004 | Update `src/pages/Auth/Login.jsx` - Add social auth placeholders (buttons) matching Stitch design (functionality optional) |           |            |
-| TASK-OV-005 | Update `src/pages/Auth/Signup.jsx` - Redesign with card-based layout matching Stitch design |           |            |
-| TASK-OV-006 | Update `src/pages/Auth/Signup.jsx` - Ensure "Continue as Guest" button is integrated with new design |           |            |
-| TASK-OV-007 | Update `src/pages/Auth/Signup.jsx` - Enhance form with multi-section layout (personal info, account credentials) |           |            |
-| TASK-OV-008 | Update `src/layouts/AuthLayout.jsx` - Update background and centering logic for new auth card design |           |            |
-| TASK-OV-009 | Verify `src/pages/Auth/Login.jsx` and `src/pages/Auth/Signup.jsx` - Test all authentication flows (login, signup, guest mode) |           |            |
+| TASK-OV-001 | Update `src/pages/Auth/Login.jsx` - Redesign with split-screen card layout matching Stitch "User Authentication" screen: "Welcome Back" heading, email/password inputs with icons (mail, lock), password visibility toggle |           |            |
+| TASK-OV-002 | Update `src/pages/Auth/Login.jsx` - Ensure "Continue as Guest" button (from guest mode plan) is integrated with new design (position below social auth as tertiary action — not in Stitch but required by PREREQ-OV-001) |           |            |
+| TASK-OV-003 | Update `src/pages/Auth/Login.jsx` - Enhance form inputs with icon prefixes (mail, lock), focus states, validation feedback, "Forgot Password?" link below password field |           |            |
+| TASK-OV-004 | Update `src/pages/Auth/Login.jsx` - Add social auth buttons with Google and GitHub logos matching Stitch design (under "Or continue with" divider), with actual logo images |           |            |
+| TASK-OV-004.1 | Update `src/pages/Auth/Login.jsx` - Add error alert banner pattern: red "Authentication Failed" banner with descriptive message for invalid credentials |           |            |
+| TASK-OV-005 | Update `src/pages/Auth/Signup.jsx` - Redesign with card-based layout matching Stitch design: "Create Account" heading, email/password/confirm-password fields |           |            |
+| TASK-OV-006 | Update `src/pages/Auth/Signup.jsx` - Ensure "Continue as Guest" button is integrated with new design (not in Stitch but required by PREREQ-OV-001) |           |            |
+| TASK-OV-007 | Update `src/pages/Auth/Signup.jsx` - Add post-signup "Account Pending Approval" success notice (green banner per Stitch) with message about email notification |           |            |
+| TASK-OV-008 | Update `src/layouts/AuthLayout.jsx` - Update background and centering logic for new auth card design, add dark mode toggle placeholder in navbar, add footer with copyright |           |            |
+| TASK-OV-009 | Verify `src/pages/Auth/Login.jsx` and `src/pages/Auth/Signup.jsx` - Test all authentication flows (login, signup, guest mode, error states, pending approval notice) |           |            |
 
 ### Implementation Phase 2: Home Page Overhaul (Estimated: 4-5 hours)
 
-- GOAL-002: Overhaul Home page with enhanced hero, integrated search, recipe feed, and "Surprise Me" button
+- GOAL-002: Overhaul Home page with "Fresh from the Kitchen" hero, category filter pills, recipe feed, and "Surprise Me" button
+
+**Stitch Redesign Notes (v1.9):**
+- Hero section: "Fresh from the Kitchen" heading + "Discover thousands of recipes from home cooks worldwide." subtitle (no gradient overlay or background image in Stitch redesign)
+- Category filter pills: Trending, Under 30min, Vegetarian, Desserts, Breakfast, Easy (with Material icons, horizontal scrollable)
+- Sort by dropdown: "Trending" (default sort option)
+- Recipe cards: image with favorite icon overlay (top-right), timer/duration badge, title, star rating, author avatar + name bar, difficulty level
+- "Load More Recipes" button at bottom (not pagination)
+- Navbar: skillet icon + "Kitchen Odyssey" brand text (Stitch uses "Cookhub"), search icon, "Create Recipe" button, user avatar
+- **Reconciliation**: "Surprise Me" button is NOT visible in Stitch hero but MUST be kept per PREREQ-OV-002 (random-recipe feature requirement) — position as secondary CTA in hero section alongside category pills
 
 | Task    | Description                                                   | Completed | Date       |
 | -------- | ------------------------------------------------------------- | --------- | ---------- |
-| TASK-OV-010 | Update `src/pages/Recipe/Home.jsx` - Redesign hero section with modern imagery, gradient overlay, stronger typography (matching Stitch "Kitchen Odyssey Home" screen) |           |            |
-| TASK-OV-011 | Update `src/pages/Recipe/Home.jsx` - Integrate "Surprise Me" button (from random recipe plan) in hero section with prominent placement |           |            |
-| TASK-OV-012 | Update `src/pages/Recipe/Home.jsx` - Redesign search bar with floating effect, icon integration, clear button (matching Stitch design) |           |            |
-| TASK-OV-013 | Update `src/pages/Recipe/Home.jsx` - Add "Featured Recipes" section above main feed (if not already present) |           |            |
+| TASK-OV-010 | Update `src/pages/Recipe/Home.jsx` - Redesign hero section with "Fresh from the Kitchen" heading, subtitle text, clean typography (matching Stitch "Cookhub Home - Recipe Feed" screen, use "Kitchen Odyssey" branding) |           |            |
+| TASK-OV-011 | Update `src/pages/Recipe/Home.jsx` - Integrate "Surprise Me" button (from random recipe plan) in hero section with prominent placement (not in Stitch but required by PREREQ-OV-002, position as secondary CTA) |           |            |
+| TASK-OV-012 | Update `src/pages/Recipe/Home.jsx` - Add category filter pills below hero: Trending, Under 30min, Vegetarian, Desserts, Breakfast, Easy (with icons, horizontal scrollable, active state toggle) |           |            |
+| TASK-OV-012.1 | Update `src/pages/Recipe/Home.jsx` - Add "Sort by" dropdown (Trending as default option, integrate with existing sort logic) |           |            |
+| TASK-OV-013 | Update `src/pages/Recipe/Home.jsx` - Redesign search bar in navbar with icon integration, clear button (matching Stitch navbar search pattern) |           |            |
 | TASK-OV-014 | Update `src/pages/Recipe/Home.jsx` - Redesign recipe card grid with better spacing, gap consistency, responsive breakpoints |           |            |
-| TASK-OV-015 | Verify `src/components/recipe/RecipeCard.jsx` - Ensure RecipeCard component supports new design (image overlays, hover effects, badges) |           |            |
+| TASK-OV-015 | Verify `src/components/recipe/RecipeCard.jsx` - Update RecipeCard to match Stitch design: favorite icon overlay on image, timer/duration badge, star rating, author avatar + name bar, difficulty level |           |            |
 | TASK-OV-016 | Update `src/pages/Recipe/Home.jsx` - Add skeleton loader for recipe cards during loading state |           |            |
 | TASK-OV-017 | Update `src/pages/Recipe/Home.jsx` - Implement empty state for recipe feed (matching Stitch design) |           |            |
+| TASK-OV-017.1 | Update `src/pages/Recipe/Home.jsx` - Add "Load More Recipes" button at bottom of feed (replaces pagination, loads next batch of recipes) |           |            |
 | TASK-OV-018 | Integrate `src/components/recipe/RecipeSuggestionModal.jsx` - Ensure modal from random recipe plan works with new home design |           |            |
-| TASK-OV-019 | Verify `src/pages/Recipe/Home.jsx` - Test navigation to search, recipe detail, profile from home page |           |            |
+| TASK-OV-019 | Verify `src/pages/Recipe/Home.jsx` - Test category filter pills, sort dropdown, Load More, navigation to search/recipe detail/profile |           |            |
 
 ### Implementation Phase 3: Search Page Redesign (Estimated: 3-4 hours)
 
@@ -343,20 +376,32 @@ Detailed changes documented in Testing Methodology update above.
 
 ### Implementation Phase 4: Recipe Detail Overhaul (Estimated: 4-5 hours)
 
-- GOAL-004: Overhaul RecipeDetail page with immersive layout, tabbed content, and guest restrictions
+- GOAL-004: Overhaul RecipeDetail page with immersive layout, tabbed content, nutrition info, and guest/pending restrictions
+
+**Stitch Redesign Notes (v1.9):**
+- "Pending User Restricted State" is now a dedicated Stitch screen showing RecipeDetail as seen by pending-approval users
+- Breadcrumb navigation: Home / Recipes / {Recipe Title}
+- Navbar shows user name + "Pending Approval" badge for pending users
+- Lock icon (🔒) on Like/Save buttons with tooltip: "Account pending approval. You cannot interact with recipes yet."
+- Reviews section shows lock: "Interactions disabled for pending accounts"
+- **New: Nutrition per serving panel** with Calories (kcal), Protein (g), Carbs (g), Fat (g)
+- **New: "Pending Status" info card** at bottom: "Your account is currently under review by our moderation team. Full access will be restored once approved, usually within 24 hours." with "View Status Details" link
 
 | Task    | Description                                                   | Completed | Date       |
 | -------- | ------------------------------------------------------------- | --------- | ---------- |
 | TASK-OV-028 | Update `src/pages/Recipe/RecipeDetail.jsx` - Redesign with full-width hero image with recipe title and metadata overlay (matching Stitch "Recipe Detail View") |           |            |
+| TASK-OV-028.1 | Update `src/pages/Recipe/RecipeDetail.jsx` - Add breadcrumb navigation (Home / Recipes / {Recipe Title}) matching Stitch "Pending User Restricted State" screen |           |            |
 | TASK-OV-029 | Update `src/pages/Recipe/RecipeDetail.jsx` - Implement tabbed content layout using existing Tabs component: Ingredients, Instructions, Reviews |           |            |
 | TASK-OV-030 | Update `src/pages/Recipe/RecipeDetail.jsx` - Redesign ingredients section with checkable list, quantity styling |           |            |
 | TASK-OV-031 | Update `src/pages/Recipe/RecipeDetail.jsx` - Redesign instructions section with step numbering, clear typography, time estimates per step |           |            |
+| TASK-OV-031.1 | Update `src/pages/Recipe/RecipeDetail.jsx` - Add Nutrition per serving panel (Calories kcal, Protein g, Carbs g, Fat g) matching Stitch "Pending User Restricted State" screen layout |           |            |
 | TASK-OV-032 | Update `src/pages/Recipe/RecipeDetail.jsx` - Ensure like/favorite buttons respect guest mode (disabled with "Login to {action}" messages) |           |            |
 | TASK-OV-033 | Update `src/pages/Recipe/RecipeDetail.jsx` - Redesign reviews section with user avatar, rating stars, timestamp, helpful voting |           |            |
-| TASK-OV-034 | Update `src/pages/Recipe/RecipeDetail.jsx` - Implement guest restriction overlay/badge for interactive elements |           |            |
+| TASK-OV-034 | Update `src/pages/Recipe/RecipeDetail.jsx` - Implement pending user restriction pattern from Stitch: lock icons (🔒) on Like/Save buttons with "Account pending approval. You cannot interact with recipes yet." tooltip, reviews section locked with "Interactions disabled for pending accounts" message |           |            |
+| TASK-OV-034.1 | Update `src/pages/Recipe/RecipeDetail.jsx` - Add "Pending Status" info card at bottom for pending users: "Your account is currently under review..." with "View Status Details" link (matching Stitch "Pending User Restricted State" screen) |           |            |
 | TASK-OV-035 | Update `src/pages/Recipe/RecipeDetail.jsx` - Add "Related Recipes" section at bottom (optional, following Stitch pattern) |           |            |
 | TASK-OV-036 | Update `src/pages/Recipe/RecipeDetail.jsx` - Ensure mobile-responsive layout (hero image proportions, tab accessibility) |           |            |
-| TASK-OV-037 | Verify `src/pages/Recipe/RecipeDetail.jsx` - Test all actions (like, favorite, review, share) with different user types (admin, user, pending, guest) |           |            |
+| TASK-OV-037 | Verify `src/pages/Recipe/RecipeDetail.jsx` - Test all actions (like, favorite, review, share) with different user types (admin, user, pending, guest) — verify lock icon patterns for pending users specifically |           |            |
 
 ### Implementation Phase 5: Create Recipe Form Overhaul (Estimated: 4-5 hours)
 
@@ -548,20 +593,33 @@ export function Card({ children, image, badges, footer }) {
 
 ### Implementation Phase 8: Admin Table Components Overhaul (Estimated: 3-4 hours)
 
-- GOAL-008: Overhaul Admin Recipe and User management tables with enhanced Table component, sorting, filtering
+- GOAL-008: Overhaul Admin Recipe and User management tables with enhanced Table component, sorting, filtering, pagination
+
+**Stitch Redesign Notes (v1.9):**
+- Admin User Management Table has **two design variants** in Stitch:
+  - **Variant A** (screen `403a08a1375f49e3a54d8d016520c93c`): Uses current sidebar nav (Admin Stats, User List, Admin Recipes)
+  - **Variant B** (screen `a4f60a77581b4f5a915584c4e096e78e`): Uses expanded sidebar nav with Dashboard, User Management, Recipes, Orders, Analytics, Settings (uses Material icons)
+- Both variants share the same table structure:
+  - Header: "User Management" heading, "Manage and monitor user accounts" subtitle
+  - Actions bar: "Add New User" button, search input, "All Roles" filter dropdown, "All Statuses" filter dropdown, "Export" button
+  - Table columns: Name (avatar initials + name + email), Role (Administrator/Editor/Viewer badge), Status (Active/Pending/Suspended badge), Last Active (timestamp), Actions (edit/block/approve/delete/refresh icons)
+  - Pagination: "Showing 1 to 5 of 42 results" with Previous/1/2/3/.../8/Next buttons
+- **Decision needed**: Choose between Variant A (simpler, matches current sidebar) or Variant B (expanded nav, forward-looking). Variant A recommended for current scope to avoid adding unimplemented nav items (Orders, Analytics, Settings)
 
 | Task    | Description                                                   | Completed | Date       |
 | -------- | ------------------------------------------------------------- | --------- | ---------- |
-| TASK-OV-063 | Verify `src/components/ui/Table.jsx` - Ensure Table component supports sticky headers, sortable columns, status badges |           |            |
+| TASK-OV-063 | Verify `src/components/ui/Table.jsx` - Ensure Table component supports sticky headers, sortable columns, status badges, pagination |           |            |
 | TASK-OV-064 | Update `src/pages/Admin/AdminRecipes.jsx` - Redesign recipe management table with improved columns (image preview, title, author, status, likes, actions) |           |            |
 | TASK-OV-065 | Update `src/pages/Admin/AdminRecipes.jsx` - Implement table sorting by clicking column headers |           |            |
 | TASK-OV-066 | Update `src/pages/Admin/AdminRecipes.jsx` - Implement table filtering (search by recipe name, filter by status) |           |            |
 | TASK-OV-067 | Update `src/pages/Admin/AdminRecipes.jsx` - Add bulk actions (approve multiple, delete multiple) using checkboxes |           |            |
 | TASK-OV-068 | Update `src/pages/Admin/AdminRecipes.jsx` - Ensure responsive overflow handling for tables (horizontal scroll on mobile) |           |            |
-| TASK-OV-069 | Update `src/pages/Admin/UserList.jsx` - Redesign user management table with improved columns (avatar, username, email, status, role, joined date, actions) |           |            |
-| TASK-OV-070 | Update `src/pages/Admin/UserList.jsx` - Implement table sorting and filtering (search by username, filter by status/role) |           |            |
+| TASK-OV-069 | Update `src/pages/Admin/UserList.jsx` - Redesign user management table matching Stitch: avatar initials + name/email, Role badge, Status badge, Last Active timestamp, Action icons (edit/block/approve/delete) |           |            |
+| TASK-OV-069.1 | Update `src/pages/Admin/UserList.jsx` - Add "Add New User" button and "Export" button in table header actions bar |           |            |
+| TASK-OV-070 | Update `src/pages/Admin/UserList.jsx` - Implement table sorting and filtering (search by username, "All Roles" dropdown, "All Statuses" dropdown per Stitch design) |           |            |
+| TASK-OV-070.1 | Update `src/pages/Admin/UserList.jsx` - Add pagination component: "Showing X to Y of Z results" with Previous/page numbers/Next buttons |           |            |
 | TASK-OV-071 | Update `src/pages/Admin/UserList.jsx` - Add status quick-change dropdown (pending → active → suspended) |           |            |
-| TASK-OV-072 | Verify both admin tables - Test sort, filter, bulk actions, row actions (edit, delete, approve, suspend) |           |            |
+| TASK-OV-072 | Verify both admin tables - Test sort, filter, pagination, bulk actions, row actions (edit, delete, approve, suspend) |           |            |
 
 ### Implementation Phase 9: Component Library Enhancements (Estimated: 4-5 hours)
 
@@ -621,7 +679,7 @@ Execute component enhancements in the following order to maximize efficiency and
 | -------- | ------------------------------------------------------------- | --------- | ---------- |
 | TASK-OV-081 | Update `src/components/layout/Navbar.jsx` - Redesign with modern logo, search integration, guest mode badge, user menu dropdown |           |            |
 | TASK-OV-082 | Update `src/components/layout/Navbar.jsx` - Ensure mobile hamburger menu functionality with new design |           |            |
-| TASK-OV-083 | Update `src/components/layout/Sidebar.jsx` - Redesign admin sidebar with modern icon+text navigation, active state indicators, collapsible sections |           |            |
+| TASK-OV-083 | Update `src/components/layout/Sidebar.jsx` - Redesign admin sidebar with modern icon+text navigation, active state indicators, collapsible sections (Stitch Variant B shows expanded sidebar with Dashboard/User Management/Recipes/Orders/Analytics/Settings using Material icons — choose Variant A or B per Phase 8 decision) |           |            |
 | TASK-OV-084 | Update `src/layouts/RootLayout.jsx` - Ensure proper spacing, background, responsive container width |           |            |
 | TASK-OV-085 | Update `src/layouts/AuthLayout.jsx` - Ensure background, centering logic works with new auth card design |           |            |
 | TASK-OV-086 | Update `src/layouts/AdminLayout.jsx` - Ensure sidebar+content layout works with new sidebar design |           |            |
@@ -944,27 +1002,34 @@ Execute component enhancements in the following order to maximize efficiency and
 ### Authentication Pages (Modified)
 
 - **FILE-OV-001**: `src/pages/Auth/Login.jsx`
-  - Redesign with card-based layout
-  - Integrate "Continue as Guest" button (from guest mode plan)
-  - Enhance form inputs with spacing, focus states
-  - Add social auth placeholder buttons
+  - Redesign with split-screen card layout (Stitch v1.9)
+  - "Welcome Back" heading, email/password with icon prefixes (mail, lock), password visibility toggle
+  - Social auth with Google + GitHub logos (under "Or continue with" divider)
+  - "Forgot Password?" link
+  - Error alert banner ("Authentication Failed") for invalid credentials
+  - Integrate "Continue as Guest" button (from guest mode plan, not in Stitch but required)
 
 - **FILE-OV-002**: `src/pages/Auth/Signup.jsx`
-  - Redesign with card-based layout
-  - Integrate "Continue as Guest" button (from guest mode plan)
-  - Enhance form with multi-section layout (personal, credentials)
+  - Redesign with card-based layout: "Create Account" heading
+  - Simplified form: email, password, confirm password (Stitch v1.9)
+  - Post-signup "Account Pending Approval" green success notice
+  - Integrate "Continue as Guest" button (from guest mode plan, not in Stitch but required)
 
 - **FILE-OV-003**: `src/layouts/AuthLayout.jsx`
   - Update background and centering logic for new auth card design
+  - Add dark mode toggle placeholder in navbar
+  - Add footer with copyright
 
  Home Page (Modified)
 
 - **FILE-OV-004**: `src/pages/Recipe/Home.jsx`
-  - Redesign hero section with modern imagery, gradient overlay, typography
-  - Integrate "Surprise Me" button (from random recipe plan) in hero
-  - Redesign search bar with floating effect, icon, clear button
-  - Add optional "Featured Recipes" section
+  - Redesign hero section: "Fresh from the Kitchen" heading, subtitle text (Stitch v1.9)
+  - Add category filter pills: Trending, Under 30min, Vegetarian, Desserts, Breakfast, Easy (with icons)
+  - Add "Sort by" dropdown (Trending default)
+  - Integrate "Surprise Me" button (from random recipe plan, not in Stitch but required)
+  - Redesign search bar in navbar with icon, clear button
   - Redesign recipe card grid with spacing, responsive breakpoints
+  - Add "Load More Recipes" button (replaces pagination)
   - Add skeleton loader for cards
   - Implement empty state for recipe feed
   - Integrate RecipeSuggestionModal (from random recipe plan)
@@ -984,12 +1049,14 @@ Execute component enhancements in the following order to maximize efficiency and
 
 - **FILE-OV-006**: `src/pages/Recipe/RecipeDetail.jsx`
   - Redesign with full-width hero image, title/metadata overlay
+  - Add breadcrumb navigation (Home / Recipes / {Recipe Title})
   - Implement tabbed content using existing Tabs component (Ingredients, Instructions, Reviews)
   - Redesign ingredients section with checkable list, quantity styling
   - Redesign instructions section with step numbering, clear typography, time estimates
+  - Add Nutrition per serving panel (Calories, Protein, Carbs, Fat)
   - Ensure like/favorite buttons respect guest mode (disabled with messages)
   - Redesign reviews section with avatar, rating stars, timestamp, helpful voting
-  - Implement guest restriction overlay/badge for interactive elements
+  - Implement pending user restriction with lock icons and "Pending Status" info card
   - Add optional "Related Recipes" section
   - Ensure mobile-responsive layout
 
@@ -1035,8 +1102,10 @@ Execute component enhancements in the following order to maximize efficiency and
   - Ensure responsive overflow handling for tables
 
 - **FILE-OV-011**: `src/pages/Admin/UserList.jsx`
-  - Redesign user management table with enhanced columns
-  - Implement table sorting and filtering
+  - Redesign user management table matching Stitch: avatar initials + name/email, Role badge, Status badge, Last Active, Actions
+  - Add "Add New User" button and "Export" button in header actions bar
+  - Implement table sorting and filtering (search, "All Roles" dropdown, "All Statuses" dropdown)
+  - Add pagination ("Showing X to Y of Z results", page numbers, Previous/Next)
   - Add status quick-change dropdown
   - Ensure responsive overflow handling
 
@@ -1791,19 +1860,23 @@ test.describe('Recipe Management', () => {
 ### Stitch Design Screens
 
 - **Stitch Project**: [https://stitch.withgoogle.com/projects/12469199353397755583](https://stitch.withgoogle.com/projects/12469199353397755583)
-- **Screens Referenced**:
-  - Kitchen Odyssey Home - Recipe Feed (TASK-OV-010 through TASK-OV-018)
-  - Admin Recipe Management Table (TASK-OV-064 through TASK-OV-068)
-  - Admin Dashboard Overview (TASK-OV-058 through TASK-OV-062)
-  - Search and Filtering Results (TASK-OV-020 through TASK-OV-027)
-  - User Authentication (TASK-OV-001 through TASK-OV-008)
-  - Admin User Management Table (TASK-OV-069 through TASK-OV-072)
-  - Pending User Restricted State (TASK-OV-034)
-  - Recipe Detail View (TASK-OV-028 through TASK-OV-037)
-  - Edit Profile Modal Interface (TASK-OV-053, TASK-OV-055)
-  - Create New Recipe Form (TASK-OV-038 through TASK-OV-047)
-  - Search Results Empty State (TASK-OV-024)
-  - User Profile with Tabs (TASK-OV-048 through TASK-OV-057)
+- **Project Theme**: LIGHT mode, custom color `#137fec`, font WORK_SANS, roundness ROUND_EIGHT, saturation 3, device DESKTOP
+- **Last Updated in Stitch**: 2026-02-17T07:33:31Z
+- **Branding Note**: Stitch project title is "Cookhub Home - Recipe Feed" and uses "Cookhub" in navbar/footer — implementation MUST use "Kitchen Odyssey" branding per project standards
+- **Screens Referenced (13 visible, current IDs as of v1.9)**:
+  - `6a35b85562824db1b1a501edc5f00fa9` — Cookhub Home - Recipe Feed (TASK-OV-010 through TASK-OV-019) — Hero: "Fresh from the Kitchen", category filter pills, "Load More Recipes"
+  - `d4bb7f8218a042aa9b7270a97d6e3e6d` — User Authentication (TASK-OV-001 through TASK-OV-009) — Split-screen Login/Signup, Google+GitHub social auth, error/pending banners
+  - `0c3d91cadee54c5588df173fe6274d6c` — Search and Filtering Results (TASK-OV-020 through TASK-OV-027)
+  - `f85a1327eda741199830866d7ac291b2` — Search Results Empty State (TASK-OV-024) — *ID changed from previous `8cac488c341249a2a1b03c0ca65b3778`*
+  - `caa7bca340144607854ef2514e1c5e93` — Recipe Detail View (TASK-OV-028 through TASK-OV-037)
+  - `c2c636b8cc2b4c25af090b49dd2e028c` — Create New Recipe Form (TASK-OV-038 through TASK-OV-047)
+  - `3e4a18d80f1f412d922d3e89e602b580` — User Profile with Tabs (TASK-OV-048 through TASK-OV-057)
+  - `88f0e358ae8d4b63bcc6a00b464b0255` — Edit Profile Modal Interface (TASK-OV-053, TASK-OV-055) — *ID changed from previous `22a3e2ccc0734dbea656ba07b0720db1`*
+  - `eaa464a04f24435eb75999e84101439a` — Admin Dashboard Overview (TASK-OV-058 through TASK-OV-062)
+  - `173ac4fe760e4dd39f4426e92a2bee27` — Admin Recipe Management Table (TASK-OV-064 through TASK-OV-068)
+  - `403a08a1375f49e3a54d8d016520c93c` — Admin User Management Table — Variant A (TASK-OV-069 through TASK-OV-072) — Uses current sidebar nav
+  - `a4f60a77581b4f5a915584c4e096e78e` — Admin User Management Table — Variant B (TASK-OV-069 through TASK-OV-072) — Expanded sidebar with Dashboard/Users/Recipes/Orders/Analytics/Settings
+  - `c6e8592646c244938fc914893f3efa92` — Pending User Restricted State (TASK-OV-034, TASK-OV-034.1) — *ID changed from previous `2c5f3d1da041441b93807d452c8ba469`* — Dedicated screen showing RecipeDetail with locked interactions for pending users, nutrition panel, "Pending Status" info card
 
 ### React & UI/UX Documentation
 

@@ -9,6 +9,7 @@ import { RecipeCard } from '../../components/recipe/RecipeCard';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { MapPin, Calendar, Settings, Check, Edit, Trash2 } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 export function Profile() {
     const { userId } = useParams();
@@ -126,7 +127,7 @@ export function Profile() {
             {/* Profile Header */}
             <div className="bg-white p-6 rounded-lg border border-cool-gray-20 shadow-sm">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
-                    <img src={profileUser.avatar} alt={profileUser.username} className="h-20 w-20 rounded-full border-4 border-cool-gray-10" />
+                    <img src={profileUser.avatar} alt={profileUser.username} className="h-20 w-20 rounded-full border-4 border-cool-gray-10 shadow-sm" />
 
                     <div className="flex-1 space-y-1.5">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
@@ -175,7 +176,7 @@ export function Profile() {
                                     key={i}
                                     type="button"
                                     onClick={() => handleAvatarSelect(avatar)}
-                                    className={`relative h-12 w-12 rounded-full overflow-hidden border-2 transition-all hover:scale-105 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cool-gray-90 focus-visible:ring-offset-2 ${editForm.avatar === avatar ? 'border-cool-gray-90 ring-2 ring-cool-gray-90/20' : 'border-cool-gray-20 hover:border-cool-gray-40'}`}
+                                    className={cn('relative h-12 w-12 rounded-full overflow-hidden border-2 transition-all hover:scale-105 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2', editForm.avatar === avatar ? 'border-brand-accent ring-2 ring-brand-accent/20' : 'border-cool-gray-20 hover:border-cool-gray-40')}
                                     aria-label={`Select avatar ${i + 1}`}
                                     aria-pressed={editForm.avatar === avatar}
                                 >
@@ -314,7 +315,7 @@ export function Profile() {
                         {myRecipes.length === 0 && (
                             <div className="text-cool-gray-60 col-span-full text-center py-10 text-sm">
                                 {isOwnProfile ? (
-                                    <>You haven't shared any recipes yet. <Link to="/recipes/create" className="text-cool-gray-90 underline">Create one!</Link></>
+                                    <>You haven't shared any recipes yet. <Link to="/recipes/create" className="text-brand-accent font-medium hover:underline">Create one!</Link></>
                                 ) : (
                                     "This user hasn't published any recipes yet."
                                 )}
@@ -330,7 +331,7 @@ export function Profile() {
                         ))}
                         {favorites.length === 0 && (
                             <div className="text-cool-gray-60 col-span-full text-center py-10 text-sm">
-                                No favorites yet. <Link to="/" className="text-cool-gray-90 underline">Go explore!</Link>
+                                No favorites yet. <Link to="/" className="text-brand-accent font-medium hover:underline">Go explore!</Link>
                             </div>
                         )}
                     </div>
