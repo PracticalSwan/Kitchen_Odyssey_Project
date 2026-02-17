@@ -2,6 +2,9 @@
 goal: Migrate Kitchen Odyssey from frontend-only localStorage architecture to split Frontend + Next.js Backend + MongoDB Atlas while preserving existing behavior and design-overhaul compatibility
 last_updated: 2026-02-17
 revision_notes: >
+  Rev 5 (2026-02-17): Added TASK-008-H (MongoDB connection utility), TASK-016-A
+  (user management routes), TASK-016-B (deletion cascade logic). Expanded TASK-017
+  scope to include view recording and rating endpoints.
   Rev 4 (2026-02-17): Reduced to implementation-critical content only. Removed embedded
   testing strategy and matrix. Testing scope moved to
   `plan/architecture-nextjs-mongodb-migration-testing-1.md`.
@@ -125,6 +128,7 @@ Field-level mapping details are maintained in `Kitchen_Odyssey/docs/migration-da
 | TASK-008-E | Install `mongoose` and `bcryptjs`; remove backend-unused frontend deps. |  |
 | TASK-008-F | Ensure `!.env.example` is present in backend `.gitignore`. |  |
 | TASK-008-G | Remove default create-next-app UI files from backend (API-only). |  |
+| TASK-008-H | Add cached MongoDB connection utility (`src/lib/db.js`) with pooling settings from env. Prerequisite for all database operations. |  |
 
 ### Phase 3: Data Model and Migration Scripts
 
@@ -145,7 +149,9 @@ Field-level mapping details are maintained in `Kitchen_Odyssey/docs/migration-da
 | TASK-014 | Maintain OpenAPI contract (`docs/openapi.yaml`) aligned with implementation. |  |
 | TASK-015 | Implement auth routes (`login`, `signup`, `guest-session`, `logout`, `logout-all`, `refresh`, `profile`). |  |
 | TASK-016 | Implement recipe routes with unified sorting and pagination defaults. |  |
-| TASK-017 | Implement interaction routes (`like`, `favorite`, `reviews`) with role restrictions. |  |
+| TASK-016-A | Implement user management routes (`GET /users`, `GET /users/:id`, `PATCH /users/:id`, `DELETE /users/:id`) with self-access and admin access patterns. Required by Profile.jsx and `updateProfile()`. |  |
+| TASK-016-B | Implement deletion cascade logic for user and recipe deletions. User deletion must cascade across recipes, reviews, favorites references, daily_stats, and activity_logs. Recipe deletion must cascade across reviews and user favorites. |  |
+| TASK-017 | Implement interaction routes (`like`, `favorite`, `reviews`, `POST /recipes/:id/view` with guest analytics bypass, `GET /recipes/:id/rating`) with role restrictions. |  |
 | TASK-018 | Implement admin moderation routes for users/recipes. |  |
 | TASK-019 | Implement random suggestion route preserving existing quality constraints. |  |
 | TASK-020 | Implement stats routes returning real computed data expected by `AdminStats.jsx`. |  |
@@ -236,7 +242,7 @@ Authoritative testing plan:
 - `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-testing-1.md`
 
 Testing tasks moved there include:
-- TASK-004, TASK-035, TASK-046 through TASK-056, TASK-060
+- TASK-004, TASK-035, TASK-046, TASK-046-A, TASK-047 through TASK-056, TASK-060
 
 ## 9. Related Documents
 

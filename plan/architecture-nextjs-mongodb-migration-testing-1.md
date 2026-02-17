@@ -1,6 +1,9 @@
 ---
 goal: Define implementation-ready testing plan for the localStorage to Next.js + MongoDB migration
 last_updated: 2026-02-17
+revision_notes: >
+  Rev 2 (2026-02-17): Added TASK-046-A (test seed fixtures and DB reset scripts).
+  Added user profile CRUD and deletion cascade to minimum test matrix.
 source: Extracted from architecture-nextjs-mongodb-migration-1.md and docs/testing-strategy-1.md to reduce context size in implementation docs
 ---
 
@@ -64,6 +67,7 @@ For overlapping scenarios, behavior in Mode B must match Mode A unless a documen
 | Task | Description | Status |
 | --- | --- | --- |
 | TASK-046 | Add backend unit tests for repositories/services (success, failure, boundary cases). |  |
+| TASK-046-A | Create test seed fixtures and deterministic DB reset/cleanup scripts. Prerequisite for TASK-046 and TASK-047. Must cover all roles (guest, pending, active, admin) and representative recipe/review/stats data. |  |
 | TASK-047 | Add backend integration tests for API routes using seeded test DB. |  |
 | TASK-048 | Add API contract tests validating OpenAPI and response/error schemas. |  |
 
@@ -103,9 +107,11 @@ Required feature domains:
 - Authentication/session lifecycle
 - Recipe CRUD/listing/sorting/pagination
 - Interaction constraints (`canInteract` parity)
+- User profile CRUD (self-read, self-update, view other user, admin listing/deletion)
 - Admin moderation and metrics
 - Activity and search history
 - Random suggestion behavior
+- Deletion cascade and referential integrity (user/recipe deletion must clean dependent records across collections)
 
 Required failure modes:
 - Validation errors (`400`)
