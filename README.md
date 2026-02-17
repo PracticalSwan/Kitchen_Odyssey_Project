@@ -1,4 +1,4 @@
-# Recipe Sharing System
+# Kitchen Odyssey
 
 A collaborative web application for sharing, discovering, and managing recipes with role-based access control and a comprehensive approval workflow.
 
@@ -58,7 +58,7 @@ The system uses a client-side storage approach with localStorage, making it ligh
 ```bash
 # Clone repository
 git clone <repository-url>
-cd recipe-sharing-system
+cd Kitchen_Odyssey
 
 # Install dependencies
 npm install
@@ -82,10 +82,17 @@ npm run preview
 npm run lint
 ```
 
+## Project Team
+
+| Name | Student ID |
+|------|-----------|
+| Sithu Win San | 6726077 |
+| Aung Thura Hein | 6726135 |
+
 ## Project Structure
 
 ```
-recipe-sharing-system/
+Kitchen_Odyssey/
 ├── src/
 │   ├── components/          # Reusable UI components
 │   │   ├── layout/        # Navigation & layout
