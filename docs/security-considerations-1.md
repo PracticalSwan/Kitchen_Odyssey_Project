@@ -14,7 +14,7 @@ tags: ['security', 'nosql-injection', 'auth', 'jwt', 'csrf', 'rate-limiting', 'o
 
 This document outlines security best practices and implementation patterns for the Kitchen Odyssey backend services. It covers authentication, authorization, NoSQL injection prevention, and protection against common web vulnerabilities following OWASP guidelines.
 
-**Framework Note:** The target backend is `Project2/Kitchen_Odyssey_Backend` using Next.js route handlers. Any Express-style snippets in this document are reference patterns and must be translated to equivalent Next.js middleware/route utilities during implementation.
+**Framework Note:** The target backend is `Project2/kitchen-odyssey-backend` using Next.js route handlers. Any Express-style snippets in this document are reference patterns and must be translated to equivalent Next.js middleware/route utilities during implementation.
 
 ---
 
@@ -24,7 +24,7 @@ This document outlines security best practices and implementation patterns for t
 
 **Requirement:** Store passwords using bcrypt with salt rounds.
 
-```typescript
+```javascript
 import bcrypt from 'bcrypt';
 
 const SALT_ROUNDS = 10;
@@ -55,7 +55,7 @@ export async function verifyPassword(
 
 **Implementation:**
 
-```typescript
+```javascript
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET!; // Minimum 32 bytes
@@ -111,7 +111,7 @@ export function verifyToken(token: string): JWTPayload | null {
 
 ### 1.3 Token Refresh Flow
 
-```typescript
+```javascript
 // Middleware to refresh token on 401
 export async function refreshAccessToken(refreshToken: string) {
   const payload = verifyToken(refreshToken);
@@ -148,7 +148,7 @@ export async function refreshAccessToken(refreshToken: string) {
 
 ### 2.1 Role Guards
 
-```typescript
+```javascript
 import { Request, Response, NextFunction } from 'express';
 
 export enum UserRole {
@@ -252,7 +252,7 @@ router.delete('/users/:id', requireAuth, requireRole(UserRole.ADMIN), deleteUser
 
 ### 2.2 Resource Ownership Check
 
-```typescript
+```javascript
 // Middleware to verify user owns resource or is admin
 export async function requireOwnershipOrAdmin(
   req: Request,
@@ -296,7 +296,7 @@ router.patch('/recipes/:id', requireAuth, requireOwnershipOrAdmin, updateRecipe)
 MongoDB is vulnerable to injection attacks when user input is directly used in query objects without sanitization.
 
 **Vulnerable Example:**
-```typescript
+```javascript
 // BAD: Direct use of user input
 app.get('/users', async (req, res) => {
   const { role, status } = req.query;
@@ -314,7 +314,7 @@ GET /users?role[$ne]=null&status[$ne]=null
 
 ### 3.2 Sanitization Utility
 
-```typescript
+```javascript
 // Sanitize MongoDB operators from user input
 export function sanitizeMongoQuery<T extends Record<string, any>>(obj: T): T {
   const sanitized = { ...obj };
@@ -358,7 +358,7 @@ export function sanitizeSpecialChars(input: string): string {
 
 ### 3.3 Safe Query Building
 
-```typescript
+```javascript
 import mongoose from 'mongoose';
 
 // GOOD: Use Mongoose's type-safe queries
@@ -405,7 +405,7 @@ export async function searchRecipesText(searchTerm: string) {
 
 ### 3.4 Input Validation Middleware
 
-```typescript
+```javascript
 import { body, param, query, validationResult } from 'express-validator';
 
 // Validation middleware
@@ -464,7 +464,7 @@ router.get(
 
 ### 4.1 CSRF Token Implementation
 
-```typescript
+```javascript
 import crypto from 'crypto';
 
 // Generate CSRF token
@@ -567,7 +567,7 @@ export default apiClient;
 
 ### 5.1 Rate Limiter Implementation
 
-```typescript
+```javascript
 import rateLimit from 'express-rate-limit';
 import MongoStore from 'rate-limit-mongo';
 
@@ -643,7 +643,7 @@ router.post('/recipes', writeRateLimiter, createRecipe);
 
 ### 6.1 Helmet.js Configuration
 
-```typescript
+```javascript
 import helmet from 'helmet';
 
 export function securityHeaders(app: Express) {
@@ -686,7 +686,7 @@ export function securityHeaders(app: Express) {
 
 ## 7. Request Size Limits
 
-```typescript
+```javascript
 import express from 'express';
 
 // Limit request body size to prevent DoS
@@ -703,7 +703,7 @@ export function requestSizeLimits(app: Express) {
 
 ## 8. CORS Configuration
 
-```typescript
+```javascript
 import cors from 'cors';
 
 export function corsConfig(app: Express) {
@@ -747,7 +747,7 @@ export function corsConfig(app: Express) {
 
 ### 9.1 HTML Sanitization
 
-```typescript
+```javascript
 import sanitizeHtml from 'sanitize-html';
 
 export function sanitizeHtmlInput(input: string): string {
@@ -770,7 +770,7 @@ router.post(
 
 ### 9.2 SQL/NoSQL Operator Detection
 
-```typescript
+```javascript
 // Detect and block potential injection patterns
 const INJECTION_PATTERNS = [
   /\$where/i,
@@ -811,7 +811,7 @@ export function sanitizeInput(input: string): string {
 
 ### 10.1 Security Test Cases
 
-```typescript
+```javascript
 // tests/security/nosql-injection.spec.ts
 import request from 'supertest';
 import { app } from '../app';
@@ -968,7 +968,7 @@ describe('Authorization', () => {
 
 ### Security Metrics to Monitor
 
-```typescript
+```javascript
 // lib/observability/securityMetrics.ts
 export interface SecurityMetrics {
   // Authentication failures

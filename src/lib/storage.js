@@ -599,8 +599,47 @@ export const storage = {
 
     deleteUser: (userId) => {
         const users = storage.getUsers();
-        const filtered = users.filter(u => u.id !== userId);
-        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(filtered));
+        const recipes = storage.getRecipes();
+        const reviews = storage.getReviews();
+        const allStats = storage.getDailyStats();
+
+        const deletedRecipeIds = new Set(
+            recipes.filter(recipe => recipe.authorId === userId).map(recipe => recipe.id)
+        );
+
+        const remainingUsers = users
+            .filter(user => user.id !== userId)
+            .map(user => ({
+                ...user,
+                favorites: (user.favorites || []).filter(recipeId => !deletedRecipeIds.has(recipeId)),
+                viewedRecipes: (user.viewedRecipes || []).filter(recipeId => !deletedRecipeIds.has(recipeId))
+            }));
+
+        const remainingRecipes = recipes.filter(recipe => recipe.authorId !== userId);
+        const remainingReviews = reviews.filter(
+            review => review.userId !== userId && !deletedRecipeIds.has(review.recipeId)
+        );
+
+        Object.keys(allStats).forEach((dateKey) => {
+            const day = allStats[dateKey];
+            if (!day) return;
+            day.newUsers = (day.newUsers || []).filter(id => id !== userId);
+            day.newContributors = (day.newContributors || []).filter(id => id !== userId);
+            day.activeUsers = (day.activeUsers || []).filter(id => id !== userId);
+            day.views = (day.views || []).filter(
+                view => view.viewerKey !== userId && !deletedRecipeIds.has(view.recipeId)
+            );
+        });
+
+        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(remainingUsers));
+        localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(remainingRecipes));
+        localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(remainingReviews));
+        localStorage.setItem(STORAGE_KEYS.DAILY_STATS, JSON.stringify(allStats));
+
+        const currentUser = storage.getCurrentUser();
+        if (currentUser?.id === userId) {
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+        }
     },
 
     login: (email, password) => {

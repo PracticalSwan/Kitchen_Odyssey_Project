@@ -1231,7 +1231,7 @@ Most endpoints require authentication via JWT tokens stored in HttpOnly cookies.
 A complete OpenAPI 3.0 YAML specification is available at:
 
 ```
-Project2/Kitchen_Odyssey_Backend/docs/openapi.yaml
+Project2/kitchen-odyssey-backend/docs/openapi.yaml
 ```
 
 This specification can be imported into tools like:
@@ -1251,7 +1251,7 @@ To generate TypeScript types from the OpenAPI specification:
 npm install -g openapi-typescript
 
 # Generate types
-openapi-typescript Project2/Kitchen_Odyssey_Backend/docs/openapi.yaml -o src/types/api.ts
+openapi-typescript Project2/kitchen-odyssey-backend/docs/openapi.yaml -o src/types/api.ts
 ```
 
 This will generate a `paths` object with full type safety for all endpoints.

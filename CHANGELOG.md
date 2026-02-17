@@ -19,13 +19,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added proper cleanup with `cancelAnimationFrame`
   - Resolves `react-hooks/set-state-in-effect` ESLint error
 
+- **Home.jsx** - Fixed Discover sorting/filtering data references
+  - Updated `Under 30min` filter to use total recipe time (`prepTime + cookTime`)
+  - Replaced non-persisted sort fields (`reviewCount`, `averageRating`) with storage-derived metrics (`getReviews`, `getAverageRating`, likes)
+  - Ensures `rating` and `trending` sort orders reflect actual stored engagement data
+
+- **storage.js** - Added cascade cleanup in `deleteUser`
+  - Deleting a user now removes their authored recipes
+  - Cleans related reviews, favorites/view history links, and daily stats references
+  - Prevents orphaned recipe/author references in UI flows
+
+- **RecipeDetail.jsx** - Guarded author profile link rendering
+  - Avoids navigation to `/users/undefined` when author record is missing
+  - Falls back to a non-link `By Unknown` display state
+
 #### Build Status
 - ✅ ESLint: 0 errors, 0 warnings across all 26 React components
 - ✅ Build: Passing (2.24s, 1743 modules transformed)
 
 ### Files Modified
 - `src/context/AuthContext.jsx` (line 66)
-- `src/pages/Recipe/RecipeDetail.jsx` (lines 33-65)
+- `src/pages/Recipe/RecipeDetail.jsx` (lines 33-65, author fallback rendering)
+- `src/pages/Recipe/Home.jsx` (quick filter + sort logic)
+- `src/lib/storage.js` (`deleteUser` cascade cleanup)
+- `README.md` (behavior notes for filtering/sorting and deletion cascade)
 
 ---
 

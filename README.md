@@ -24,6 +24,7 @@ Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content 
 - Profile customization with avatars, bios, and cooking levels
 - Status workflow: Pending → Active (contributor) or Suspended
 - Session management and activity tracking
+- User deletion cascades to authored recipes and related engagement records
 
 ### Recipe Management
 - Create, edit, and delete recipes with rich metadata
@@ -36,8 +37,9 @@ Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content 
 ### Discovery & Engagement
 - Advanced search with keyword matching
 - Filter by category, difficulty, and time
+- "Under 30min" Discover filter uses total time (`prepTime + cookTime`)
 - Discover (Home) filter chips support both `category` and `categories` recipe schemas
-- Sort by newest, most viewed, or most liked
+- Sort by newest, highest rated, or trending (reviews, likes, rating tie-break)
 - Interactive ingredient checklists
 - Recipe ratings (1-5 stars) with reviews
 - Like and favorite recipes

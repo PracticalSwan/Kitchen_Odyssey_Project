@@ -250,7 +250,7 @@ npm run test:baseline -- --update-snapshots
 ### 4.1 Repository Layer Tests
 
 ```typescript
-// Kitchen_Odyssey_Backend/tests/unit/repositories/user.spec.ts
+// kitchen-odyssey-backend/tests/unit/repositories/user.spec.js
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { UserRepository } from '../../repositories/user';
 import { User, IUser } from '../../models/user';
@@ -375,7 +375,7 @@ describe('UserRepository', () => {
 ### 4.2 Service Layer Tests
 
 ```typescript
-// Kitchen_Odyssey_Backend/tests/unit/services/auth.spec.ts
+// kitchen-odyssey-backend/tests/unit/services/auth.spec.js
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { AuthService } from '../../services/auth';
 import { UserRepository } from '../../repositories/user';
@@ -474,7 +474,7 @@ describe('AuthService', () => {
 ### 5.1 API Endpoint Tests
 
 ```typescript
-// Kitchen_Odyssey_Backend/tests/integration/api/recipes.spec.ts
+// kitchen-odyssey-backend/tests/integration/api/recipes.spec.js
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import request from 'supertest';
 import { app } from '../../app';
@@ -723,7 +723,7 @@ test.describe('Network Failures', () => {
 ### 6.3 Concurrency Tests
 
 ```typescript
-// Kitchen_Odyssey_Backend/tests/integration/concurrency/like-toggle.spec.ts
+// kitchen-odyssey-backend/tests/integration/concurrency/like-toggle.spec.js
 import { describe, it, expect } from '@jest/globals';
 import request from 'supertest';
 import { app } from '../../app';
@@ -998,15 +998,15 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        working-directory: ./Kitchen_Odyssey_Backend
+        working-directory: ./kitchen-odyssey-backend
         run: npm ci
 
       - name: Run unit tests
-        working-directory: ./Kitchen_Odyssey_Backend
+        working-directory: ./kitchen-odyssey-backend
         run: npm run test:unit
 
       - name: Run integration tests
-        working-directory: ./Kitchen_Odyssey_Backend
+        working-directory: ./kitchen-odyssey-backend
         run: npm run test:integration
 
   frontend-tests:
@@ -1040,7 +1040,7 @@ jobs:
         run: npm ci
 
       - name: Start backend
-        working-directory: ./Kitchen_Odyssey_Backend
+        working-directory: ./kitchen-odyssey-backend
         run: npm run start &
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI_TEST }}
@@ -1056,7 +1056,7 @@ jobs:
 ### Fixtures
 
 ```typescript
-// tests/fixtures/data.ts
+// tests/fixtures/data.js
 export const testUsers = [
   {
     id: 'user-admin',
@@ -1124,13 +1124,13 @@ export async function seedTestData() {
       "lines": 80,
       "statements": 80
     },
-    "./src/repositories/**/*.ts": {
+    "./src/repositories/**/*.js": {
       "branches": 90,
       "functions": 90,
       "lines": 90,
       "statements": 90
     },
-    "./src/services/**/*.ts": {
+    "./src/services/**/*.js": {
       "branches": 85,
       "functions": 85,
       "lines": 85,

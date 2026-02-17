@@ -151,16 +151,25 @@ export function RecipeDetail() {
                         <div>
                             <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">{recipe.title}</h1>
                             <div className="flex flex-wrap items-center gap-3 text-sm text-white/90">
-                                <Link to={`/users/${author?.id}`} className="flex items-center gap-1.5">
-                                    {author?.avatar ? (
-                                        <img src={author.avatar} className="h-6 w-6 rounded-full border border-white/50 object-cover" alt="" />
-                                    ) : (
+                                {author ? (
+                                    <Link to={`/users/${author.id}`} className="flex items-center gap-1.5">
+                                        {author.avatar ? (
+                                            <img src={author.avatar} className="h-6 w-6 rounded-full border border-white/50 object-cover" alt="" />
+                                        ) : (
+                                            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/50 bg-white/20 text-[10px] font-bold text-white">
+                                                {author.username.charAt(0).toUpperCase()}
+                                            </span>
+                                        )}
+                                        <span className="font-medium">By {author.username}</span>
+                                    </Link>
+                                ) : (
+                                    <span className="flex items-center gap-1.5">
                                         <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/50 bg-white/20 text-[10px] font-bold text-white">
-                                            {(author?.username || '?').charAt(0).toUpperCase()}
+                                            ?
                                         </span>
-                                    )}
-                                    <span className="font-medium">By {author?.username || 'Unknown'}</span>
-                                </Link>
+                                        <span className="font-medium">By Unknown</span>
+                                    </span>
+                                )}
                                 <span className="h-1 w-1 rounded-full bg-white/60"></span>
                                 <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" /> {totalTime} min</span>
                                 {recipe.difficulty && (

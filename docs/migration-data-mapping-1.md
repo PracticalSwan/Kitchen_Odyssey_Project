@@ -640,7 +640,7 @@ export default mongoose.model<IActivityLog>('activity_logs', ActivityLogSchema);
 ### Script Location
 
 ```
-Project2/Kitchen_Odyssey_Backend/scripts/import-localstorage-snapshot.ts
+Project2/kitchen-odyssey-backend/scripts/import-localstorage-snapshot.js
 ```
 
 ### Usage

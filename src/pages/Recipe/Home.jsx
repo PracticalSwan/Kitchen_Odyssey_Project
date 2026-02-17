@@ -60,8 +60,9 @@ export function Home() {
             switch (activeFilter) {
                 case 'quick':
                     list = list.filter(r => {
-                        const m = parseInt(r.cookTime, 10);
-                        return !isNaN(m) && m <= 30;
+                        const prep = Number(r.prepTime) || 0;
+                        const cook = Number(r.cookTime) || 0;
+                        return prep + cook <= 30;
                     });
                     break;
                 case 'vegetarian':
@@ -94,13 +95,24 @@ export function Home() {
                 list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 break;
             case 'rating':
-                list.sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0));
+                list.sort((a, b) => {
+                    const avgDiff = storage.getAverageRating(b.id) - storage.getAverageRating(a.id);
+                    if (avgDiff !== 0) return avgDiff;
+                    return (b.likedBy?.length || 0) - (a.likedBy?.length || 0);
+                });
                 break;
             case 'title':
                 list.sort((a, b) => a.title.localeCompare(b.title));
                 break;
-            default: // trending — most reviews then rating
-                list.sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0) || (b.averageRating ?? 0) - (a.averageRating ?? 0));
+            default: // trending - most reviews then likes then rating
+                list.sort((a, b) => {
+                    const aReviews = storage.getReviews(a.id).length;
+                    const bReviews = storage.getReviews(b.id).length;
+                    if (bReviews !== aReviews) return bReviews - aReviews;
+                    const likeDiff = (b.likedBy?.length || 0) - (a.likedBy?.length || 0);
+                    if (likeDiff !== 0) return likeDiff;
+                    return storage.getAverageRating(b.id) - storage.getAverageRating(a.id);
+                });
         }
 
         return list;
