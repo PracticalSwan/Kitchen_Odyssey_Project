@@ -33,13 +33,18 @@ Design overhaul fully implemented across 5 sessions. All 17 source files updated
 19. tests/guest-mode.spec.js — Updated heading assertion for new hero text
 
 ## Key Design Changes
-- **Color tokens**: All `#137fec` hardcoded → `brand-accent` Tailwind class (via `--color-brand-accent: #137fec` in index.css)
+- **Color tokens**: All hardcoded colors → `brand-accent` Tailwind class
+  - v1.0: `#137fec` (original hardcoded blue)
+  - v2.0: Terracotta (`#C05640` brand, `#E76F51` accent)
+  - v3.0: Multi-variant (teal/sky/ocean) — reverted
+  - **v4.0 (current):** Light blue/cyan (`#0284C7` brand, `#06B6D4` accent, `#0891B2` hover, `#38BDF8` light, `#E0F2FE` pale)
 - **Home hero**: "Share Your Culinary Masterpiece" → "Fresh from the Kitchen"
-- **RecipeCard**: Dark overlay heart, timer badge, author avatar, star rating
+- **RecipeCard**: Dark overlay heart, timer badge, author avatar, star rating, description preview (line-clamp-2), like count, category badges (max 3)
 - **Auth pages**: Social auth buttons (Google + GitHub), icon-enhanced inputs
 - **Navbar**: ChefHat logo icon, active route highlighting, Search link
-- **RecipeDetail**: Breadcrumbs, rounded-full instruction step numbers, amber review stars
+- **RecipeDetail**: Breadcrumbs, rounded-full instruction step numbers, amber review stars. Reviews section moved BELOW content grid (not in sidebar).
 - **Animations**: fade-in, slide-up, scale-in keyframes
+- **Modal**: Added `persistent` prop — disables ESC and backdrop click (for admin data modals)
 
 ## Testing
 - 32/32 Playwright tests passing (19.7s)

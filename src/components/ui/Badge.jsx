@@ -1,12 +1,19 @@
+/**
+ * Badge - Small status/label indicator with semantic color variants
+ *
+ * Used for displaying status (pending, active, etc.) and metadata labels.
+ * Semantic variants (success, warning, error) convey meaning through color.
+ * secondary variant uses brand accent color for branded badges.
+ */
 import { cn } from "../../lib/utils";
 
 export function Badge({ className, variant = "default", children, ...props }) {
     const variants = {
-        default: "bg-cool-gray-20 text-cool-gray-90",
+        default: "bg-warm-gray-20 text-charcoal",
         success: "bg-green-100 text-green-800",
         warning: "bg-yellow-100 text-yellow-800",
         error: "bg-red-100 text-red-800",
-        outline: "border border-cool-gray-30 text-cool-gray-60",
+        outline: "border border-warm-gray-30 text-warm-gray-60",
         secondary: "bg-brand-accent/10 text-brand-accent"
     };
 

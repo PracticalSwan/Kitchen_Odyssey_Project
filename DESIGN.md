@@ -24,21 +24,60 @@
 
 ## 2. Color Palette & Roles
 
-### Primary Colors
-- **Brand Accent:** `#137fec` (Light Blue/Teal) - Primary action buttons, active states, emphasis highlights. Accessed via the `brand-accent` Tailwind token (defined as `--color-brand-accent` in `src/index.css`)
-- **Background:** White/Off-white - Base surface for card backgrounds and page containers
-- **Surface:** Light gray/white with subtle shadows - Card backgrounds, elevated sections
+### Design Philosophy: Fresh Culinary 🍳
+**Inspired by fresh ingredients, clean kitchens, and coastal waters**
+- Light blue and cyan create a fresh, modern aesthetic
+- Earthy neutrals evoke natural, organic cooking experience
+- Sage greens provide freshness balance to cool blue tones
 
-### Status & Semantic Colors
-- **Success/Active:** Green - Approved recipes, active users, successful actions
-- **Warning/Pending:** Yellow/Amber - Pending reviews, awaiting approval states
-- **Error/Suspended:** Red - Suspended users, rejected recipes, error messages
-- **Info/Muted:** Gray - Secondary text, disabled states, inactive elements
+### 60-30-10 Color Harmony
+
+**60% - Warm Neutrals (Foundation)**
+- **Cream Background:** `#FAF7F2` - Warm, inviting base (not stark white)
+- **Warm White:** `#FDFCF9` - Elevated surfaces, cards
+- **Warm Grays:** `#F5F0E8` → `#2D2420` - 10-step scale from light to dark
+
+**30% - Light Blue/Cyan (Primary)**
+- **Brand:** `#0284C7` - CTA buttons, navigation, primary actions
+- **Brand Accent:** `#06B6D4` - Active states, emphasis highlights
+- **Brand Hover:** `#0891B2` - Hover states, interactive elements
+- **Brand Light:** `#38BDF8` - Subtle backgrounds, lighter highlights
+- **Brand Pale:** `#E0F2FE` - Very subtle tinted backgrounds
+
+**10% - Accent Colors (Highlights & Special Features)**
+- **Sage Green:** `#81B29A` - Freshness indicators, healthy options, secondary CTAs
+- **Golden Ochre:** `#E9C46A` - Premium features, ratings, special highlights
+- **Deep Brown:** `#3E2723` - Dark text, emphasis (softer than pure black)
+- **Charcoal:** `#2D3436` - Primary text color
+
+### Semantic Colors - Culinary Themed
+- **Success/Active:** `#6B9080` (Fresh Sage Green) - Approved recipes, active users, successful actions
+- **Warning/Pending:** `#F4A261` (Warm Amber) - Pending reviews, awaiting approval states
+- **Error/Suspended:** `#C1121F` (Tomato Red) - Suspended users, rejected recipes, error messages (not harsh red)
+- **Info:** `#457B9D` (Muted Blue) - Informational messages, neutral states
+
+### Gradients
+- **Brand Gradient:** `linear-gradient(135deg, #06B6D4 0%, #0284C7 100%)` - Hero sections, emphasis cards
+- **Sage Gradient:** `linear-gradient(135deg, #81B29A 0%, #6B9B82 100%)` - Freshness highlights
+- **Gold Gradient:** `linear-gradient(135deg, #E9C46A 0%, #D4B052 100%)` - Premium badges, ratings
+- **Warm Gradient:** `linear-gradient(135deg, #FAF7F2 0%, #F5F0E8 100%)` - Section backgrounds
+- **Hero Gradient:** `linear-gradient(135deg, #38BDF8 0%, #06B6D4 50%, #0284C7 100%)` - Featured content
+
+### Shadows - Cool Toned
+- **Brand Shadow:** `0 4px 14px 0 rgba(6, 182, 212, 0.25)` - Colored glow for emphasis
+- **Sage Shadow:** `0 4px 14px 0 rgba(129, 178, 154, 0.25)` - Fresh accent glow
+- **Gold Shadow:** `0 4px 14px 0 rgba(233, 196, 106, 0.30)` - Premium element glow
+
+### Surface Colors
+- **Surface Primary:** `#FDFCF9` (Warm White) - Default cards, elevated sections
+- **Surface Secondary:** `#FAF7F2` (Cream) - Page background, section containers
+- **Surface Tertiary:** `#F5F0E8` (Warm Gray 10) - Nested sections, subdued areas
 
 ### Text Colors
-- **Primary Text:** Dark gray/black - Headlines, body text, primary content
-- **Secondary Text:** Medium gray - Metadata, timestamps, labels
-- **Placeholder Text:** Light gray - Input placeholders, empty states
+- **Primary Text:** `#2D3436` (Charcoal) - Headlines, body text, primary content
+- **Secondary Text:** `#8B7355` (Warm Gray 60) - Metadata, timestamps, labels
+- **Placeholder Text:** `#C4B7A6` (Warm Gray 40) - Input placeholders, empty states
+- **Accent Text:** `#3E2723` (Deep Brown) - Emphasized text, dark contrast
 
 ---
 
@@ -259,9 +298,40 @@
 
 ### 7.6 Admin Panels
 - Stats cards in dashboard (users, recipes, daily active, pending)
+- **All metrics computed from real-time data** — no hardcoded values
 - Table layout for recipe/user management
 - Bulk actions (checkboxes, multi-select)
 - Status indicators (Role/Status badges with color coding)
+
+#### Admin Dashboard Metrics
+
+| Metric | Calculation | Source |
+|--------|-------------|--------|
+| **Total Users** | Non-admin users count | `users.filter(u => u.role !== 'admin').length` |
+| **User Growth** | Month-over-month percentage | `(usersThisMonth / usersLastMonth) * 100` (from `joinedDate`) |
+| **Pending Recipes** | Count of pending submissions | `recipes.filter(r => r.status === 'pending').length` |
+| **Active Recipes** | Recipes with views OR likes | `publishedRecipes.filter(r => engages(r)).length` |
+| **Active %** | Active recipes as percentage of published | `(activeRecipes / publishedCount) * 100` |
+| **Total Likes** | Sum of all likedBy entries | Published recipes `likedBy.reduce((acc, r) => acc + r.likedBy.length, 0)` |
+| **Average Likes** | Likes per published recipe | `totalLikes / publishedCount` |
+| **Category Share** | Category's share of published recipes | `(recipesInCategory / totalPublished) * 100` |
+
+#### Recent Activity Modal
+- Displays up to 200 activity entries
+- Scrollable content with full timestamps
+- Close button only (no outside click or Escape key dismissal)
+
+#### Recipe Trends Full Report
+- All categories displayed (not just top 4)
+- Visual progress bars for share percentage
+- Recipe counts and like counts per category
+- Summary footer with totals
+
+#### Modals
+- `persistent` prop available for close-button-only behavior
+- Used for data-heavy modals where accidental dismissal loses context
+- Standard modals close on backdrop click or Escape key
+
 - **User Management Table enhancements:**
   - "Add New User" button + "Export" button in header actions bar
   - Role filter dropdown ("All Roles") and Status filter dropdown ("All Statuses")
@@ -298,7 +368,9 @@
 
 **Global Constants:**
 - Border Radius: 8px (buttons, cards, inputs)
-- Primary Color: `#137fec` via `brand-accent` Tailwind token (no hardcoded hex in components)
+- Primary Color: `#E76F51` (Terracotta) via `brand-accent` Tailwind token (no hardcoded hex in components)
+- Secondary Accent: `#81B29A` (Sage Green) via `sage` Tailwind token
+- Tertiary Accent: `#E9C46A` (Golden Ochre) via `gold` Tailwind token
 - Font: Work Sans (Google Font)
 - Spacing: Tailwind scale (4, 6, 8, 12, 16)
 
@@ -338,13 +410,49 @@
 
 ## 11. Design Tokens Summary (Tailwind Mapping)
 
-**Colors:**
+**Primary Colors (Terracotta Palette):**
 ```css
---color-brand-accent: #137fec; /* accessed as brand-accent in Tailwind classes */
---success: #22c55e; /* green */
---warning: #f59e0b; /* amber */
---error: #ef4444; /* red */
---muted: #6b7280; /* gray */
+--color-brand-accent: #E76F51; /* Primary CTAs, navigation */
+--color-brand: #C05640;        /* Hover states */
+--color-brand-hover: #D65D3F;  /* Interactive states */
+--color-brand-light: #F4A689;  /* Lighter accents */
+```
+
+**Secondary Colors (Fresh Accents):**
+```css
+--color-sage: #81B29A;         /* Sage green for freshness */
+--color-gold: #E9C46A;         /* Golden ochre for highlights */
+```
+
+**Warm Neutrals (60% - Foundation):**
+```css
+--color-cream: #FAF7F2;        /* Main background */
+--color-warm-white: #FDFCF9;   /* Card surfaces */
+--color-charcoal: #2D3436;     /* Primary text */
+--color-deep-brown: #3E2723;   /* Dark accents */
+```
+
+**Semantic Colors:**
+```css
+--color-success: #6B9080;      /* Fresh sage green */
+--color-warning: #F4A261;      /* Warm amber */
+--color-error: #C1121F;        /* Tomato red (not harsh) */
+--color-info: #457B9D;         /* Muted blue */
+```
+
+**Gradients:**
+```css
+--gradient-brand: linear-gradient(135deg, #E76F51 0%, #C05640 100%);
+--gradient-sage: linear-gradient(135deg, #81B29A 0%, #6B9B82 100%);
+--gradient-gold: linear-gradient(135deg, #E9C46A 0%, #D4B052 100%);
+--gradient-warm: linear-gradient(135deg, #FAF7F2 0%, #F5F0E8 100%);
+```
+
+**Shadows:**
+```css
+--shadow-brand: 0 4px 14px 0 rgba(231, 111, 81, 0.25);
+--shadow-sage: 0 4px 14px 0 rgba(129, 178, 154, 0.25);
+--shadow-gold: 0 4px 14px 0 rgba(233, 196, 106, 0.30);
 ```
 
 **Spacing:**

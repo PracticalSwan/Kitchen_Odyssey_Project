@@ -1,4 +1,11 @@
-import React, { useEffect, useState, useReducer } from 'react';
+/**
+ * UserList - Admin user management interface
+ *
+ * Searchable, filterable table of all users with role-based access control.
+ * Actions: approve pending users, suspend/unsuspend accounts, delete users.
+ * Online status display with auto-refresh every 30 seconds.
+ */
+import { useEffect, useState, useReducer } from 'react';
 import { storage } from '../../lib/storage';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { Button } from '../../components/ui/Button';
@@ -14,11 +21,12 @@ const SESSION_TIMEOUT = 5 * 60 * 1000;
 const forceUpdateReducer = (x) => x + 1;
 
 export function UserList() {
+    // Load all users from storage on mount
     const [users, setUsers] = useState(() => storage.getUsers());
     const [searchTerm, setSearchTerm] = useState('');
-    const [roleFilter, setRoleFilter] = useState('all');
-    const [deleteId, setDeleteId] = useState(null);
-    const [, forceUpdate] = useReducer(forceUpdateReducer, 0);
+    const [roleFilter, setRoleFilter] = useState('all');  // 'all', 'user', or 'admin'
+    const [deleteId, setDeleteId] = useState(null);        // User ID pending deletion confirmation
+    const [, forceUpdate] = useReducer(forceUpdateReducer, 0);  // Triggers re-render for online status updates
 
     // Refresh periodically to update online status display
     useEffect(() => {
@@ -84,6 +92,7 @@ export function UserList() {
         }
     };
 
+    // Filter users by search term (username/email) and role selection
     const filteredUsers = users.filter(user => {
         const matchesSearch = user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -92,15 +101,15 @@ export function UserList() {
     });
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight text-cool-gray-90">User Management</h1>
-                <p className="text-cool-gray-60">Manage user accounts and permissions.</p>
+                <h1 className="text-3xl font-bold tracking-tight text-charcoal">User Management</h1>
+                <p className="text-warm-gray-60">Manage user accounts and permissions.</p>
             </div>
 
-            <div className="flex items-center gap-4 rounded-lg border border-cool-gray-20 bg-white p-4 shadow-sm">
-                <div className="relative w-64">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-cool-gray-60" />
+            <div className="flex items-center gap-3 rounded-lg border border-warm-gray-20 bg-white p-4 shadow-sm">
+                <div className="relative w-100">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-6 text-warm-gray-60" />
                     <Input
                         className="pl-9"
                         placeholder="Search users..."
@@ -109,7 +118,7 @@ export function UserList() {
                     />
                 </div>
                 <select
-                    className="h-10 rounded-md border border-cool-gray-30 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent"
+                    className="h-10 rounded-md border border-warm-gray-30 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent"
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
                 >
@@ -119,7 +128,7 @@ export function UserList() {
                 </select>
             </div>
 
-            <div className="rounded-lg border border-cool-gray-20 bg-white shadow-sm">
+            <div className="rounded-lg border border-warm-gray-20 bg-white shadow-sm">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -142,7 +151,7 @@ export function UserList() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <div className="text-sm text-cool-gray-60">{user.email}</div>
+                                    <div className="text-sm text-warm-gray-60">{user.email}</div>
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={user.role === 'admin' ? 'default' : 'outline'}>
@@ -151,6 +160,7 @@ export function UserList() {
                                 </TableCell>
                                 <TableCell>
                                     {(() => {
+                                        // IIFE used to compute display status inline (avoid extra variable in render)
                                         const displayStatus = getDisplayStatus(user);
                                         return (
                                             <Badge variant={displayStatus === 'active' ? 'success' : displayStatus === 'suspended' ? 'error' : displayStatus === 'pending' ? 'warning' : 'outline'}>
@@ -170,7 +180,7 @@ export function UserList() {
                                             onClick={() => handleStatusChange(user.id, 'active')}
                                             disabled={user.status === 'active' || user.status === 'inactive'}
                                         >
-                                            <ShieldCheck className={`h-4 w-4 ${(user.status === 'active' || user.status === 'inactive') ? 'text-cool-gray-30' : 'text-green-500'}`} />
+                                            <ShieldCheck className={`h-4 w-4 ${(user.status === 'active' || user.status === 'inactive') ? 'text-warm-gray-30' : 'text-green-500'}`} />
                                         </Button>
                                         <Button
                                             size="icon"
@@ -179,7 +189,7 @@ export function UserList() {
                                             onClick={() => handleStatusChange(user.id, 'suspended')}
                                             disabled={user.status === 'suspended'}
                                         >
-                                            <Ban className={`h-4 w-4 ${user.status === 'suspended' ? 'text-cool-gray-30' : 'text-red-500'}`} />
+                                            <Ban className={`h-4 w-4 ${user.status === 'suspended' ? 'text-warm-gray-30' : 'text-red-500'}`} />
                                         </Button>
                                         <Button size="icon" variant="ghost" title="Delete User" onClick={() => handleDelete(user.id)}>
                                             <Trash2 className="h-4 w-4 text-red-500" />
@@ -198,7 +208,7 @@ export function UserList() {
                 title="Delete User"
             >
                 <div className="space-y-4">
-                    <p className="text-cool-gray-60">Are you sure you want to delete this user? This action cannot be undone.</p>
+                    <p className="text-warm-gray-60">Are you sure you want to delete this user? This action cannot be undone.</p>
                     <div className="flex justify-end gap-3">
                         <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
                         <Button variant="danger" onClick={confirmDelete} className="bg-red-500 hover:bg-red-600 focus:ring-red-500">Delete User</Button>

@@ -32,14 +32,15 @@ Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content 
 - Ingredient lists with quantities and units
 - Step-by-step instructions with time estimates
 - Submission workflow: Pending → Published or Rejected
-- Only published recipes visible to non-admin users
+- Only published recipes are visible to other users
+- Authors and admins can open their own non-published recipes from "My Recipes"
 
 ### Discovery & Engagement
 - Advanced search with keyword matching
 - Filter by category, difficulty, and time
 - "Under 30min" Discover filter uses total time (`prepTime + cookTime`)
 - Discover (Home) filter chips support both `category` and `categories` recipe schemas
-- Sort by newest, highest rated, or trending (reviews, likes, rating tie-break)
+- Unified "Sort by" behavior on Discover and Search pages: Trending, Newest, Highest Rated, and A-Z
 - Interactive ingredient checklists
 - Recipe ratings (1-5 stars) with reviews
 - Like and favorite recipes
@@ -53,6 +54,24 @@ Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content 
 - Activity logging for audit trails
 - Daily Active Users (DAU) tracking with session heartbeat
 - Search history and engagement metrics
+
+#### Admin Dashboard Metrics
+
+All dashboard metrics are computed from real-time data, refreshed on user/recipe updates. No hardcoded values.
+
+| Metric | Calculation | Description |
+|---------|-------------|-------------|
+| **Total Users** | Non-admin users count | Excludes admin accounts from user count |
+| **User Growth** | `(thisMonthUsers / lastMonthUsers) * 100` | Month-over-month growth from `joinedDate` comparisons |
+| **Pending Recipes** | `status === 'pending'` count | Recipes awaiting approval |
+| **Active Recipes** | Recipes with views OR likes | Shows engaged recipes as percentage of total published |
+| **Total Likes** | Sum of all `likedBy` entries | Total lifetime likes across all published recipes |
+| **Average Likes** | `totalLikes / publishedCount` | Average likes per recipe |
+| **Category Trends** | `recipesInCategory / totalPublished * 100` | Each category's share of published recipes |
+
+**Recent Activity Modal** - Shows all activity entries (up to 200) with full timestamps. Close button only (no outside click or Escape).
+
+**Recipe Trends Full Report** - Complete category breakdown with visual progress bars, recipe counts, and like counts. Close button only.
 
 ### Guest Mode
 - Browse recipes without account creation

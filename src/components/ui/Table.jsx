@@ -1,3 +1,10 @@
+/**
+ * Table - Compound component for data tables with sticky headers
+ *
+ * Wraps table in overflow-auto div for responsive horizontal scrolling.
+ * Sticky header stays visible while scrolling (top-0, z-10).
+ * [&:has([role=checkbox])]:pr-0 removes right padding for checkbox cells.
+ */
 import { cn } from '../../lib/utils';
 
 export function Table({ className, children, ...props }) {
@@ -12,7 +19,7 @@ export function Table({ className, children, ...props }) {
 
 export function TableHeader({ className, children, ...props }) {
     return (
-        <thead className={cn("[&_tr]:border-b border-cool-gray-20", className)} {...props}>
+        <thead className={cn("[&_tr]:border-b border-warm-gray-20", className)} {...props}>
             {children}
         </thead>
     );
@@ -24,7 +31,7 @@ export function TableBody({ className, children, ...props }) {
 
 export function TableRow({ className, children, ...props }) {
     return (
-        <tr className={cn("border-b border-cool-gray-20 transition-colors hover:bg-cool-gray-10 data-[state=selected]:bg-cool-gray-20", className)} {...props}>
+        <tr className={cn("border-b border-warm-gray-20 transition-colors hover:bg-warm-gray-10 data-[state=selected]:bg-warm-gray-20", className)} {...props}>
             {children}
         </tr>
     );
@@ -32,7 +39,7 @@ export function TableRow({ className, children, ...props }) {
 
 export function TableHead({ className, children, ...props }) {
     return (
-        <th className={cn("sticky top-0 z-10 h-12 px-4 text-left align-middle font-medium text-cool-gray-60 bg-white", className)} {...props}>
+        <th className={cn("sticky top-0 z-10 h-12 px-4 text-left align-middle font-medium text-warm-gray-60 bg-warm-white", className)} {...props}>
             {children}
         </th>
     );
@@ -40,7 +47,7 @@ export function TableHead({ className, children, ...props }) {
 
 export function TableCell({ className, children, ...props }) {
     return (
-        <td className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0 text-cool-gray-90", className)} {...props}>
+        <td className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0 text-charcoal", className)} {...props}>
             {children}
         </td>
     );

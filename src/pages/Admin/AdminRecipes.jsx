@@ -1,3 +1,10 @@
+/**
+ * AdminRecipes - Admin recipe management interface
+ *
+ * Tabbed view of pending, published, and rejected recipes.
+ * Admin can approve/reject pending recipes, preview, edit, delete.
+ * Uses RecipeTable sub-component for consistent table rendering.
+ */
 import React, { useState } from 'react';
 import { storage } from '../../lib/storage';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
@@ -12,7 +19,7 @@ const RecipeTable = ({ statusFilter, recipes, getAuthorName, handlePreview, upda
     const filtered = recipes.filter(r => r.status === statusFilter);
 
     return (
-        <div className="rounded-lg border border-cool-gray-20 bg-white mt-4 shadow-sm">
+        <div className="rounded-lg border border-warm-gray-20 bg-white mt-4 shadow-sm">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -29,11 +36,11 @@ const RecipeTable = ({ statusFilter, recipes, getAuthorName, handlePreview, upda
                 <TableBody>
                     {filtered.length === 0 ? (
                         <TableRow>
-                            <TableCell colSpan={8} className="text-center h-24 text-cool-gray-60">No recipes found.</TableCell>
+                            <TableCell colSpan={8} className="text-center h-24 text-warm-gray-60">No recipes found.</TableCell>
                         </TableRow>
                     ) : filtered.map((recipe) => (
                         <TableRow key={recipe.id}>
-                            <TableCell className="font-mono text-xs text-cool-gray-60">{recipe.id}</TableCell>
+                            <TableCell className="font-mono text-xs text-warm-gray-60">{recipe.id}</TableCell>
                             <TableCell>
                                 <img 
                                     src={recipe.images?.[0] || 'https://via.placeholder.com/40'} 
@@ -143,10 +150,10 @@ export function AdminRecipes() {
 
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight text-cool-gray-90">Recipe Management</h1>
-                <p className="text-cool-gray-60">Approve, reject, and manage user submissions.</p>
+                <h1 className="text-3xl font-bold tracking-tight text-charcoal">Recipe Management</h1>
+                <p className="text-warm-gray-60">Approve, reject, and manage user submissions.</p>
             </div>
 
             <Tabs defaultValue="pending">
@@ -196,9 +203,9 @@ export function AdminRecipes() {
                 {selectedRecipe ? (
                     <div className="space-y-4 max-h-[70vh] overflow-auto">
                         <img src={selectedRecipe.images?.[0]} alt="" className="w-full h-48 object-cover rounded-lg" />
-                        <p className="text-cool-gray-60">{selectedRecipe.description}</p>
+                        <p className="text-warm-gray-60">{selectedRecipe.description}</p>
 
-                        <div className="flex flex-wrap gap-2 text-xs text-cool-gray-70">
+                        <div className="flex flex-wrap gap-2 text-xs text-warm-gray-70">
                             {normalizeCategories(selectedRecipe.categories ?? selectedRecipe.category).map((category) => (
                                 <Badge key={category} variant="outline" className="uppercase tracking-wider">
                                     {category}
@@ -231,14 +238,14 @@ export function AdminRecipes() {
                         </div>
 
                         {selectedRecipe.status === 'pending' && (
-                            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-cool-gray-20 items-center">
+                            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-warm-gray-20 items-center">
                                 <Button variant="outline" onClick={() => updateStatus(selectedRecipe.id, 'rejected')}>Reject</Button>
                                 <Button onClick={() => updateStatus(selectedRecipe.id, 'published')}>Approve</Button>
                             </div>
                         )}
                     </div>
                 ) : (
-                    <div className="py-6 text-center text-cool-gray-60">No recipe selected.</div>
+                    <div className="py-6 text-center text-warm-gray-60">No recipe selected.</div>
                 )}
             </Modal>
 
@@ -248,7 +255,7 @@ export function AdminRecipes() {
                 title="Delete Recipe"
             >
                 <div className="space-y-4">
-                    <p className="text-cool-gray-60">Are you sure you want to delete this recipe? This action cannot be undone.</p>
+                    <p className="text-warm-gray-60">Are you sure you want to delete this recipe? This action cannot be undone.</p>
                     <div className="flex justify-end gap-3">
                         <Button variant="outline" onClick={() => setDeleteRecipeId(null)}>Cancel</Button>
                         <Button variant="danger" className="bg-red-500 hover:bg-red-600 text-white" onClick={confirmDelete}>Delete Recipe</Button>

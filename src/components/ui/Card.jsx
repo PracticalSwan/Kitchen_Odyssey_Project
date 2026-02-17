@@ -1,9 +1,16 @@
+/**
+ * Card - Composable card component with sub-components
+ *
+ * Provides structured layout with header, content, and footer sections.
+ * hover:border-brand-accent/25 adds subtle border animation on hover.
+ * pt-0 on content/floor removes duplicate top padding when following header.
+ */
 import { cn } from '../../lib/utils';
 
 export function Card({ className, children, ...props }) {
     return (
         <div
-            className={cn("rounded-lg border border-cool-gray-20 bg-white text-cool-gray-90 shadow-sm transition-all duration-200 hover:border-brand-accent/25", className)}
+            className={cn("rounded-lg border border-warm-gray-20 bg-warm-white text-charcoal shadow-sm transition-all duration-200 hover:border-brand-accent/25", className)}
             {...props}
         >
             {children}

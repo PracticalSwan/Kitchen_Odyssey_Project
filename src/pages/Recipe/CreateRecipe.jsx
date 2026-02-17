@@ -1,3 +1,11 @@
+/**
+ * CreateRecipe - Recipe creation and editing form
+ *
+ * Supports both create mode (status: 'pending') and edit mode (update existing).
+ * Multi-select categories (1-3), dynamic ingredients/instructions lists.
+ * Validation for all fields (title 3-100 chars, description 10-500, etc.).
+ * Edit mode: only author can edit; rejected recipes re-submit as pending.
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { storage } from '../../lib/storage';
@@ -259,8 +267,8 @@ export function CreateRecipe() {
     if (isGuest) {
         return (
             <div className="max-w-2xl mx-auto space-y-4 animate-page-in">
-                <h1 className="text-2xl font-bold text-cool-gray-90">Login Required</h1>
-                <p className="text-cool-gray-60">
+                <h1 className="text-2xl font-bold text-charcoal">Login Required</h1>
+                <p className="text-warm-gray-60">
                     You need an account to create and share recipes. Login or sign up to get started!
                 </p>
                 <div className="flex gap-3">
@@ -274,8 +282,8 @@ export function CreateRecipe() {
     if (!canInteract || isBlocked) {
         return (
             <div className="max-w-2xl mx-auto space-y-4 animate-page-in">
-                <h1 className="text-2xl font-bold text-cool-gray-90">Access Restricted</h1>
-                <p className={isSuspended ? "text-red-600" : "text-cool-gray-60"}>
+                <h1 className="text-2xl font-bold text-charcoal">Access Restricted</h1>
+                <p className={isSuspended ? "text-red-600" : "text-warm-gray-60"}>
                     {isSuspended
                         ? "Your account is suspended. You can browse recipes, but you can’t create or edit recipes."
                         : "Your account is pending approval. You can browse recipes as a guest, but you can’t create or edit recipes yet."}
@@ -292,10 +300,10 @@ export function CreateRecipe() {
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-cool-gray-90">
+                    <h1 className="text-3xl font-bold tracking-tight text-charcoal">
                         {isEditMode ? 'Edit Recipe' : 'Share Your Recipe'}
                     </h1>
-                    <p className="text-cool-gray-60">
+                    <p className="text-warm-gray-60">
                         {isEditMode ? 'Update your recipe details below.' : 'Fill in the details below. Pending approval by admin.'}
                     </p>
                 </div>
@@ -311,10 +319,10 @@ export function CreateRecipe() {
                             {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
                         </div>
                         <div className="space-y-1">
-                            <label className="text-sm font-medium text-cool-gray-60">Description</label>
+                            <label className="text-sm font-medium text-warm-gray-60">Description</label>
                             <textarea
                                 id="description"
-                                className={cn('w-full rounded-lg border p-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent resize-none', errors.description ? 'border-red-400' : 'border-cool-gray-30')}
+                                className={cn('w-full rounded-lg border p-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent resize-none', errors.description ? 'border-red-400' : 'border-warm-gray-30')}
                                 rows={3}
                                 value={formData.description}
                                 onChange={handleChange}
@@ -322,17 +330,17 @@ export function CreateRecipe() {
                             />
                             <div className="flex justify-between">
                                 {errors.description && <p className="text-red-500 text-xs">{errors.description}</p>}
-                                <span className="text-xs text-cool-gray-30 ml-auto">{formData.description.length}/500</span>
+                                <span className="text-xs text-warm-gray-30 ml-auto">{formData.description.length}/500</span>
                             </div>
                         </div>
 
                         <div className="grid sm:grid-cols-2 gap-2">
                             <div>
-                                <label className="text-sm font-medium text-cool-gray-60 mb-1 block">Categories (1–3)</label>
+                                <label className="text-sm font-medium text-warm-gray-60 mb-1 block">Categories (1–3)</label>
                                 <div className="relative">
                                     <button
                                         type="button"
-                                        className={`w-full h-10 rounded-md border px-3 bg-white flex items-center justify-between text-sm focus:outline-none focus:ring-2 focus:ring-cool-gray-90 ${errors.categories ? 'border-red-400' : 'border-cool-gray-30'}`}
+                                        className={`w-full h-10 rounded-md border px-3 bg-white flex items-center justify-between text-sm focus:outline-none focus:ring-2 focus:ring-charcoal ${errors.categories ? 'border-red-400' : 'border-warm-gray-30'}`}
                                         onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                                     >
                                         <span className="text-left">
@@ -350,7 +358,7 @@ export function CreateRecipe() {
                                                 className="fixed inset-0 z-10"
                                                 onClick={() => setShowCategoryDropdown(false)}
                                             />
-                                            <div className="absolute z-20 mt-1 w-full rounded-md border border-cool-gray-30 bg-white shadow-lg max-h-64 overflow-auto">
+                                            <div className="absolute z-20 mt-1 w-full rounded-md border border-warm-gray-30 bg-white shadow-lg max-h-64 overflow-auto">
                                                 <div className="p-2 space-y-1">
                                                     {RECIPE_CATEGORIES.map(c => {
                                                         const checked = (formData.categories || []).includes(c);
@@ -358,7 +366,7 @@ export function CreateRecipe() {
                                                         return (
                                                             <label
                                                                 key={c}
-                                                                className={`flex items-center gap-2 px-2 py-1.5 rounded hover:bg-cool-gray-10 cursor-pointer text-sm ${limitReached ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                                                className={`flex items-center gap-2 px-2 py-1.5 rounded hover:bg-warm-gray-10 cursor-pointer text-sm ${limitReached ? 'opacity-60 cursor-not-allowed' : ''}`}
                                                             >
                                                                 <input
                                                                     type="checkbox"
@@ -378,12 +386,12 @@ export function CreateRecipe() {
                                 </div>
                                 <div className="flex justify-between">
                                     {errors.categories && <p className="text-red-500 text-xs mt-1">{errors.categories}</p>}
-                                    <span className="text-xs text-cool-gray-40 mt-1 ml-auto">{(formData.categories || []).length}/3 selected</span>
+                                    <span className="text-xs text-warm-gray-40 mt-1 ml-auto">{(formData.categories || []).length}/3 selected</span>
                                 </div>
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-cool-gray-60 mb-1 block">Difficulty</label>
-                                <select id="difficulty" className="w-full h-10 rounded-lg border border-cool-gray-30 px-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-accent" value={formData.difficulty} onChange={handleChange}>
+                                <label className="text-sm font-medium text-warm-gray-60 mb-1 block">Difficulty</label>
+                                <select id="difficulty" className="w-full h-10 rounded-lg border border-warm-gray-30 px-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-accent" value={formData.difficulty} onChange={handleChange}>
                                     {RECIPE_DIFFICULTIES.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
@@ -452,7 +460,7 @@ export function CreateRecipe() {
                                 <div className="flex gap-2 items-start">
                                     <span className="flex-none flex items-center justify-center w-7 h-7 rounded-full bg-brand-accent text-white text-xs font-bold mt-2">{i + 1}</span>
                                     <textarea
-                                        className={cn('flex-1 rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent resize-none', errors[`instruction_${i}`] ? 'border-red-400' : 'border-cool-gray-30')}
+                                        className={cn('flex-1 rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent resize-none', errors[`instruction_${i}`] ? 'border-red-400' : 'border-warm-gray-30')}
                                         rows={2}
                                         placeholder={`Step ${i + 1}...`}
                                         value={step}

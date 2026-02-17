@@ -1,178 +1,241 @@
-# Kitchen Odyssey Project Overview
+# Kitchen Odyssey - Project Overview
 
-## Current Status: Implementation Planning Complete
+## Project Identity
 
-**Project Name**: Kitchen Odyssey (branded as "Kitchen Odyssey" in UI)  
-**Technology Stack**: React 19 + Vite + Tailwind v4  
-**Architecture**: Client-only SPA with localStorage persistence  
-**Routing**: HashRouter  
+**Project Name:** Kitchen Odyssey (branded as "Kitchen Odyssey" in UI)
+**Workspace:** `Project2/Kitchen_Odyssey`
+**Type:** Recipe sharing platform with social features
+**Status:** Production-ready with localStorage persistence; API migration planned
 
-## Core System
+## Current Implementation Status
 
-### User Management
-- **Roles**: admin, user, guest
-- **User Statuses**: active, inactive, pending, suspended
-- **Authentication**: Login, signup, logout, guest mode
-- **Storage**: localStorage with keys prefixed by `cookhub_`
+### ✅ Complete Features (v2.0)
+1. **Guest Mode** — Implemented 2026-02-14 (11/11 tests passing)
+2. **Random Recipe Suggestion** — Implemented 2026-02-14
+3. **Design Overhaul** — Implemented June 2025 (17 source files, 32/32 Playwright tests)
+4. **Admin Dashboard** — Real metrics, persistent modals (2026-02-17)
+5. **Recipe Management** — Full CRUD with approval workflow
+6. **User Profiles** — View and edit profiles with avatar selection
+7. **Reviews & Ratings** — 1-5 star ratings with one-review-per-user constraint
+8. **Search & Discovery** — Multi-filter search with history tracking
+
+### 🔄 Migration In Progress
+- **Backend:** Next.js 16.1.6 scaffold created at `Project2/kitchen-odyssey-backend`
+- **Database:** MongoDB Atlas connection verified (not yet integrated)
+- **Status:** Documentation complete; implementation pending explicit approval
+
+## Technology Stack
+
+### Frontend Core
+- **React:** 19.2.0 (latest, with modern hooks and concurrent features)
+- **Vite:** 7.3.1 (build tool and dev server)
+- **Tailwind CSS:** 4.1.18 (utility-first styling)
+- **React Router DOM:** 7.13.0 (HashRouter for deployment compatibility)
+
+### UI & Styling
+- **Design Tokens:** Custom theme in `src/index.css` with CSS variables
+- **Primary Color:** Terracotta (`#E76F51` via `brand-accent`)
+- **Secondary:** Brand (`#C05640`)
+- **Accents:** Sage Green (`#81B29A`), Golden Ochre (`#E9C46A`)
+- **Typography:** Work Sans (Google Font, weights 300-700)
+- **Icons:** Lucide React 0.562.0
+- **Utilities:** clsx + tailwind-merge (`cn()` helper)
+
+### Testing
+- **Playwright:** 1.58.2
+- **Test Coverage:** 32/32 tests passing (~19.7s)
+- **Test Files:** 4 spec files covering guest mode, random recipe, analytics, transitions
+
+### Data Persistence (Current)
+- **Storage:** localStorage with `cookhub_*` key prefix
+- **Seed Data:** 3 admins, 9 users, 12 recipes
+- **Data Layer:** Centralized `src/lib/storage.js` module
+
+### Data Persistence (Target - Post-Migration)
+- **Backend:** Next.js 16.1.6 API Routes
+- **Database:** MongoDB Atlas with Mongoose ODM
+- **Auth:** JWT tokens in HttpOnly cookies
+- **API Versioning:** `/api/v1/*`
+
+## User Roles & Access Control
+
+### Roles
+- **Admin:** Full platform access, user/recipe management, analytics
+- **User:** Can create recipes, like, favorite, review
+- **Guest:** Read-only browsing, no analytics, no localStorage persistence
+
+### User Status
+- **`active`:** User is currently logged in (session state)
+- **`inactive`:** User is registered but not logged in (session state)
+- **`pending`:** New user awaiting admin approval (account state, persists)
+- **`suspended`:** Account locked by admin (account state, persists)
+
+### Status Flow
+- Login: `inactive` → `active` (updates `lastActive`)
+- Logout: `active` → `inactive` (does NOT update `lastActive`)
+- Pending/suspended users retain their status across sessions
+
+## Key Features by Category
 
 ### Recipe Management
-- **Recipe CRUD**: Create, read, update, delete with admin approval workflow
-- **Search & Filter**: Recipe discovery with category, difficulty, time filters
-- **Interactions**: Star ratings, reviews, likes, favorites
-- **Profile Management**: User viewing, profile editing
+- **Create/Edit:** Comprehensive validation with multi-select categories
+- **Approval Workflow:** Recipes start as `pending`, admin approves/rejects
+- **Statuses:** `published`, `pending`, `rejected`
+- **Visibility:** Authors can view their own non-published recipes
 
-### Analytics & Activity
-- **Daily Statistics**: User tracking, view counts
-- **Activity Logs**: User action tracking
-- **Admin Dashboards**: Statistics, user management, recipe management
+### Interactions
+- **Likes:** Heart icon toggle on recipe cards
+- **Favorites:** Bookmark recipes for quick access
+- **Reviews:** 1-5 star ratings with comments (one per user per recipe)
+- **Views:** Tracked per recipe and in daily analytics
 
-## Implementation Plans (3 Complete Plans)
+### Discovery
+- **Home:** Published recipes grid with hero section, batch loading (30 items)
+- **Search:** URL params sync, multi-select filters, search history
+- **Random Recipe:** "Surprise Me" button shows quality-filtered suggestions
+  - Quality constraint: `>= 5 likes AND >= 1 review`
+  - Fallback: Any published recipe
 
-### 1. Guest Mode Feature ✅ Ready
-**Status**: Ready for implementation (Phase 1)  
-**Version**: v1.2 (February 7, 2026)  
-**Acceptance Criteria**: 32 ACs  
-**Implementation Tasks**: 48 tasks across 11 phases  
+### Admin Features
+- **Dashboard:** Real metrics (users, recipes, likes, trends)
+- **User Management:** Approve, suspend, delete users (no profile editing)
+- **Recipe Management:** Approve/reject pending recipes, manage all recipes
+- **Analytics:** Daily stats, activity logs, category trends
 
-**Key Features:**
-- `isGuest` flag in AuthContext
-- "Continue as Guest" buttons in Login/Signup pages
-- Read-only access for guests
-- Analytics bypass for guest interactions
-- Guest IDs with `__GUEST__{id}` prefix
-- Cross-feature integration with Random Recipe
+### Guest Mode
+- **Access:** "Continue as Guest" button on auth pages
+- **Restrictions:** No analytics, no localStorage writes, read-only
+- **Guest ID:** `guest-{randomId}` format, stored in localStorage
+- **Compatibility:** Works with Random Recipe (read-only access)
 
-**Testing:**
-- 3 Playwright test files (guest-analytics.spec.js, guest-transitions.spec.js, guest-mode.spec.js)
-- Cross-browser compatibility tests
-- Chrome DevTools testing procedures
+## Project Structure
 
-### 2. Random Recipe Suggestion ✅ Ready
-**Status**: Ready for implementation after Guest Mode (Phase 2)  
-**Version**: v1.1 (February 9, 2026)  
-**Acceptance Criteria**: 35 ACs  
-**Implementation Tasks**: 47 tasks across 6 phases  
+```
+Kitchen_Odyssey/
+├── src/
+│   ├── components/
+│   │   ├── layout/      # Navbar, Sidebar
+│   │   ├── recipe/      # RecipeCard, RecipeSuggestionModal
+│   │   └── ui/          # Button, Modal, Input, Card, Badge, Table, Tabs
+│   ├── context/         # AuthContext
+│   ├── layouts/         # AuthLayout, RootLayout, AdminLayout
+│   ├── lib/             # storage.js, utils.js
+│   └── pages/           # Auth/, Admin/, Recipe/
+├── public/              # Static assets
+├── tests/               # Playwright tests
+├── plan/                # Implementation plans
+├── docs/                # API contracts, testing docs
+├── DESIGN.md            # Design system specification
+├── README.md            # Project documentation
+└── CHANGELOG.md         # Version history
+```
 
-**Key Features:**
-- "Surprise Me" button in Home page hero
-- RecipeSuggestionModal component
-- Quality constraints (≥ 5 likes AND ≥ 1 review)
-- Fallback to any published recipe
-- Guest compatibility (read-only access, no analytics)
-- getRandomSuggestion() function in storage.js
+## Routing
 
-**Testing:**
-- 12 Playwright tests including guest compatibility
-- Quality constraint verification
-- Randomness distribution analysis
-- Image error handling tests
+**Router:** HashRouter (NOT BrowserRouter) - critical for deployment compatibility
+**Base Path:** `/recipe-sharing-system-deploy/` (Vite config)
 
-### 3. Design Overhaul ✅ Ready
-**Status**: Blocked until both features complete (Phase 3)
-**Version**: v1.4 (February 12, 2026) - Enhanced with skill patterns from frontend-design, react-development, and web-testing
-**Acceptance Criteria**: 32 ACs
-**Implementation Tasks**: 128 tasks across 14 phases
+### Layout Wrappers
+1. **AuthLayout:** Public pages (Login, Signup)
+2. **RootLayout:** Authenticated user pages (Home, Search, Profile, RecipeDetail, CreateRecipe)
+3. **AdminLayout:** Admin-only pages (AdminStats, AdminRecipes, UserList)
 
-**Key Features:**
-- Complete UI overhaul for all 13 screens
-- Modern Stitch design patterns (60-30-10 color rule, design tokens)
-- Hybrid color system (#C8102E + #137fec) with CSS variables
-- Performance optimization (React.memo, useCallback, code splitting, custom hooks)
-- Responsive design (mobile, tablet, desktop)
-- Accessibility (WCAG AA compliance, 9-item checklist)
-- Component enhancements (no new components)
+### Route Protection
+- Protected routes check auth at layout level
+- Admin routes protected by role check
+- Guest mode bypasses auth but shows restrictions
 
-**v1.4 Enhancements (2026-02-12):**
-- **Frontend Design**: 60-30-10 color rule, design tokens CSS variables, comprehensive accessibility checklist
-- **React Development**: Performance patterns (memoization, hooks, code splitting), useFormValidation/useDebounce hooks, component composition examples
-- **Testing Execution**: 17-step execution order matrix (Week 1 infrastructure, Week 2 non-regression), test maintenance guidelines
-- **Testing Alignment**: ~229 estimated test cases covering all testing pillars (visual, user flow, responsive, a11y, dynamic data, cross-browser, performance)
+## Event-Driven Updates
 
-**Testing Alignment (v1.3 Update + v1.4 Enhancement):**
-- Aligned with [web-testing skill](../../.copilot/skills/web-testing/) guidelines
-- Added execution order matrix aligning tests with implementation phases
-- Added test maintenance guidelines (baseline updates, flaky test resolution)
-- Page Object Model architecture (8 Page Object classes)
-- Fixtures for authentication state reuse (admin, user, guest)
-- Visual regression testing (39 baseline screenshots)
-- Accessibility testing via axe-core (9-item checklist from frontend-design skill)
-- Responsive testing (91 checks across 7 viewports)
-- Performance monitoring (Core Web Vitals with Chrome DevTools)
-- Console and network error tracking patterns
-- Comprehensive testing checklist (6 domains, 45+ total items)
+Components use window events for cross-component state sync:
+- **`favoriteToggled`:** Dispatched when recipe is liked/unliked
+- **`recipeUpdated`:** Dispatched on create/edit/delete
+- **`statsUpdated`:** Dispatched when analytics change
+- **`userUpdated`:** Dispatched when user data changes
 
-**Integration:**
-- TASK-OV-002, TASK-OV-006: "Continue as Guest" buttons preserved
-- TASK-OV-034, TASK-OV-045, TASK-OV-054: Guest restrictions maintained
-- TASK-OV-011, TASK-OV-018: "Surprise Me" button and RecipeSuggestionModal integrated
+## Important Implementation Details
 
-## Implementation Sequence Analysis
+### localStorage Prefix Convention
+All keys use `cookhub_*` prefix (e.g., `cookhub_users`, `cookhub_recipes`) despite Kitchen Odyssey branding. This is intentional for backward compatibility.
 
-### Verified Compatibility ✅
-- **No Conflicts**: All three plans complement each other perfectly
-- **Sequential Dependencies**: Guest Mode → Random Recipe → Design Overhaul
-- **Complete Analysis**: IMPLEMENTATION-SEQUENCE-ANALYSIS.md documents all integration points
+### Guest Mode Analytics Bypass
+Guest IDs starting with `guest-` bypass:
+- Per-recipe `viewedBy` tracking
+- Daily stats `views` tracking
+- `recordActiveUser` tracking
 
-### Implementation Order
-1. **Phase 1**: Guest Mode (no dependencies)
-2. **Phase 2**: Random Recipe (requires Guest Mode complete)
-3. **Phase 3**: Design Overhaul (requires both features complete)
+### Random Recipe Quality Filter
+`storage.getRandomSuggestion()` filters recipes with:
+- **Primary constraint:** `>= 5 likes AND >= 1 review`
+- **Fallback:** Any published recipe if no recipes meet quality constraint
 
-## Current Project State
+### Modal Persistence
+Data-heavy modals use `persistent` prop:
+- When `persistent=true`: Only closeable via close button
+- Backdrop click and Escape key disabled
+- Used for: Admin Recent Activity (200 entries), Recipe Trends Full Report
 
-### ✅ Foundation Complete
-- All core UI components exist (Modal, Button, Card, Input, Badge, Tabs, Table)
-- AuthContext with user management implemented
-- Comprehensive storage.js API implemented  
-- React Router with HashRouter configured
-- Base authentication and recipe functionality working
+## Recent Updates (2026-02-17)
 
-### ❌ Features Not Yet Implemented
-- Guest Mode (isGuest state not in AuthContext)
-- Random Recipe Suggestion (no "Surprise Me" button)
-- Modern UI (current design is basic, not Stitch-based)
+### UI Fixes
+- Home pagination: Loads 30 items per batch
+- Recipe Detail: Reviews moved out of sticky sidebar (below content)
+- My Recipes: Authors can now view their own pending/rejected recipes
 
-## Testing Infrastructure
+### Admin Dashboard
+- All metrics compute from real data (no hardcoded values)
+- Total Users: Month-over-month growth from `joinedDate`
+- Active Recipes: % of published with engagement
+- Total Likes: Total + average per recipe
+- Recipe Trends: Real category share percentages
+- Persistent modals for Recent Activity and Full Report
 
-### Current Status
-- Base functionality working with manual testing
-- No automated testing infrastructure yet
-- Playwright to be added with Guest Mode implementation
+### Migration Plan
+- Backend folder standardized to `kitchen-odyssey-backend`
+- All code verified against Next.js 16.1.6 and Mongoose 9.0.1
+- `middleware.js` → `proxy.js` migration documented
+- MongoDB Atlas connection verified working
 
-### Planned Testing Coverage
-- **Guest Mode**: Comprehensive automation + cross-browser + DevTools
-- **Random Recipe**: Feature tests + guest compatibility + quality verification
-- **Design Overhaul**: Visual regression + responsive + accessibility + performance
+## Development Commands
+
+```bash
+cd Kitchen_Odyssey
+npm install              # Install dependencies
+npm run dev             # Start dev server on http://localhost:5173
+npm run build           # Production build to dist/
+npm run preview         # Preview production build locally
+npm run lint            # Run ESLint
+npx playwright test     # Run all Playwright tests
+```
 
 ## Next Steps
 
-### Immediate Action Required
-**Start Guest Mode Implementation:**
-- No prerequisite dependencies
-- Readily implementable with current codebase
-- Unlocks both subsequent features
-- 11-17 hours estimated effort
+1. **Backend Implementation** (pending approval)
+   - Create `kitchen-odyssey-backend` if not exists
+   - Implement Phase 2 tasks from migration plan
+   - Add MongoDB connection and models
 
-### Implementation Coordination
-1. Execute Guest Mode implementation (Phase 1)
-2. Verify Guest Mode testing completion
-3. Execute Random Recipe implementation (Phase 2)  
-4. Verify Random Recipe testing completion
-5. Execute Design Overhaul (Phase 3)
+2. **API Integration** (after backend)
+   - Replace `storage.js` calls with API client
+   - Implement JWT auth with HttpOnly cookies
+   - Add `VITE_USE_BACKEND_API` toggle for gradual migration
 
-## Memory References
+3. **Testing** (ongoing)
+   - Maintain test coverage at current level
+   - Add API integration tests post-migration
+   - Cross-browser testing (Safari requires macOS)
 
- Individual implementation plans and their compatibility analysis:
-- [guest-mode-feature-implementation-plan](./guest-mode-feature-implementation-plan) - Detailed Guest Mode plan
-- [random-recipe-suggestion-feature](./random-recipe-suggestion-feature) - Random Recipe plan  
-- [design-overhaul-plan](./design-overhaul-plan) - Complete UI overhaul plan
-- [implementation-sequence-analysis](./implementation-sequence-analysis) - Cross-compatibility verification
+## Related Documentation
 
----
+- [DESIGN.md](../DESIGN.md) - Design system and architecture
+- [README.md](../README.md) - Project setup and usage
+- [CHANGELOG.md](../CHANGELOG.md) - Version history
+- [plan/architecture-nextjs-mongodb-migration-1.md](../plan/architecture-nextjs-mongodb-migration-1.md) - Migration plan
 
-**Project Status**: ✅ Implementation planning complete, ready for Phase 1 execution
-## Memory Update (2026-02-14)
+## Memory Management
 
-- Guest ID format in planning is guest-{randomId}.
-- Planning decision: guest views are excluded from per-recipe view counts (viewedBy / getViewCount) and from daily_stats.views.
-- Design Overhaul prerequisite checks now explicitly verify guest exclusion across per-recipe views, daily_stats.views, and activeUsers.
+This memory is maintained for:
+- **Project:** Kitchen_Odyssey (React frontend)
+- **Last Updated:** 2026-02-17
+- **Maintained By:** Serena MCP Server
+- **Purpose:** Quick reference for project context, status, and key decisions

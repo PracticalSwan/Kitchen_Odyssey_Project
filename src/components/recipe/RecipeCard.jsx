@@ -1,3 +1,11 @@
+/**
+ * RecipeCard - Display card for recipe grid/list views
+ *
+ * Shows recipe image, title, description, author, rating, likes, and difficulty.
+ * Like and Save (favorite) buttons update optimistically for instant feedback.
+ * Syncs state via window events (recipeUpdated, favoriteToggled) for cross-component updates.
+ * actionOverlay prop allows injecting additional actions (edit/delete) for admin/my-recipes views.
+ */
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, Heart, Star, Bookmark } from 'lucide-react';
@@ -24,6 +32,7 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
     const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
     const timeLabel = totalTime >= 60 ? `${Math.round(totalTime / 60)} hr` : `${totalTime} min`;
 
+    // Sync like/favorite state with localStorage and window events
     useEffect(() => {
         const syncState = () => {
             if (!user) { setIsLiked(false); setIsFavorited(false); return; }
@@ -45,7 +54,7 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
         if (!user || !canInteract) return;
         const result = storage.toggleLike(user.id, recipe.id);
         setIsLiked(result.liked);
-        setOptimisticLikeCount(result.count);
+        setOptimisticLikeCount(result.count);  // Optimistic UI update
         if (onFavoriteToggle) onFavoriteToggle();
         window.dispatchEvent(new CustomEvent('recipeUpdated'));
     };
@@ -62,16 +71,16 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
 
     return (
         <Link to={`/recipes/${recipe.id}`} className="group block h-full">
-            <Card className="h-full flex flex-col overflow-hidden transition-all hover:shadow-lg border-cool-gray-20 hover:border-brand-accent/30 hover-lift cursor-pointer">
-                {/* Image */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-cool-gray-10">
+            <Card className="h-full flex flex-col overflow-hidden transition-all hover:shadow-lg border-warm-gray-20 hover:border-brand-accent hover:bg-brand-pale/50 hover-lift cursor-pointer">
+                {/* Recipe Image with overlays */}
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-warm-gray-10">
                     <img
                         src={recipe.images?.[0] || "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=400"}
                         alt={recipe.title}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
 
-                    {/* Favorite overlay — top-right */}
+                    {/* Like button overlay - top-right */}
                     <button
                         onClick={handleLikeClick}
                         className={cn(
@@ -86,7 +95,7 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
                         <Heart className={cn("h-4 w-4", isLiked ? 'fill-red-500 text-red-500' : 'text-white')} />
                     </button>
 
-                    {/* Timer badge — bottom-right */}
+                    {/* Timer badge - bottom-right */}
                     {totalTime > 0 && (
                         <div className="absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-black/40 backdrop-blur-sm px-2 py-0.5 text-[11px] font-medium text-white">
                             <Clock className="h-3 w-3" />
@@ -94,12 +103,13 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
                         </div>
                     )}
 
+                    {/* Action overlay slot for edit/delete buttons (used in admin/my-recipes) */}
                     {actionOverlay}
                 </div>
 
-                {/* Info */}
+                {/* Recipe Info */}
                 <div className="flex flex-col flex-1 p-3 gap-2">
-                    {/* Category tags */}
+                    {/* Category tags - max 3 displayed */}
                     {categories.length > 0 && (
                         <div className="flex flex-wrap items-center gap-1.5">
                             {categories.slice(0, 3).map((cat) => (
@@ -110,35 +120,36 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
                         </div>
                     )}
 
+                    {/* Title with save/favorite button */}
                     <div className="flex items-start justify-between gap-1">
-                        <h3 className="text-sm font-bold text-cool-gray-90 line-clamp-1 group-hover:text-brand-accent flex-1">
+                        <h3 className="text-sm font-bold text-charcoal line-clamp-1 group-hover:text-brand-accent flex-1">
                             {recipe.title}
                         </h3>
                         <button
                             onClick={handleSaveClick}
                             className={cn(
                                 "p-0.5 rounded transition-colors shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-brand-accent",
-                                canInteract ? 'hover:bg-cool-gray-10' : 'opacity-60 cursor-not-allowed'
+                                canInteract ? 'hover:bg-warm-gray-10' : 'opacity-60 cursor-not-allowed'
                             )}
                             title={canInteract ? (isFavorited ? 'Unsave' : 'Save') : isGuest ? 'Login to save' : 'Pending accounts cannot save recipes'}
                             aria-label={isFavorited ? 'Unsave recipe' : 'Save recipe'}
                             aria-pressed={isFavorited}
                             aria-disabled={!canInteract}
                         >
-                            <Bookmark className={cn("h-4 w-4", isFavorited ? "fill-brand text-brand" : "text-cool-gray-30")} />
+                            <Bookmark className={cn("h-4 w-4", isFavorited ? "fill-brand text-brand" : "text-warm-gray-30")} />
                         </button>
                     </div>
 
-                    <p className="text-xs leading-5 text-cool-gray-60 line-clamp-2">
+                    <p className="text-xs leading-5 text-warm-gray-60 line-clamp-2">
                         {recipe.description}
                     </p>
 
-                    {/* Rating */}
-                    <div className="flex items-center gap-2 text-xs text-cool-gray-60">
+                    {/* Rating and likes */}
+                    <div className="flex items-center gap-2 text-xs text-warm-gray-60">
                         {displayRating && (
                             <div className="flex items-center gap-1" role="img" aria-label={`Rating: ${displayRating} out of 5`}>
                                 <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                                <span className="font-semibold text-cool-gray-90">{displayRating}</span>
+                                <span className="font-semibold text-charcoal">{displayRating}</span>
                             </div>
                         )}
                         <span className="inline-flex items-center gap-1">
@@ -147,13 +158,13 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
                         </span>
                     </div>
 
-                    {/* Author + difficulty */}
-                    <div className="mt-auto flex items-center justify-between text-[11px] text-cool-gray-60">
+                    {/* Author and difficulty */}
+                    <div className="mt-auto flex items-center justify-between text-[11px] text-warm-gray-60">
                         <div className="flex items-center gap-1.5 truncate">
                             {author?.avatar ? (
                                 <img src={author.avatar} alt="" className="h-5 w-5 rounded-full object-cover" />
                             ) : (
-                                <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-cool-gray-10 text-[9px] font-bold text-cool-gray-60">
+                                <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-warm-gray-10 text-[9px] font-bold text-warm-gray-60">
                                     {authorName.charAt(0).toUpperCase()}
                                 </span>
                             )}

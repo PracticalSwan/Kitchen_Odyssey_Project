@@ -1,3 +1,10 @@
+/**
+ * Button - Reusable button component with variants and sizes
+ *
+ * Supports loading state with spinner and multiple visual styles.
+ * isLoading prop automatically disables button and shows loading indicator.
+ * icon size is for square icon-only buttons.
+ */
 import { Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -15,8 +22,8 @@ export function Button({
     const variants = {
         primary: "bg-brand text-white hover:bg-[#1E40AF] focus:ring-brand",
         secondary: "bg-brand-accent text-white hover:bg-brand-accent/85 focus:ring-brand-accent",
-        outline: "border border-cool-gray-30 bg-white hover:bg-cool-gray-10 text-cool-gray-90",
-        ghost: "bg-transparent hover:bg-cool-gray-10 text-cool-gray-90",
+        outline: "border border-warm-gray-30 bg-warm-white hover:bg-warm-gray-10 text-charcoal",
+        ghost: "bg-transparent hover:bg-warm-gray-10 text-charcoal",
         danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600"
     };
 

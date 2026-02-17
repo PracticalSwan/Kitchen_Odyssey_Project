@@ -1,31 +1,44 @@
+/**
+ * AuthContext - Global authentication and user session state management
+ *
+ * Provides authentication state (user, guest mode, loading) and auth operations
+ * (login, logout, signup) to all components via useAuth() hook.
+ *
+ * Activity tracking: Updates lastActive timestamp every 60 seconds and records
+ * daily active users for analytics. Heartbeat ensures accurate "online" status.
+ *
+ * Guest mode: Allows read-only browsing without localStorage persistence.
+ * Uses window events (favoriteToggled) for cross-component state synchronization.
+ */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { storage } from '../lib/storage';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
-    const [isGuest, setIsGuest] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);           // Currently logged-in user (null = logged out)
+    const [isGuest, setIsGuest] = useState(false);     // Guest mode flag (read-only browsing)
+    const [loading, setLoading] = useState(true);      // Initial session loading state
 
+    // Initialize: restore session or guest mode on app mount
     useEffect(() => {
-        // Initialize storage handling (seeding if empty)
+        // Initialize storage handling (seeds data if empty)
         storage.initialize();
 
-        // Check for active session
+        // Check for active user session
         try {
             const currentUser = storage.getCurrentUser();
             if (currentUser) {
                 setUser(currentUser);
             } else {
-                // Restore guest session from localStorage
+                // No user session - restore guest session from localStorage if available
                 try {
                     const guestId = localStorage.getItem('cookhub_guest_id');
                     if (guestId) {
                         setIsGuest(true);
                     }
                 } catch {
-                    // localStorage unavailable
+                    // localStorage unavailable (private browsing, etc.)
                 }
             }
         } catch (error) {
@@ -35,6 +48,8 @@ export function AuthProvider({ children }) {
         }
     }, []);
 
+    // Activity tracking: heartbeat and DAU recording for logged-in users
+    // Only runs for non-guest users to avoid localStorage operations in guest mode
     useEffect(() => {
         if (!user?.id || isGuest) return;
 
@@ -43,17 +58,19 @@ export function AuthProvider({ children }) {
         };
 
         const handleDailyActive = () => storage.recordActiveUser(user.id);
-        handleDailyActive();
+        handleDailyActive(); // Record immediately on mount
 
         // Initial heartbeat
         storage.updateLastActive(user.id);
 
+        // Record DAU every hour
         const dailyInterval = setInterval(handleDailyActive, 60 * 60 * 1000);
-        // Heartbeat every minute
+        // Heartbeat every minute for "last active" tracking
         const heartbeatInterval = setInterval(() => {
             storage.updateLastActive(user.id);
         }, 60 * 1000);
 
+        // Update last active on page unload/close
         window.addEventListener('beforeunload', handleExit);
         window.addEventListener('pagehide', handleExit);
 
@@ -65,6 +82,8 @@ export function AuthProvider({ children }) {
         };
     }, [user, isGuest]);
 
+    // Sync user state when favorites change across components
+    // Window event ensures UI updates without prop drilling
     useEffect(() => {
         if (!user?.id) return;
 
@@ -86,7 +105,7 @@ export function AuthProvider({ children }) {
         try {
             const loggedUser = storage.login(email, password);
             setUser(loggedUser);
-            // Clear guest state on login
+            // Clear guest state on successful login
             setIsGuest(false);
             try { localStorage.removeItem('cookhub_guest_id'); } catch { /* ignore */ }
             return { success: true };
@@ -97,16 +116,18 @@ export function AuthProvider({ children }) {
 
     const logout = () => {
         if (isGuest) {
-            // Exit guest mode
+            // Exit guest mode - just clear the flag
             setIsGuest(false);
             try { localStorage.removeItem('cookhub_guest_id'); } catch { /* ignore */ }
         } else {
+            // Normal logout - update user status
             storage.logout(user?.id);
         }
         setUser(null);
     };
 
     const signup = (userData) => {
+        // New users start with 'pending' status (require admin approval)
         const newUser = {
             id: `user-${Date.now()}`,
             role: 'user',
@@ -122,9 +143,12 @@ export function AuthProvider({ children }) {
             text: `${newUser.username} joined the platform`
         });
         storage.recordNewUser(newUser.id, newUser.role);
+
         // Clear guest state on signup
         setIsGuest(false);
         try { localStorage.removeItem('cookhub_guest_id'); } catch { /* ignore */ }
+
+        // Auto-login after signup
         const loggedInUser = storage.login(userData.email, userData.password);
         setUser(loggedInUser);
     };
@@ -152,9 +176,11 @@ export function AuthProvider({ children }) {
         setUser(updatedUser);
     };
 
+    // Computed auth states for easier consumption
     const isAdmin = user?.role === 'admin';
     const isPending = user?.status === 'pending';
     const isSuspended = user?.status === 'suspended';
+    // Active regular users can interact (like, review, create)
     const canInteract = Boolean(user && user.status === 'active' && !isAdmin && !isGuest);
 
     const value = {
@@ -173,6 +199,8 @@ export function AuthProvider({ children }) {
         exitGuestMode
     };
 
+    // Delay rendering children until initial session check completes
+    // Prevents flash of wrong auth state (login screen when user is logged in)
     return (
         <AuthContext.Provider value={value}>
             {!loading && children}

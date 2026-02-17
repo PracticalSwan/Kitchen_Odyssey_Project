@@ -29,9 +29,18 @@ All three implementation phases are complete:
 - Stitch "Cookhub" branding → "Kitchen Odyssey" in implementation
 
 ## Tech Stack
-- React 19.2.0, Vite 7.3.1, Tailwind CSS 4.1.18, React Router DOM 7.13.0
+- React 19.2.0, Vite 7.2.4, Tailwind CSS 4.1.18, React Router DOM 7.13.0
 - Lucide React 0.562.0, clsx + tailwind-merge (`cn()` utility)
 - Playwright 1.58.2 (testing)
+
+## Color System v4.0 (Light Blue/Cyan)
+- `#0284C7` (brand), `#06B6D4` (accent), `#0891B2` (hover), `#38BDF8` (light), `#E0F2FE` (pale)
+- Previous: Terracotta v2.0 → multi-variant v3.0 (reverted) → v4.0 (current)
+
+## Unified Sort System
+- Both Home and Search use identical SORT_OPTIONS: `trending` (default), `newest`, `rating`, `title`
+- Trending = most reviews → most likes → highest rating (tiebreaker chain)
+- Rating sort tiebreaker: likes count
 
 ## Documentation Updated
 - DESIGN.md — Updated with brand-accent token references, completion date
@@ -80,6 +89,35 @@ All three implementation phases are complete:
 - Behavior for review submission, rating, delete, and "View all" toggle remains unchanged; change is layout-only.
 
 - README updated under "UI Update (2026-02-17)" to document the Recipe Detail review section placement change.
+
+## Plan Docs Frontend Sync (2026-02-18)
+- Architecture migration plan (Rev 3): sort unification (4 modes), color v4.0, owner access (REQ-018), batch loading (REQ-019), RecipeCard fields (TASK-028), admin real metrics (TASK-020), design-overhaul notes (TASK-034), EC-010 query projection expanded, endpoint table updated.
+- API contract v1.1: Sort params → trending/newest/rating/title, limit default 30, filter param added, category multi-select, GET /recipes/:id owner access rule + full response schema, create recipe categories → array, reviewCount added to list response.
+- Migration data mapping: `category` (String) → `categories` ([String]) in schema, interface, index, mapping table, and migration rules.
+- Serena memories updated: ui-components (color v4.0, sort unified, RecipeCard fields), features (sort unified, color v4.0), design-overhaul-plan (color history, RecipeCard, reviews layout, Modal persistent), active-context (color v4.0, sort system).
 - Lint run after change still reports pre-existing repository issues (playwright config `process` globals, unused vars in Home/tests, and `set-state-in-effect` in RecipeDetail); no new layout-specific lint error introduced.
 
 - Recipe detail sidebar behavior adjusted: Ingredients panel is now non-sticky (`space-y-8`), so it remains in normal flow and growing Instructions/Ingredients content pushes the Reviews section lower on the page.
+
+
+## Admin Dashboard Metrics Fixes (2026-02-17)
+- **All metrics now compute from real data** — no hardcoded percentages or values
+- **Total Users card**: Shows month-over-month growth from `joinedDate` (e.g., "+12% vs last month" or "No new users this month")
+- **Active Recipes card**: Shows percentage of published recipes with engagement (views OR likes)
+- **Total Likes card**: Renamed from misleading "Daily Likes"; shows total likes across all published recipes + average per recipe
+- **Recipe Trends percentages**: Real share of published recipes per category (recipesInCategory / totalPublished * 100)
+- **Progress bars**: Dynamic width based on actual category data
+- **"View All" button** on Recent Activity → Persistent modal showing up to 200 activity entries, scrollable, close-button-only
+- **"View Full Report" button** on Recipe Trends → Persistent modal showing ALL categories with table layout (rank, category, progress bars, counts) + summary footer
+- **Modal.jsx enhancement**: Added `persistent` prop; when true, disables backdrop click and Escape key closing
+- Files modified: `src/pages/Admin/AdminStats.jsx`, `src/components/ui/Modal.jsx`
+- Documentation updated: CHANGELOG.md, README.md (Admin Dashboard Metrics subsection), DESIGN.md (Admin Panels 7.6)
+- Serena memories updated: `admin-features`, `ui-components-and-styling`, `active-context`
+
+
+## My Recipes Navigation Fix (2026-02-17)
+- Recipe detail access guard now allows authors to open their own non-published recipes (pending/rejected) from the Profile -> My Recipes tab.
+- Previous behavior redirected non-admin users to Home for any non-published recipe, which blocked owners from reviewing their own submissions.
+- Updated `src/pages/Recipe/RecipeDetail.jsx` to permit owner access while keeping non-owner restrictions unchanged.
+- Documentation updated: `README.md` (recipe visibility clarification), `CHANGELOG.md` (fix entry).
+- Validation: `npm run build` passed (Vite build successful).

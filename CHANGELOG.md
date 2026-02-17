@@ -7,6 +7,103 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed - 2026-02-17
+
+#### Sort Consistency (Discover + Search)
+- Search page sort control now uses the same model as Discover (`Home`) sort:
+  - `Trending`, `Newest`, `Highest Rated`, `A-Z`
+- Removed Search-only sort mode (`Difficulty: Low → High`) to keep both pages aligned
+- Search URL/default/reset sort behavior now uses `trending` as the baseline (same as Discover)
+
+#### Files Modified
+- `src/pages/Recipe/Search.jsx`
+- `README.md`
+
+### Changed - 2026-02-17
+
+#### Light Blue/Cyan Color System
+- **Color System v4.0** - Changed primary color from terracotta to light blue and cyan
+  - **Brand colors:** `#0284C7` (brand), `#06B6D4` (brand-accent), `#0891B2` (hover), `#38BDF8` (light), `#E0F2FE` (pale)
+  - **Gradients:** Updated brand gradient to `#06B6D4 → #0284C7` and hero gradient to `#38BDF8 → #06B6D4 → #0284C7`
+  - **Shadows:** Updated brand shadow to use cyan `rgba(6, 182, 212, 0.25)`
+  - **RecipeCard hover:** Added `hover:bg-brand-pale/50` for cyan tint on card hover with full border color change
+- **Design Philosophy:** "Fresh Culinary" - inspired by fresh ingredients, clean kitchens, and coastal waters
+- **Files Modified:**
+  - `src/index.css` - Updated brand color variables, gradients, and shadows
+  - `src/components/recipe/RecipeCard.jsx` - Enhanced hover state with cyan background
+  - `DESIGN.md` - Updated color palette documentation
+
+### Reverted - 2026-02-17
+
+#### Multi-Color Palette System → Single Color
+- **Reverted** multi-color palette (v3.0) back to single-color terracotta scheme
+  - Removed Teal, Sky Blue, and Ocean Blue color families
+  - Removed corresponding gradients and shadow utilities
+  - Button component: Removed `teal`, `sky`, and `ocean` variants
+  - Badge component: Removed `teal`, `sky`, and `ocean` variants
+  - Filter chips: Reverted to single-color approach (all use brand/terracotta)
+  - "Surprise Me" button: Reverted to outline style with white/10 background
+- **Kept** warm neutral backgrounds (cream, warm-white, warm-grays) - these remain
+- **Kept** Sage Green and Golden Ochre accent colors
+
+#### Files Modified
+- `src/index.css` - Removed 12 color variables, 3 gradients, 3 shadow utilities, 6 utility classes
+- `src/components/ui/Button.jsx` - Removed teal/sky/ocean variants
+- `src/components/ui/Badge.jsx` - Removed teal/sky/ocean variants
+- `src/pages/Recipe/Home.jsx` - Reverted filter chips and "Surprise Me" button
+
+### Fixed - 2026-02-17
+
+#### Recipe Navigation (My Recipes)
+- **RecipeDetail.jsx** - Updated access guard so recipe owners can open their own pending/rejected recipes from the "My Recipes" tab
+- Prevents unintended redirect to Home when clicking non-published recipes authored by the current user
+
+#### Files Modified
+- `src/pages/Recipe/RecipeDetail.jsx` (detail access condition for owner-authored non-published recipes)
+- `README.md` (Recipe Management behavior clarification)
+
+### Changed - 2026-02-17
+
+#### Multi-Color Palette System
+- **Color System v3.0** - Expanded from single terracotta palette to vibrant multi-color system
+  - Added Teal (`#2A9D8F`) - Used for "Surprise Me" button and fresh features
+  - Added Sky Blue (`#0EA5E9`) - Used for breakfast filters and light CTAs
+  - Added Ocean Blue (`#075985`) - Used for easy recipes and professional elements
+  - Enhanced existing Sage Green (`#81B29A`) and Golden Ochre (`#E9C46A`) accents
+  - All white backgrounds replaced with warm neutral palette (cream, warm-white, warm-grays)
+- **Component Updates**
+  - Filter chips now use unique colors per filter (Trending=Terracotta, Quick=Teal, Vegetarian=Sage, Desserts=Gold, Breakfast=Sky, Easy=Ocean)
+  - Button component: Added `teal`, `sky`, and `ocean` variants
+  - Badge component: Added `teal`, `sky`, and `ocean` variants
+  - 21 components updated with warm neutral backgrounds
+- **New CSS Variables**
+  - `--color-teal*` - Teal color family (4 variants)
+  - `--color-sky*` - Sky blue color family (4 variants)
+  - `--color-ocean*` - Ocean blue color family (4 variants)
+  - `--gradient-teal`, `--gradient-sky`, `--gradient-ocean`
+  - `--shadow-teal`, `--shadow-sky`, `--shadow-ocean`
+- **Accessibility** - All new color combinations meet WCAG AA standards (4.5:1+ contrast)
+
+#### Files Modified
+- `src/index.css` - Added 12 new color variables, 3 gradients, 3 shadow utilities, 3 badge classes
+- `src/components/ui/Button.jsx` - Added teal, sky, ocean variants
+- `src/components/ui/Badge.jsx` - Added teal, sky, ocean variants
+- `src/components/ui/Card.jsx` - Updated to warm-white background
+- `src/components/ui/Modal.jsx` - Updated to warm-white background
+- `src/components/ui/Input.jsx` - Updated to warm-white background
+- `src/components/ui/Tabs.jsx` - Updated to warm grays
+- `src/components/ui/Table.jsx` - Updated to warm grays
+- `src/components/layout/Navbar.jsx` - Updated to warm-white with cream backdrop
+- `src/components/layout/Sidebar.jsx` - Updated to warm-white background
+- `src/layouts/RootLayout.jsx` - Updated to cream background
+- `src/layouts/AdminLayout.jsx` - Updated to cream background
+- `src/layouts/AuthLayout.jsx` - Updated to warm-white background
+- `src/components/recipe/RecipeCard.jsx` - Updated to warm grays
+- `src/pages/Recipe/Home.jsx` - "Surprise Me" button now teal, multi-color filter chips
+- All page components - Updated white backgrounds to warm neutral palette
+- `DESIGN.md` - Updated color palette section
+- `COLOR_PALETTE.md` - Complete rewrite with multi-color documentation
+
 ### Changed - 2026-02-18
 
 #### Migration Plan Code Modernization (Documentation Only)
@@ -58,6 +155,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `src/pages/Recipe/Home.jsx` (quick filter + sort logic)
 - `src/lib/storage.js` (`deleteUser` cascade cleanup)
 - `README.md` (behavior notes for filtering/sorting and deletion cascade)
+
+---
+
+### Fixed - 2026-02-17
+
+#### Admin Dashboard Metrics & UX
+- **AdminStats.jsx** - Fixed all metrics to use real computed data instead of hardcoded values
+  - **Total Users**: Now computes month-over-month growth from `joinedDate` comparisons
+  - **Active Recipes**: Shows percentage of published recipes with engagement (likes/views)
+  - **Total Likes**: Renamed from misleading "Daily Likes" and shows average likes per recipe
+  - **Recipe Trends Progress Bar**: Dynamic width based on top categories' actual share
+  - **Category Trend Percentages**: Real share of published recipes (`recipesInCategory / totalPublished * 100`)
+
+- **AdminStats.jsx** - Fixed "View All" and "View Full Report" buttons
+  - Both now launch scrollable modals with full data (up to 200 activity entries, all categories)
+  - Modals only close via close button (NOT outside click or Escape key)
+
+- **Modal.jsx** - Added `persistent` prop for close-button-only behavior
+  - When `persistent=true`, backdrop click and Escape key are disabled
+  - Use for data-heavy modals where accidental dismissal loses context
+
+#### Files Modified
+- `src/pages/Admin/AdminStats.jsx` (metrics calculations, modal implementations)
+- `src/components/ui/Modal.jsx` (`persistent` prop support)
+- `README.md` (updated admin dashboard metrics documentation)
 
 ---
 

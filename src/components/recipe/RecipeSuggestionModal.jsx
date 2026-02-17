@@ -1,3 +1,10 @@
+/**
+ * RecipeSuggestionModal - Random recipe suggestion modal
+ *
+ * Shows a random recipe with "Try Another" and "View Recipe" actions.
+ * Handles image load errors gracefully with fallback icon display.
+ * Shows empty state when no eligible recipes exist (requires >= 5 likes AND >= 1 review).
+ */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal } from '../ui/Modal';
@@ -14,7 +21,7 @@ export function RecipeSuggestionModal({ isOpen, onClose, suggestion, onTryAnothe
     const handleTryAnother = async () => {
         setIsLoading(true);
         setImgError(false);
-        // Small delay for visual feedback
+        // Small delay for visual feedback during loading
         await new Promise(resolve => setTimeout(resolve, 400));
         onTryAnother();
         setIsLoading(false);
@@ -25,12 +32,13 @@ export function RecipeSuggestionModal({ isOpen, onClose, suggestion, onTryAnothe
         navigate(`/recipes/${suggestion.id}`);
     };
 
+    // Empty state when no recipes meet the criteria for suggestions
     if (!suggestion) {
         return (
             <Modal isOpen={isOpen} onClose={onClose} title="Surprise Me!">
                 <div className="text-center py-8 space-y-3">
-                    <ChefHat className="h-12 w-12 text-cool-gray-30 mx-auto" />
-                    <p className="text-cool-gray-60">
+                    <ChefHat className="h-12 w-12 text-warm-gray-30 mx-auto" />
+                    <p className="text-warm-gray-60">
                         No recipes available for suggestions yet. Check back when more recipes have been published!
                     </p>
                     <Button variant="outline" onClick={onClose}>Close</Button>
@@ -45,8 +53,8 @@ export function RecipeSuggestionModal({ isOpen, onClose, suggestion, onTryAnothe
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Surprise Me!">
             <div className="space-y-4">
-                {/* Recipe Image */}
-                <div className="aspect-video w-full overflow-hidden rounded-lg bg-cool-gray-10">
+                {/* Recipe Image with error fallback */}
+                <div className="aspect-video w-full overflow-hidden rounded-lg bg-warm-gray-10">
                     {!imgError ? (
                         <img
                             src={suggestion.images?.[0]}
@@ -55,8 +63,9 @@ export function RecipeSuggestionModal({ isOpen, onClose, suggestion, onTryAnothe
                             onError={() => setImgError(true)}
                         />
                     ) : (
+                        // Fallback placeholder when image fails to load
                         <div className="h-full w-full flex items-center justify-center">
-                            <ChefHat className="h-12 w-12 text-cool-gray-30" />
+                            <ChefHat className="h-12 w-12 text-warm-gray-30" />
                         </div>
                     )}
                 </div>
@@ -70,11 +79,11 @@ export function RecipeSuggestionModal({ isOpen, onClose, suggestion, onTryAnothe
                             </Badge>
                         )}
                     </div>
-                    <h4 className="text-lg font-bold text-cool-gray-90">{suggestion.title}</h4>
-                    <p className="text-sm text-cool-gray-60 line-clamp-2">{suggestion.description}</p>
+                    <h4 className="text-lg font-bold text-charcoal">{suggestion.title}</h4>
+                    <p className="text-sm text-warm-gray-60 line-clamp-2">{suggestion.description}</p>
 
-                    {/* Stats */}
-                    <div className="flex items-center gap-4 text-sm text-cool-gray-60">
+                    {/* Stats: likes and reviews */}
+                    <div className="flex items-center gap-4 text-sm text-warm-gray-60">
                         <span className="flex items-center gap-1">
                             <Heart className="h-3.5 w-3.5" />
                             {likeCount} {likeCount === 1 ? 'like' : 'likes'}
@@ -86,7 +95,7 @@ export function RecipeSuggestionModal({ isOpen, onClose, suggestion, onTryAnothe
                     </div>
                 </div>
 
-                {/* Actions */}
+                {/* Action buttons */}
                 <div className="flex gap-3 pt-2">
                     <Button variant="primary" className="flex-1" onClick={handleViewRecipe}>
                         View Recipe

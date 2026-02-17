@@ -1,8 +1,61 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #1D4ED8;
-  --color-brand-accent: #3B82F6;
+  /* === FRESH CULINARY COLOR PALETTE === */
+  /* Inspired by fresh ingredients, clean kitchens, and coastal waters */
+
+  /* Primary - Light Blue/Cyan (30% - CTAs, Navigation, Active States) */
+  --color-brand: #0284C7;
+  --color-brand-accent: #06B6D4;
+  --color-brand-hover: #0891B2;
+  --color-brand-light: #38BDF8;
+  --color-brand-pale: #E0F2FE;
+
+  /* Secondary - Sage Green (Accents, Freshness Indicators) */
+  --color-sage: #81B29A;
+  --color-sage-dark: #6B9B82;
+  --color-sage-light: #A8D5C4;
+  --color-sage-pale: #E8F3ED;
+
+  /* Accent - Golden Ochre (Highlights, Special Features) */
+  --color-gold: #E9C46A;
+  --color-gold-dark: #D4B052;
+  --color-gold-light: #F2D990;
+  --color-gold-pale: #FCF5E3;
+
+  /* Warm Neutrals - Background (60% - Foundation) */
+  --color-cream: #FAF7F2;
+  --color-warm-white: #FDFCF9;
+  --color-warm-gray-10: #F5F0E8;
+  --color-warm-gray-20: #E8E0D5;
+  --color-warm-gray-30: #D4C9BC;
+  --color-warm-gray-40: #C4B7A6;
+  --color-warm-gray-50: #A89580;
+  --color-warm-gray-60: #8B7355;
+  --color-warm-gray-70: #6B5545;
+  --color-warm-gray-80: #4A3728;
+  --color-warm-gray-90: #2D2420;
+
+  /* Deep Tones - Text & Emphasis */
+  --color-charcoal: #2D3436;
+  --color-deep-brown: #3E2723;
+  --color-espresso: #1F1A17;
+
+  /* Semantic Colors - Culinary Themed */
+  --color-success: #6B9080;  /* Fresh sage green */
+  --color-success-light: #A8D5C4;
+  --color-success-dark: #4A7A6A;
+  --color-warning: #F4A261;  /* Warm amber */
+  --color-warning-light: #FAD89E;
+  --color-warning-dark: #E08E3D;
+  --color-error: #C1121F;    /* Tomato red (not harsh) */
+  --color-error-light: #E57A7F;
+  --color-error-dark: #9B0A15;
+  --color-info: #457B9D;     /* Muted blue */
+  --color-info-light: #7CB8D9;
+  --color-info-dark: #2D5A7A;
+
+  /* Cool Grays - For contrast elements */
   --color-cool-gray-90: #0F172A;
   --color-cool-gray-70: #334155;
   --color-cool-gray-60: #475569;
@@ -11,7 +64,31 @@
   --color-cool-gray-20: #E2E8F0;
   --color-cool-gray-10: #EFF6FF;
 
+  /* Typography */
   --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Shadows - Warm Toned */
+  --shadow-sm: 0 1px 2px 0 rgba(45, 52, 54, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(45, 52, 54, 0.1), 0 2px 4px -1px rgba(45, 52, 54, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(45, 52, 54, 0.1), 0 4px 6px -2px rgba(45, 52, 54, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(45, 52, 54, 0.1), 0 10px 10px -5px rgba(45, 52, 54, 0.04);
+  --shadow-brand: 0 4px 14px 0 rgba(6, 182, 212, 0.25);
+  --shadow-sage: 0 4px 14px 0 rgba(129, 178, 154, 0.25);
+  --shadow-gold: 0 4px 14px 0 rgba(233, 196, 106, 0.30);
+
+  /* Gradients - Culinary Inspired */
+  --gradient-brand: linear-gradient(135deg, #06B6D4 0%, #0284C7 100%);
+  --gradient-sage: linear-gradient(135deg, #81B29A 0%, #6B9B82 100%);
+  --gradient-gold: linear-gradient(135deg, #E9C46A 0%, #D4B052 100%);
+  --gradient-warm: linear-gradient(135deg, #FAF7F2 0%, #F5F0E8 100%);
+  --gradient-hero: linear-gradient(135deg, #38BDF8 0%, #06B6D4 50%, #0284C7 100%);
+  --gradient-overlay: linear-gradient(180deg, rgba(45, 52, 54, 0) 0%, rgba(45, 52, 54, 0.7) 100%);
+
+  /* Surface Colors */
+  --surface-primary: var(--color-warm-white);
+  --surface-secondary: var(--color-cream);
+  --surface-tertiary: var(--color-warm-gray-10);
+  --surface-elevated: #ffffff;
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -44,8 +121,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color: #0F172A;
-  background-color: #ffffff;
+  color: var(--color-charcoal);
+  background-color: var(--color-cream);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -59,8 +136,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #ffffff;
-  color: #0F172A;
+  background: var(--color-cream);
+  color: var(--color-charcoal);
 }
 
 button,
@@ -84,32 +161,83 @@ input[type="radio"] {
   cursor: pointer;
 }
 
-/* Subtle Hover Effects */
+/* === Subtle Hover Effects === */
 .hover-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 20px -6px rgba(0, 0, 0, 0.10), 0 4px 8px -4px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Scrollbar Styling */
+/* === Color Utility Classes === */
+/* Background gradients */
+.bg-gradient-brand { background: var(--gradient-brand); }
+.bg-gradient-sage { background: var(--gradient-sage); }
+.bg-gradient-gold { background: var(--gradient-gold); }
+.bg-gradient-warm { background: var(--gradient-warm); }
+
+/* Text gradients */
+.text-gradient-brand {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Surface utilities */
+.surface-primary { background-color: var(--surface-primary); }
+.surface-secondary { background-color: var(--surface-secondary); }
+.surface-tertiary { background-color: var(--surface-tertiary); }
+
+/* === Status Badge Colors === */
+.badge-success {
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.badge-warning {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.badge-error {
+  background-color: var(--color-error-light);
+  color: var(--color-error-dark);
+}
+
+.badge-info {
+  background-color: var(--color-info-light);
+  color: var(--color-info-dark);
+}
+
+.badge-sage {
+  background-color: var(--color-sage-pale);
+  color: var(--color-sage-dark);
+}
+
+.badge-gold {
+  background-color: var(--color-gold-pale);
+  color: var(--color-gold-dark);
+}
+
+/* === Scrollbar Styling - Warm Toned === */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-warm-gray-10);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c7cd;
-  border-radius: 3px;
+  background: var(--color-warm-gray-40);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #697077;
+  background: var(--color-warm-gray-60);
 }
 
 /* Page Transitions */

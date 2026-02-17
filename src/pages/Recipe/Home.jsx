@@ -1,3 +1,11 @@
+/**
+ * Home - Recipe discovery page with filters and search
+ *
+ * Main landing page showing published recipes in a responsive grid.
+ * Features: filter chips (trending, quick, vegetarian, etc.), sort options,
+ * search form, "Surprise Me" random recipe suggestion, and load more pagination.
+ * Syncs with storage via window events for real-time recipe updates.
+ */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { storage } from '../../lib/storage';
 import { RecipeCard } from '../../components/recipe/RecipeCard';
@@ -42,6 +50,7 @@ export function Home() {
         setAllPublished(storage.getRecipes().filter(r => r.status === 'published'));
     }, []);
 
+    // Sync recipe list when recipes are updated elsewhere
     useEffect(() => {
         const handleRefresh = () => loadRecipes();
         window.addEventListener('favoriteToggled', handleRefresh);
@@ -52,7 +61,7 @@ export function Home() {
         };
     }, [loadRecipes]);
 
-    // Filter + sort
+    // Filter and sort recipes based on active filter and sort option
     const filteredRecipes = useMemo(() => {
         let list = [...allPublished];
 
@@ -90,6 +99,7 @@ export function Home() {
             }
         }
 
+        // Sort by selected option
         switch (sortBy) {
             case 'newest':
                 list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -146,7 +156,7 @@ export function Home() {
 
     return (
         <div className="space-y-8 animate-page-in">
-            {/* Hero Section */}
+            {/* Hero Section with search and surprise me */}
             <section className="relative -mt-8 py-16 px-4 text-center bg-gradient-to-br from-brand via-brand to-brand-accent text-white rounded-b-3xl mb-4 overflow-hidden">
                 <div className="absolute inset-0 opacity-15 bg-[url('https://images.unsplash.com/photo-1495521841625-f46248f59218?auto=format&fit=crop&q=80')] bg-cover bg-center" />
                 <div className="relative z-10 max-w-2xl mx-auto space-y-5">
@@ -154,10 +164,10 @@ export function Home() {
                     <p className="text-base text-white/75">Discover thousands of recipes from home cooks worldwide.</p>
 
                     <form onSubmit={handleSearch} className="relative max-w-lg mx-auto">
-                        <Search className="absolute left-3 top-3 h-5 w-5 text-cool-gray-60" />
+                        <Search className="absolute left-3 top-3 h-5 w-5 text-warm-gray-60" />
                         <Input
                             placeholder="Search for recipes, ingredients, or chefs..."
-                            className="pl-10 pr-10 h-11 text-cool-gray-90"
+                            className="pl-10 pr-10 h-11 text-charcoal"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -165,7 +175,7 @@ export function Home() {
                             <button
                                 type="button"
                                 onClick={() => setSearchTerm('')}
-                                className="absolute right-3 top-2.5 p-1 rounded-md text-cool-gray-40 hover:text-cool-gray-90 hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-cool-gray-90 focus-visible:ring-offset-1"
+                                className="absolute right-3 top-2.5 p-1 rounded-md text-warm-gray-40 hover:text-charcoal hover:bg-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-charcoal focus-visible:ring-offset-1"
                                 aria-label="Clear search"
                             >
                                 <X className="h-5 w-5" />
@@ -195,7 +205,7 @@ export function Home() {
                                 "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors border",
                                 activeFilter === key
                                     ? "bg-brand text-white border-brand"
-                                    : "bg-white text-cool-gray-60 border-cool-gray-20 hover:border-brand hover:text-brand"
+                                    : "bg-warm-white text-warm-gray-60 border-warm-gray-20 hover:border-brand hover:text-brand"
                             )}
                         >
                             {React.createElement(icon, { className: 'h-4 w-4' })}
@@ -210,13 +220,13 @@ export function Home() {
                         id="sort-select"
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="appearance-none rounded-lg border border-cool-gray-20 bg-white pl-3 pr-8 py-2 text-sm font-medium text-cool-gray-70 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+                        className="appearance-none rounded-lg border border-warm-gray-20 bg-white pl-3 pr-8 py-2 text-sm font-medium text-warm-gray-70 focus:outline-none focus:ring-2 focus:ring-brand-accent"
                     >
                         {SORT_OPTIONS.map(opt => (
                             <option key={opt.value} value={opt.value}>Sort by: {opt.label}</option>
                         ))}
                     </select>
-                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-cool-gray-40" />
+                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-gray-40" />
                 </div>
             </section>
 
@@ -228,12 +238,13 @@ export function Home() {
                             <RecipeCard key={recipe.id} recipe={recipe} onFavoriteToggle={loadRecipes} />
                         ))
                     ) : (
-                        <p className="col-span-full text-center text-cool-gray-60 py-10">
+                        <p className="col-span-full text-center text-warm-gray-60 py-10">
                             {activeFilter ? 'No recipes match this filter.' : 'No recipes published yet. Be the first!'}
                         </p>
                     )}
                 </div>
 
+                {/* Load More pagination */}
                 {hasMore && (
                     <div className="text-center pt-2">
                         <Button
