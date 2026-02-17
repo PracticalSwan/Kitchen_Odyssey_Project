@@ -281,7 +281,7 @@ export function RecipeDetail() {
                 </div>
 
                 {/* Right Column - Sidebar */}
-                <div className="space-y-8 lg:sticky lg:top-24 lg:self-start">
+                <div className="space-y-8">
                     {/* Ingredients */}
                     <div className="rounded-xl border border-cool-gray-20 bg-white p-6 shadow-sm">
                         <div className="mb-5 flex items-center justify-between">
