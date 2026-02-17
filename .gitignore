@@ -59,6 +59,8 @@ coverage/
 tests/
 playwright.config.js
 test-results/
+tests/
+playwright-report/
 
 # OS specific files
 Thumbs.db

@@ -51,6 +51,12 @@ All three implementation phases are complete:
 - No pending implementation tasks
 - Safari cross-browser testing (requires macOS)
 
+## MongoDB Data Seeding (2026-02-18)
+- All localStorage seed data migrated to MongoDB Atlas (`kitchen_odyssey` database) via `kitchen-odyssey-backend/src/scripts/seed.js`.
+- Seeded: 12 users (bcrypt-hashed), 13 recipes (real Unsplash images in `uploads/`), 12 reviews, 8 activity logs, 12 avatar PNGs.
+- `.env` updated with `kitchen_odyssey` database name in `MONGODB_URI`.
+- Verified via MongoDB MCP: 5 collections (users, recipes, reviews, dailystats, activitylogs) with correct document counts and indexes.
+
 
 ## Migration Plan Docs Update (2026-02-17)
 - Documentation-only continuation completed; implementation was intentionally not started.

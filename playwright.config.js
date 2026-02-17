@@ -8,8 +8,10 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  timeout: 60000,
+  expect: { timeout: 10000 },
   use: {
-    baseURL: 'http://localhost:5174/recipe-sharing-system-deploy/',
+    baseURL: 'http://localhost:5173/recipe-sharing-system-deploy/',
     trace: 'on-first-retry',
   },
   projects: [
@@ -19,8 +21,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:5174/recipe-sharing-system-deploy/',
+    command: 'npm run dev',
+    url: 'http://localhost:5173/recipe-sharing-system-deploy/',
     reuseExistingServer: true,
   },
 });

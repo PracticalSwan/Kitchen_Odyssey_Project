@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - 2026-02-17
+
+#### Frontend Resilience (API Fallback)
+- Strengthened `storageApi` write-path resilience in backend mode.
+- When `VITE_USE_BACKEND_API=true` and `VITE_ENABLE_READ_FALLBACK=true`, recoverable API failures (network/5xx) now safely fall back to local storage for:
+  - auth flows (login/signup/logout)
+  - recipe/user mutations
+  - engagement actions (like/favorite/review/view)
+  - search history and activity writes
+- Added fallback support for average rating reads to avoid hard failures during backend outages.
+
+#### Test Hygiene
+- Fixed ESLint errors in `tests/comprehensive.spec.js` (removed unused helper, completed share button assertion) so lint no longer fails on unused symbols.
+
+### Added — MongoDB Data Seeding
+
+#### Seed Script (`kitchen-odyssey-backend/src/scripts/seed.js`)
+- **Comprehensive seed script** migrating all localStorage data from `storage.js` to MongoDB Atlas (`kitchen_odyssey` database)
+- **12 users** (3 admins + 9 regular) with bcrypt-hashed passwords (10 salt rounds)
+- **13 recipes** with real Unsplash images downloaded to `uploads/` (800px JPEG) and thumbnails generated via Sharp (300x200)
+- **12 reviews** with sample ratings and comments across multiple recipes
+- **8 activity logs** with sample entries (subject to 90-day TTL expiration)
+- **12 DiceBear avatar PNGs** rendered and saved to `uploads/`
+- Supports `--clean` flag to drop all collections before seeding
+
+#### Files Created
+- `kitchen-odyssey-backend/src/scripts/seed.js`
+
+#### Files Modified
+- `kitchen-odyssey-backend/.env` (added `kitchen_odyssey` database name to `MONGODB_URI`)
+
 ### Added — Phase 6: Security & Observability Hardening
 
 #### Security Utilities (Backend)
@@ -253,3 +284,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tailwind CSS 4.1.18
 - ESLint 9.39.1
 - Playwright 1.58.2
+

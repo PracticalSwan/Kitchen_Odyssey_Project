@@ -505,6 +505,21 @@ kitchen_odyssey_activity                 // Activity log entries
 
 ## Data Migration Path
 
+### Status: MongoDB Seeded (2026-02-18)
+
+All localStorage seed data has been migrated to MongoDB Atlas (`kitchen_odyssey` database on cluster `kitchen-odyssey.xwygind.mongodb.net`).
+
+**Seed script:** `kitchen-odyssey-backend/src/scripts/seed.js` (run with `node src/scripts/seed.js --clean`)
+
+**Seeded data:**
+- 12 users (3 admins + 9 regular) — passwords bcrypt-hashed (10 salt rounds)
+- 13 recipes — real Unsplash images downloaded to `uploads/`, thumbnails in `uploads/thumbnails/`
+- 12 reviews — sample ratings/comments across recipes
+- 8 activity logs — sample entries (90-day TTL index)
+- 12 DiceBear avatar PNGs — rendered to `uploads/`
+
+**Collections:** users, recipes, reviews, dailystats, activitylogs
+
 ### Phase 1: localStorage → MongoDB Schema
 ```javascript
 // User Schema (Mongoose)
@@ -585,6 +600,6 @@ export const storage = {
 
 ## Memory Management
 - **Project:** Kitchen_Odyssey (React frontend)
-- **Last Updated:** 2026-02-17
+- **Last Updated:** 2026-02-18
 - **Maintained By:** Serena MCP Server
-- **Purpose:** Data models and storage layer reference
+- **Purpose:** Data models and storage layer reference (localStorage + MongoDB)

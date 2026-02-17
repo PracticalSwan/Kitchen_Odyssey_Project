@@ -368,9 +368,9 @@
 
 **Global Constants:**
 - Border Radius: 8px (buttons, cards, inputs)
-- Primary Color: `#E76F51` (Terracotta) via `brand-accent` Tailwind token (no hardcoded hex in components)
-- Secondary Accent: `#81B29A` (Sage Green) via `sage` Tailwind token
-- Tertiary Accent: `#E9C46A` (Golden Ochre) via `gold` Tailwind token
+- Primary Color: `#06B6D4` (Brand Accent/Cyan) via `brand-accent` Tailwind token (no hardcoded hex in components)
+- Secondary Color: `#0284C7` (Brand Blue) via `brand` Tailwind token
+- Accent Colors: `#81B29A` (Sage Green) via `sage` Tailwind token, `#E9C46A` (Golden Ochre) via `gold` Tailwind token
 - Font: Work Sans (Google Font)
 - Spacing: Tailwind scale (4, 6, 8, 12, 16)
 
@@ -410,12 +410,13 @@
 
 ## 11. Design Tokens Summary (Tailwind Mapping)
 
-**Primary Colors (Terracotta Palette):**
+**Primary Colors (Light Blue/Cyan Palette):**
 ```css
---color-brand-accent: #E76F51; /* Primary CTAs, navigation */
---color-brand: #C05640;        /* Hover states */
---color-brand-hover: #D65D3F;  /* Interactive states */
---color-brand-light: #F4A689;  /* Lighter accents */
+--color-brand-accent: #06B6D4; /* Primary CTAs, navigation */
+--color-brand: #0284C7;        /* Hover states */
+--color-brand-hover: #0891B2;  /* Interactive states */
+--color-brand-light: #38BDF8;  /* Lighter accents */
+--color-brand-pale: #E0F2FE;   /* Very subtle backgrounds */
 ```
 
 **Secondary Colors (Fresh Accents):**
@@ -442,7 +443,8 @@
 
 **Gradients:**
 ```css
---gradient-brand: linear-gradient(135deg, #E76F51 0%, #C05640 100%);
+--gradient-brand: linear-gradient(135deg, #06B6D4 0%, #0284C7 100%);
+--gradient-hero: linear-gradient(135deg, #38BDF8 0%, #06B6D4 50%, #0284C7 100%);
 --gradient-sage: linear-gradient(135deg, #81B29A 0%, #6B9B82 100%);
 --gradient-gold: linear-gradient(135deg, #E9C46A 0%, #D4B052 100%);
 --gradient-warm: linear-gradient(135deg, #FAF7F2 0%, #F5F0E8 100%);
@@ -450,7 +452,7 @@
 
 **Shadows:**
 ```css
---shadow-brand: 0 4px 14px 0 rgba(231, 111, 81, 0.25);
+--shadow-brand: 0 4px 14px 0 rgba(6, 182, 212, 0.25);
 --shadow-sage: 0 4px 14px 0 rgba(129, 178, 154, 0.25);
 --shadow-gold: 0 4px 14px 0 rgba(233, 196, 106, 0.30);
 ```
@@ -514,7 +516,7 @@
 
 ---
 
-**Generated from Stitch Project ID: 12469199353397755583**  
-**Date:** February 17, 2026  
-**Design Overhaul Completed:** June 2025 — All 17 source files updated. Every hardcoded `#137fec` reference replaced with the `brand-accent` Tailwind token. All 32 Playwright tests passing.  
+**Generated from Stitch Project ID: 12469199353397755583**
+**Date:** February 17, 2026
+**Design Overhaul Completed:** February 17, 2026 — Color system updated from Terracotta to Light Blue/Cyan (Fresh Culinary design). All 32 Playwright tests passing.
 **Note:** Stitch project uses "Cookhub" branding; implementation uses "Kitchen Odyssey" branding.

@@ -64,20 +64,47 @@ function normalizeActivity(activity) {
   };
 }
 
-function isRecoverableReadError(error) {
-  // Network/server errors are recoverable for read-through fallback.
+function isRecoverableApiError(error) {
+  // Network/server errors are recoverable for fallback.
   return !error?.status || error.status >= 500;
+}
+
+let localInitialized = false;
+
+function ensureLocalInitialized() {
+  if (localInitialized) return;
+  localStorageAdapter.initialize();
+  localInitialized = true;
+}
+
+function runLocal(localOperation) {
+  ensureLocalInitialized();
+  return localOperation();
 }
 
 async function withReadFallback(apiRead, localRead) {
   if (!featureFlags.useBackendApi) {
-    return localRead();
+    return runLocal(localRead);
   }
   try {
     return await apiRead();
   } catch (error) {
-    if (featureFlags.enableReadFallback && isRecoverableReadError(error)) {
-      return localRead();
+    if (featureFlags.enableReadFallback && isRecoverableApiError(error)) {
+      return runLocal(localRead);
+    }
+    throw error;
+  }
+}
+
+async function withWriteFallback(apiWrite, localWrite) {
+  if (!featureFlags.useBackendApi) {
+    return runLocal(localWrite);
+  }
+  try {
+    return await apiWrite();
+  } catch (error) {
+    if (featureFlags.enableReadFallback && isRecoverableApiError(error)) {
+      return runLocal(localWrite);
     }
     throw error;
   }
@@ -98,11 +125,17 @@ function getOrCreateGuestId() {
 
 export const storageApi = {
   initialize: () => {
-    if (!featureFlags.useBackendApi) localStorageAdapter.initialize();
+    if (!featureFlags.useBackendApi) {
+      ensureLocalInitialized();
+    }
   },
 
-  signup: async (payload) => {
-    if (!featureFlags.useBackendApi) {
+  signup: async (payload) => withWriteFallback(
+    async () => {
+      const result = await api.post('/auth/signup', payload);
+      return normalizeUser(result?.user || result);
+    },
+    () => {
       // Local mode emulates signup with saveUser.
       const user = {
         id: `user-${Date.now().toString(36)}`,
@@ -116,26 +149,25 @@ export const storageApi = {
       localStorageAdapter.saveUser(user);
       localStorageAdapter.setCurrentUser(user);
       return normalizeUser(user);
-    }
-    const result = await api.post('/auth/signup', payload);
-    return normalizeUser(result?.user || result);
-  },
+    },
+  ),
 
-  login: async (email, password) => {
-    if (!featureFlags.useBackendApi) {
-      return normalizeUser(localStorageAdapter.login(email, password));
-    }
-    const result = await api.post('/auth/login', { email, password });
-    return normalizeUser(result?.user || result);
-  },
+  login: async (email, password) => withWriteFallback(
+    async () => {
+      const result = await api.post('/auth/login', { email, password });
+      return normalizeUser(result?.user || result);
+    },
+    () => normalizeUser(localStorageAdapter.login(email, password)),
+  ),
 
-  logout: async (userId) => {
-    if (!featureFlags.useBackendApi) {
+  logout: async (userId) => withWriteFallback(
+    async () => {
+      await api.post('/auth/logout');
+    },
+    () => {
       localStorageAdapter.logout(userId);
-      return;
-    }
-    await api.post('/auth/logout');
-  },
+    },
+  ),
 
   getCurrentUser: async () => withReadFallback(
     async () => {
@@ -164,33 +196,37 @@ export const storageApi = {
 
   saveUser: async (user) => {
     const id = user._id || user.id;
-    if (!featureFlags.useBackendApi) {
-      const next = { ...user, id };
-      localStorageAdapter.saveUser(next);
-      return normalizeUser(next);
-    }
+    return withWriteFallback(
+      async () => {
+        if (!id) {
+          const created = await storageApi.signup(user);
+          return normalizeUser(created);
+        }
 
-    if (!id) {
-      const created = await storageApi.signup(user);
-      return normalizeUser(created);
-    }
+        const payload = { ...user };
+        if (payload.avatar && !payload.avatarUrl) {
+          payload.avatarUrl = payload.avatar;
+        }
 
-    const payload = { ...user };
-    if (payload.avatar && !payload.avatarUrl) {
-      payload.avatarUrl = payload.avatar;
-    }
-
-    const result = await api.patch(`/users/${id}`, payload);
-    return normalizeUser(result?.user || result);
+        const result = await api.patch(`/users/${id}`, payload);
+        return normalizeUser(result?.user || result);
+      },
+      () => {
+        const next = { ...user, id: id || `user-${Date.now().toString(36)}` };
+        localStorageAdapter.saveUser(next);
+        return normalizeUser(next);
+      },
+    );
   },
 
-  deleteUser: async (userId) => {
-    if (!featureFlags.useBackendApi) {
+  deleteUser: async (userId) => withWriteFallback(
+    async () => {
+      await api.delete(`/users/${userId}`);
+    },
+    () => {
       localStorageAdapter.deleteUser(userId);
-      return;
-    }
-    await api.delete(`/users/${userId}`);
-  },
+    },
+  ),
 
   updateLastActive: async (userId) => {
     if (!featureFlags.useBackendApi) {
@@ -225,51 +261,59 @@ export const storageApi = {
 
   saveRecipe: async (recipe) => {
     const id = recipe._id || recipe.id;
-    if (!featureFlags.useBackendApi) {
-      const next = { ...recipe, id };
-      localStorageAdapter.saveRecipe(next);
-      return normalizeRecipe(next);
-    }
+    return withWriteFallback(
+      async () => {
+        const payload = { ...recipe };
+        if (Array.isArray(payload.categories) && !payload.category) {
+          payload.category = payload.categories[0];
+        }
 
-    const payload = { ...recipe };
-    if (Array.isArray(payload.categories) && !payload.category) {
-      payload.category = payload.categories[0];
-    }
+        if (id) {
+          const result = await api.patch(`/recipes/${id}`, payload);
+          return normalizeRecipe(result?.recipe || result);
+        }
 
-    if (id) {
-      const result = await api.patch(`/recipes/${id}`, payload);
-      return normalizeRecipe(result?.recipe || result);
-    }
-
-    const result = await api.post('/recipes', payload);
-    return normalizeRecipe(result?.recipe || result);
+        const result = await api.post('/recipes', payload);
+        return normalizeRecipe(result?.recipe || result);
+      },
+      () => {
+        const next = { ...recipe, id: id || `recipe-${Date.now().toString(36)}` };
+        localStorageAdapter.saveRecipe(next);
+        return normalizeRecipe(next);
+      },
+    );
   },
 
-  deleteRecipe: async (recipeId) => {
-    if (!featureFlags.useBackendApi) {
+  deleteRecipe: async (recipeId) => withWriteFallback(
+    async () => {
+      await api.delete(`/recipes/${recipeId}`);
+    },
+    () => {
       localStorageAdapter.deleteRecipe(recipeId);
-      return;
-    }
-    await api.delete(`/recipes/${recipeId}`);
-  },
+    },
+  ),
 
-  toggleLike: async (userId, recipeId) => {
-    if (!featureFlags.useBackendApi) {
+  toggleLike: async (userId, recipeId) => withWriteFallback(
+    async () => {
+      const result = await api.post(`/recipes/${recipeId}/like`);
+      return { liked: result?.liked, likeCount: result?.count ?? 0 };
+    },
+    () => {
       const result = localStorageAdapter.toggleLike(userId, recipeId);
       return { liked: result.liked, likeCount: result.count };
-    }
-    const result = await api.post(`/recipes/${recipeId}/like`);
-    return { liked: result?.liked, likeCount: result?.count ?? 0 };
-  },
+    },
+  ),
 
-  toggleFavorite: async (userId, recipeId) => {
-    if (!featureFlags.useBackendApi) {
+  toggleFavorite: async (userId, recipeId) => withWriteFallback(
+    async () => {
+      const result = await api.post(`/recipes/${recipeId}/favorite`);
+      return { favorited: result?.favorited };
+    },
+    () => {
       const favorited = localStorageAdapter.toggleFavorite(userId, recipeId);
       return { favorited };
-    }
-    const result = await api.post(`/recipes/${recipeId}/favorite`);
-    return { favorited: result?.favorited };
-  },
+    },
+  ),
 
   hasUserLiked: (userId, recipeOrRecipeId) => {
     const recipeId = typeof recipeOrRecipeId === 'string'
@@ -289,18 +333,17 @@ export const storageApi = {
     return localStorageAdapter.hasUserFavorited(userId, recipeId);
   },
 
-  recordView: async ({ recipeId, viewerId, viewerType }) => {
-    if (!featureFlags.useBackendApi) {
-      return localStorageAdapter.recordView({ recipeId, viewerId, viewerType });
-    }
-
-    const headers = {};
-    if (viewerType === 'guest' && viewerId) {
-      headers['X-Guest-ID'] = viewerId;
-    }
-    const result = await api.post(`/recipes/${recipeId}/view`, { viewerId, viewerType }, { headers });
-    return result?.viewCount ?? 0;
-  },
+  recordView: async ({ recipeId, viewerId, viewerType }) => withWriteFallback(
+    async () => {
+      const headers = {};
+      if (viewerType === 'guest' && viewerId) {
+        headers['X-Guest-ID'] = viewerId;
+      }
+      const result = await api.post(`/recipes/${recipeId}/view`, { viewerId, viewerType }, { headers });
+      return result?.viewCount ?? 0;
+    },
+    () => localStorageAdapter.recordView({ recipeId, viewerId, viewerType }),
+  ),
 
   getReviews: async (recipeId) => {
     if (!recipeId) {
@@ -319,33 +362,39 @@ export const storageApi = {
     );
   },
 
-  addReview: async (review) => {
-    if (!featureFlags.useBackendApi) {
+  addReview: async (review) => withWriteFallback(
+    async () => {
+      const result = await api.post(`/recipes/${review.recipeId}/reviews`, {
+        rating: review.rating,
+        comment: review.comment,
+      });
+      return normalizeReview(result?.review || result);
+    },
+    () => {
       localStorageAdapter.addReview(review);
-      return;
-    }
-    const result = await api.post(`/recipes/${review.recipeId}/reviews`, {
-      rating: review.rating,
-      comment: review.comment,
-    });
-    return normalizeReview(result?.review || result);
-  },
+      const stored = localStorageAdapter
+        .getReviews(review.recipeId)
+        .find((item) => item.userId === review.userId);
+      return normalizeReview(stored || review);
+    },
+  ),
 
-  deleteReview: async (reviewId) => {
-    if (!featureFlags.useBackendApi) {
+  deleteReview: async (reviewId) => withWriteFallback(
+    async () => {
+      await api.delete(`/reviews/${reviewId}`);
+    },
+    () => {
       localStorageAdapter.deleteReview(reviewId);
-      return;
-    }
-    await api.delete(`/reviews/${reviewId}`);
-  },
+    },
+  ),
 
-  getAverageRating: async (recipeId) => {
-    if (!featureFlags.useBackendApi) {
-      return localStorageAdapter.getAverageRating(recipeId);
-    }
-    const result = await api.get(`/recipes/${recipeId}/rating`);
-    return result?.average || 0;
-  },
+  getAverageRating: async (recipeId) => withReadFallback(
+    async () => {
+      const result = await api.get(`/recipes/${recipeId}/rating`);
+      return result?.average || 0;
+    },
+    () => localStorageAdapter.getAverageRating(recipeId),
+  ),
 
   getRandomSuggestion: async () => withReadFallback(
     async () => normalizeRecipe(await api.get('/recipes/random-suggestion', { dedupe: false })),
@@ -373,32 +422,45 @@ export const storageApi = {
   addSearchHistory: async ({ userId, query }) => {
     if (!query?.trim()) return null;
 
-    if (!featureFlags.useBackendApi || userId?.startsWith?.('guest')) {
+    if (userId?.startsWith?.('guest')) {
       return localStorageAdapter.addSearchHistory({ userId, query });
     }
-    return api.post('/search-history', { query: query.trim() });
+
+    return withWriteFallback(
+      async () => api.post('/search-history', { query: query.trim() }),
+      () => localStorageAdapter.addSearchHistory({ userId, query: query.trim() }),
+    );
   },
 
   clearSearchHistory: async (userId) => {
-    if (!featureFlags.useBackendApi || userId?.startsWith?.('guest')) {
+    if (userId?.startsWith?.('guest')) {
       localStorageAdapter.clearSearchHistory(userId);
       return;
     }
-    await api.delete('/search-history');
+
+    await withWriteFallback(
+      async () => {
+        await api.delete('/search-history');
+      },
+      () => {
+        localStorageAdapter.clearSearchHistory(userId);
+      },
+    );
   },
 
-  addActivity: async (activity) => {
-    if (!featureFlags.useBackendApi) {
+  addActivity: async (activity) => withWriteFallback(
+    async () => {
+      await api.post('/activity', {
+        type: activity.type || 'general',
+        message: activity.text || activity.message || '',
+        targetId: activity.targetId,
+        metadata: activity.metadata,
+      });
+    },
+    () => {
       localStorageAdapter.addActivity(activity);
-      return;
-    }
-    await api.post('/activity', {
-      type: activity.type || 'general',
-      message: activity.text || activity.message || '',
-      targetId: activity.targetId,
-      metadata: activity.metadata,
-    });
-  },
+    },
+  ),
 
   getRecentActivity: async (limit = 5) => withReadFallback(
     async () => {
@@ -413,26 +475,26 @@ export const storageApi = {
     return api.get('/stats/daily');
   },
 
-  updateUserStatus: async (userId, status) => {
-    if (!featureFlags.useBackendApi) {
+  updateUserStatus: async (userId, status) => withWriteFallback(
+    async () => normalizeUser(await api.patch(`/admin/users/${userId}/status`, { status })),
+    () => {
       const users = localStorageAdapter.getUsers();
       const user = users.find((u) => u.id === userId);
       if (!user) return null;
       user.status = status;
       localStorageAdapter.saveUser(user);
       return normalizeUser(user);
-    }
-    return normalizeUser(await api.patch(`/admin/users/${userId}/status`, { status }));
-  },
+    },
+  ),
 
-  updateRecipeStatus: async (recipeId, status) => {
-    if (!featureFlags.useBackendApi) {
+  updateRecipeStatus: async (recipeId, status) => withWriteFallback(
+    async () => normalizeRecipe(await api.patch(`/admin/recipes/${recipeId}/status`, { status })),
+    () => {
       const recipe = localStorageAdapter.getRecipeById(recipeId);
       if (!recipe) return null;
       recipe.status = status;
       localStorageAdapter.saveRecipe(recipe);
       return normalizeRecipe(recipe);
-    }
-    return normalizeRecipe(await api.patch(`/admin/recipes/${recipeId}/status`, { status }));
-  },
+    },
+  ),
 };

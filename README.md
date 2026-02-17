@@ -1,54 +1,46 @@
-# Kitchen Odyssey
+# Kitchen Odyssey Frontend
 
-A collaborative web application for sharing, discovering, and managing recipes with role-based access control and a comprehensive approval workflow.
+![Development Status](https://img.shields.io/badge/status-active-brightgreen)
+![React](https://img.shields.io/badge/React-19.2.0-blue)
+![Vite](https://img.shields.io/badge/Vite-7.2.4-646cff)
+![Playwright Tests](https://img.shields.io/badge/Tests-32%20Passing-green)
 
-[![Development Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com)
-[![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
-[![React Version](https://img.shields.io/badge/React-19.2.0-blue)](https://react.dev)
+A modern recipe-sharing platform built with React 19 and Vite, featuring moderated content publication, role-based access control, and comprehensive discovery tools.
+
+![Kitchen Odyssey Logo](./src/assets/Logo.png)
 
 ## Overview
 
-Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content publication, user onboarding workflows, and comprehensive discovery tools. The application uses client-side storage with localStorage for lightweight, demonstration-ready deployment.
+Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content publication, user onboarding workflows, and comprehensive discovery tools. The application uses client-side storage with localStorage for lightweight, demonstration-ready deployment, with backend migration in progress.
 
-**Key Capabilities:**
+### Key Capabilities
+
+**User Management**
 - Role-based access control (Admin, Contributor, Guest)
-- Recipe approval workflow with content moderation
-- Guest mode for read-only browsing without account creation
-- Advanced search, filtering, and quality-based recommendations
-- Real-time analytics and activity logging
-- Full recipe lifecycle management with engagement features
-
-### User Management
-- User registration with admin-activated accounts
-- Three-tier role system: Admin, Contributor, Guest
+- User registration with admin-activated accounts (pending → active)
 - Profile customization with avatars, bios, and cooking levels
 - Status workflow: Pending → Active (contributor) or Suspended
-- Session management and activity tracking
-- User deletion cascades to authored recipes and related engagement records
+- Session management and activity tracking for DAU metrics
 
-### Recipe Management
+**Recipe Management**
 - Create, edit, and delete recipes with rich metadata
 - Categories, difficulty levels, preparation/cooking times
 - Ingredient lists with quantities and units
 - Step-by-step instructions with time estimates
 - Submission workflow: Pending → Published or Rejected
-- Only published recipes are visible to other users
-- Authors and admins can open their own non-published recipes from "My Recipes"
 
-### Discovery & Engagement
+**Discovery & Engagement**
 - Advanced search with keyword matching
-- Filter by category, difficulty, and time
-- "Under 30min" Discover filter uses total time (`prepTime + cookTime`)
-- Discover (Home) filter chips support both `category` and `categories` recipe schemas
-- Unified "Sort by" behavior on Discover and Search pages: Trending, Newest, Highest Rated, and A-Z
+- Filter by category, difficulty, and time (Under 30min uses prepTime + cookTime)
+- Unified sorting: Trending, Newest, Highest Rated, A-Z
 - Interactive ingredient checklists
 - Recipe ratings (1-5 stars) with reviews
 - Like and favorite recipes
 - "Surprise Me" quality-based random suggestions (≥5 likes, ≥1 review)
 - View counts and engagement analytics
 
-### Admin Controls
-- Real-time dashboard with platform analytics
+**Admin Controls**
+- Real-time dashboard with computed metrics (all dynamic, no hardcoded values)
 - User activation, deactivation, and suspension
 - Recipe approval and content moderation
 - Activity logging for audit trails
@@ -57,7 +49,7 @@ Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content 
 
 #### Admin Dashboard Metrics
 
-All dashboard metrics are computed from real-time data, refreshed on user/recipe updates. No hardcoded values.
+All dashboard metrics are computed from real-time data, refreshed on user/recipe updates.
 
 | Metric | Calculation | Description |
 |---------|-------------|-------------|
@@ -73,16 +65,12 @@ All dashboard metrics are computed from real-time data, refreshed on user/recipe
 
 **Recipe Trends Full Report** - Complete category breakdown with visual progress bars, recipe counts, and like counts. Close button only.
 
-### Guest Mode
-- Browse recipes without account creation
-- Full access to search, filtering, and viewing content
-- Read-only access to reviews and ratings
-- No analytics tracking or session logging
+**Guest Mode** - Browse recipes without account creation. Full access to search, filtering, and viewing content. Read-only access to reviews and ratings. No analytics tracking or session logging.
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js v16 or higher
+- Node.js v18 or higher
 - npm (included with Node.js)
 
 ### Installation
@@ -114,6 +102,18 @@ npm run preview
 npm run lint
 ```
 
+### Runtime Feature Flags
+
+The frontend supports hybrid runtime modes during backend migration:
+
+| Flag | Description |
+|------|-------------|
+| `VITE_USE_BACKEND_API=true` | Enables backend API mode |
+| `VITE_USE_BACKEND_API=false` | Uses local storage mode (default) |
+| `VITE_ENABLE_READ_FALLBACK=true` | API failures fall back to local storage |
+
+**Note:** When backend mode is enabled with read fallback enabled, recoverable API failures (network/5xx) fall back to local storage for resilient browsing and core interactions.
+
 ### Testing
 
 ```bash
@@ -130,8 +130,7 @@ npx playwright test tests/guest-mode.spec.js
 npx playwright test --headed
 ```
 
-**Test Coverage:**
-- **32 automated tests** covering Guest Mode and Random Recipe Suggestion
+**Test Coverage (32 automated tests):**
 - `guest-mode.spec.js` — 13 tests (functionality + blocking)
 - `guest-analytics.spec.js` — 4 tests (analytics isolation)
 - `guest-transitions.spec.js` — 5 tests (mode transitions)
@@ -139,10 +138,10 @@ npx playwright test --headed
 
 ## Project Team
 
-| Name | Student ID |
-|------|-----------|
-| Sithu Win San | 6726077 |
-| Aung Thura Hein | 6726135 |
+| Name | Student ID | Role |
+|------|-----------|------|
+| Sithu Win San | 6726077 | Frontend Development |
+| Aung Thura Hein | 6726135 | Backend Development |
 
 ## Project Structure
 
@@ -176,23 +175,74 @@ Kitchen_Odyssey/
 
 ## Technology Stack
 
-### Frontend
 - **React 19.2.0** - Modern UI library with hooks
-- **React Router DOM 7.13.0** - Client-side routing
 - **Vite 7.2.4** - Fast build tool with HMR
+- **React Router DOM 7.13.0** - Client-side routing (HashRouter)
 - **Tailwind CSS 4.1.18** - Utility-first styling
 - **Lucide React 0.562.0** - Icon library
-
-### Development Tools
-- **ESLint 9.39.1** - Code quality and linting
 - **Playwright 1.58.2** - End-to-end testing
+- **ESLint 9.39.1** - Code quality and linting
 - **date-fns 4.1.0** - Date manipulation
-- **clsx 2.1.1** - Conditional className utility
-- **tailwind-merge 3.4.0** - Intelligent class merging
+- **clsx 2.1.1 + tailwind-merge 3.4.0** - Intelligent class merging
 
-### Data Storage
-- **localStorage** - Client-side persistence with comprehensive seed data
+**Data Storage:**
+- **localStorage** - Client-side persistence (demonstration mode)
 - **Pre-populated test data** - Multiple users, recipes, and accounts ready for testing
+- **Backend API** - MongoDB Atlas integration (migration in progress)
+
+## Design System
+
+Kitchen Odyssey follows a "Fresh Culinary" design philosophy inspired by fresh ingredients, clean kitchens, and coastal waters.
+
+**Color Palette (60-30-10 Harmony):**
+
+| Category | Colors | Purpose |
+|----------|---------|---------|
+| **Foundation (60%)** | Warm Neutrals | Page backgrounds, card surfaces |
+| | `#FAF7F2` (Cream) | Main background (white with warm tint) |
+| | `#FDFCF9` (Warm White) | Cards, elevated sections |
+| | `#F5F0E8 → #2D2420` | 10-step warm gray scale |
+| **Primary (30%)** | Light Blue/Cyan | CTAs, navigation, interactive elements |
+| | `#0284C7` (Brand) | Primary buttons, links |
+| | `#06B6D4` (Brand Accent) | Active states, highlights |
+| | `#0891B2` (Brand Hover) | Hover states, interactive |
+| | `#38BDF8` (Brand Light) | Subtle backgrounds |
+| | `#E0F2FE` (Brand Pale) | Very subtle tinted backgrounds |
+| **Accent (10%)** | Sage Green & Golden Ochre | Freshness indicators, highlights |
+| | `#81B29A` (Sage) | Healthy options, secondary CTAs |
+| | `#E9C46A` (Gold) | Premium features, ratings |
+
+**Semantic Colors:**
+- Success: `#6B9080` (Fresh Sage)
+- Warning: `#F4A261` (Warm Amber)
+- Error: `#C1121F` (Tomato Red)
+- Info: `#457B9D` (Muted Blue)
+
+**Typography:**
+- Font: Work Sans (Google Fonts)
+- Weight Scale: Light (300) → Bold (700)
+- Type Scale: H1 (32-40px) → Body (14-16px) → Small (12-14px)
+
+**Design Tokens (Tailwind Classes):**
+- Primary accent: `brand-accent` (`#06B6D4`)
+- Buttons/interactions: `hover:bg-brand-pale/50` with cyan tint on hover
+- Shadows: Colored glow for emphasis (`rgba(6, 182, 212, 0.25)`)
+
+See [DESIGN.md](DESIGN.md) for complete design specifications with 60-30-10 harmony rules.
+
+## Reset Application Data
+
+After code changes to seed data, reset localStorage to apply changes:
+
+**Option 1: Browser Console**
+```javascript
+import { storage } from './src/lib/storage.js';
+storage.resetData();
+```
+
+**Option 2: DevTools**
+- Open DevTools → Application → Local Storage
+- Delete all `kitchen_odyssey_*` entries, then refresh
 
 ## Test Credentials
 
@@ -210,13 +260,25 @@ Additional test users with various roles are pre-configured.
 
 ## Documentation
 
+### Architecture & Design
 - [DESIGN.md](DESIGN.md) — System architecture and design system
 - [PROPOSAL.md](PROPOSAL.md) — Project proposal and specifications
+- [DESIGN.md](DESIGN.md) — Design system with color palette and component patterns
+
+### Implementation Guides
+- [SETUP_GUIDE.md](../SETUP_GUIDE.md) — Complete setup for MongoDB Atlas and backend integration
 - [guides/](guides/) — Setup guides and implementation documentation
-- [plan/](plan/) — Feature plans and design documents
-  - [feature-guest-mode-1.md](plan/feature-guest-mode-1.md) — Guest Mode implementation
-  - [feature-random-recipe-suggestion-1.md](plan/feature-random-recipe-suggestion-1.md) — Random Recipe Suggestion
-  - [design-overhaul-1.md](plan/design-overhaul-1.md) — Design system overhaul
+  - [nextjs-project-setup.md](guides/nextjs-project-setup.md) — Next.js project setup
+
+### Migration Planning
+- [Architecture Migration Plan](plan/architecture-nextjs-mongodb-migration-1.md) — Next.js + MongoDB migration strategy
+- [Design Overhaul](plan/design-overhaul-1.md) — Design system refresh and color palette updates
+
+### Feature Documentation
+- [Guest Mode](plan/feature-guest-mode-1.md) — Guest mode implementation and restrictions
+- [Random Recipe Suggestion](plan/feature-random-recipe-suggestion-1.md) — "Surprise Me" feature specification
+
+### Testing
 - [docs/testing/](docs/testing/) — Testing documentation and checklists
 
 ---
