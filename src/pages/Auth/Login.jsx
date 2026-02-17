@@ -86,7 +86,7 @@ export function Login() {
                     label="Email"
                     type="email"
                     icon={Mail}
-                    placeholder="admin@kitchen_odyssey.com"
+                    placeholder="admin@kitchenodyssey.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -141,8 +141,8 @@ export function Login() {
             {/* Demo credentials for testing */}
             <div className="text-center text-xs text-warm-gray-30 mt-4 space-y-0.5">
                 <p className="font-medium text-warm-gray-40">Demo Credentials</p>
-                <p>User: user@kitchen_odyssey.com / user</p>
-                <p>Admin: admin@kitchen_odyssey.com / admin</p>
+                <p>User: user@kitchenodyssey.com / user</p>
+                <p>Admin: admin@kitchenodyssey.com / admin</p>
             </div>
         </div>
     );

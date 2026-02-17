@@ -12,7 +12,7 @@ async function loginAsUser(page) {
   });
   await page.reload();
   // Now fill in credentials
-  await page.getByPlaceholder('admin@kitchen_odyssey.com').fill('user@kitchen_odyssey.com');
+  await page.getByPlaceholder('admin@kitchenodyssey.com').fill('user@kitchenodyssey.com');
   await page.getByPlaceholder('••••••').fill('user');
   await page.getByRole('button', { name: 'Login' }).click();
   await page.waitForURL(`**${BASE}#/`);

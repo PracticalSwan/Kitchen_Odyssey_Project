@@ -48,10 +48,19 @@ Keys intentionally not migrated as persistent records:
 - `role`, `status` -> preserved with allowed enum validation
 - `favorites`, `viewedRecipes` -> arrays preserved
 - `tokenVersion` -> initialize to `0` if missing
+- `avatar` -> `avatarUrl` (string, nullable). Existing URL values preserved as-is. For migrated users without avatar, set to `null`.
+- **New fields for image upload:**
+  - `avatarStoragePath` (string, nullable): Relative filesystem path for uploaded avatar (e.g., `avatars/user-123-avatar.jpg`). `null` for URL-based avatars or no avatar.
+  - `avatarThumbnailUrl` (string, nullable): Public URL for thumbnail version (e.g., `https://backend-domain.com/uploads/thumbnails/avatars/user-123-avatar.jpg`). `null` for URL-based avatars or no avatar.
 - Timestamps normalized to UTC-compatible ISO format
 
 Mandatory rule:
 - Never write plaintext password to MongoDB.
+
+Image handling rules:
+- Existing URL-based avatars in `avatarUrl` are preserved during migration.
+- New avatar uploads will store files in local filesystem and populate `avatarStoragePath` with relative path.
+- Default placeholder avatar URL provided when user has no avatar.
 
 ### 3.2 Recipes (`kitchen_odyssey_recipes` -> `recipes`)
 
@@ -61,6 +70,16 @@ Mandatory rule:
 - `likedBy`, `favoritedBy`, counters preserved or recomputed deterministically
 - Category/tag arrays normalized to consistent array shape
 - Numeric fields (`prepTime`, `cookTime`, servings/rating counts) coerced to valid number range
+- `image` -> `imageUrl` (string, nullable). Existing URL values preserved as-is.
+- **New fields for image upload:**
+  - `imageStoragePath` (string, nullable): Relative filesystem path for uploaded recipe image (e.g., `recipes/recipe-456-image.jpg`). `null` for URL-based images.
+  - `imageThumbnailUrl` (string, nullable): Public URL for thumbnail version (e.g., `https://backend-domain.com/uploads/thumbnails/recipes/recipe-456-image.jpg`). `null` for URL-based images.
+  - `imageAltText` (string, nullable): Alt text for accessibility. Populated from recipe title if missing.
+
+Image handling rules:
+- Existing URL-based images in `imageUrl` are preserved during migration.
+- New recipe image uploads will store files in local filesystem and populate `imageStoragePath` with relative path.
+- Default placeholder image URL provided when recipe has no image.
 
 ### 3.3 Reviews (`kitchen_odyssey_reviews` -> `reviews`)
 
@@ -129,6 +148,8 @@ Minimum rollback artifacts:
 - Import must be idempotent (safe re-run).
 - Fail fast on schema violations or unresolved references.
 - Never run destructive cleanup before validation and backup are complete.
+- **Image URL validation:** All migrated image URLs must be validated for reachability during import. Invalid URLs should be flagged and replaced with placeholder images.
+- **Image storage data integrity:** New image storage fields (`avatarStoragePath`, `imageStoragePath`) must be `null` for all migrated records, populated only via new upload API with local filesystem paths.
 
 ## 7. Related Documents
 

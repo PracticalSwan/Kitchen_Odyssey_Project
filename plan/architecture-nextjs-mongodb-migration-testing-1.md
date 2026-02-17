@@ -26,10 +26,12 @@ Testing must prove that API-backed mode preserves existing app behavior and cons
 - Admin operations and metrics screens
 - Activity and search history behavior
 - Rollout safety and parity against localStorage mode
+- **Image upload for recipes and user avatars** (new feature)
+- **Image deletion and cleanup cascade**
+- **Image validation (size, type, security)**
 
 Out of scope:
 - Net-new product features unrelated to migration
-- Full redesign validation outside migration data-contract dependency
 
 ## 2. Test Modes and Environment
 
@@ -44,6 +46,8 @@ Backend:
 - Dedicated test database URI (never production)
 - Seed fixtures for users, recipes, reviews, stats, and activity
 - Deterministic reset/cleanup between test runs
+- **Local test image upload directory** (separate from production, cleaned between runs)
+- **Mock filesystem for image operations** (optional, for faster unit tests)
 
 Frontend:
 - Stable auth states for guest/user/admin fixtures
@@ -60,7 +64,6 @@ For overlapping scenarios, behavior in Mode B must match Mode A unless a documen
 | Task | Description | Status |
 | --- | --- | --- |
 | TASK-004 | Define immutable baseline snapshots of current behavior before migration implementation. |  |
-| TASK-035 | Add UI-state contract tests for redesign states (loading, empty, error, restricted, success) backed by API payloads. |  |
 
 ### Phase T2: Backend Correctness
 
@@ -76,8 +79,12 @@ For overlapping scenarios, behavior in Mode B must match Mode A unless a documen
 | Task | Description | Status |
 | --- | --- | --- |
 | TASK-049 | Extend Playwright coverage to run in both localStorage and API modes. |  |
+| TASK-049-A | Add Playwright tests for recipe image upload flow (select file, preview, upload, update, delete). |  |
+| TASK-049-B | Add Playwright tests for user avatar upload flow (select file, preview, upload, update profile, delete). |  |
 | TASK-050 | Add migration parity suite validating same outcomes pre/post switch. |  |
+| TASK-050-A | Add image upload parity tests: verify uploaded images display correctly in recipe cards, detail pages, and profile. |  |
 | TASK-051 | Add edge-case suite (invalid payloads, race events, stale sessions, large datasets). |  |
+| TASK-051-A | Add image upload edge case tests (oversized files, invalid types, network interruption, concurrent uploads, malformed images). |  |
 | TASK-052 | Add guest analytics bypass tests for random suggestion and view/stat consistency. |  |
 
 ### Phase T4: Non-Functional and Security Validation
@@ -85,9 +92,17 @@ For overlapping scenarios, behavior in Mode B must match Mode A unless a documen
 | Task | Description | Status |
 | --- | --- | --- |
 | TASK-053 | Add performance tests for latency/render stability against baseline. |  |
+| TASK-053-A | Add image upload performance tests (upload latency for 1MB/5MB files, thumbnail generation time, concurrent upload throughput). |  |
 | TASK-054 | Add accessibility regression tests (keyboard flow, focus, ARIA, modal behavior). |  |
+| TASK-054-A | Add image upload accessibility tests (alt text defaults, file input labels, upload progress screen reader announcements). |  |
 | TASK-055 | Add security tests (unauthorized access, role bypass, injection, token tampering, CSRF). |  |
+| TASK-055-A | Add image upload security tests (malicious file upload, MIME type spoofing, path traversal attempts, virus/malware scanning integration). |  |
+| TASK-055-B | Add input sanitization tests (XSS payloads in recipe fields, user bio, review comments; verify HTML/script tags are escaped). |  |
+| TASK-055-C | Add error message leakage tests (verify stack traces, DB errors, internal paths not exposed to clients). |  |
+| TASK-055-D | Add CORS configuration tests (verify Origin validation, reject unauthorized origins, preflight handling). |  |
 | TASK-056 | Add concurrency tests for simultaneous interaction mutations. |  |
+| TASK-056-A | Add image cleanup cascade tests (verify file deletion on user/recipe deletion, verify cleanup on image replacement). |  |
+| TASK-056-B | Add Azure VM deployment tests (nginx static file serving, file permissions, disk space monitoring, backup/restore procedures). |  |
 
 ### Phase T5: Release Gate Validation
 
@@ -112,6 +127,14 @@ Required feature domains:
 - Activity and search history
 - Random suggestion behavior
 - Deletion cascade and referential integrity (user/recipe deletion must clean dependent records across collections)
+- **Recipe image upload** (upload, preview, save, update, delete, display in cards/detail)
+- **User avatar upload** (upload, preview, save, update profile, delete, display in profile/comments)
+- **Image validation** (file size limits, MIME type enforcement, malicious file rejection)
+- **Image cleanup** (file deletion on recipe/user deletion, old image cleanup on replacement)
+- **Image serving via nginx** (static file delivery, caching headers, 404 handling with placeholders)
+- **Azure VM deployment** (PM2 process management, nginx configuration, SSL/TLS, firewall rules, disk space monitoring)
+- **Input sanitization** (XSS prevention in all user-generated content fields)
+- **Error handling UX** (user-friendly error messages, retry options, loading states)
 
 Required failure modes:
 - Validation errors (`400`)
@@ -125,10 +148,14 @@ Required failure modes:
 
 Migration can pass testing gate only if all are true:
 - No failing contract tests (TASK-048)
-- No failing parity tests (TASK-050)
-- No critical security failures (TASK-055)
+- No failing parity tests (TASK-050, TASK-050-A)
+- No critical security failures (TASK-055, TASK-055-A, TASK-055-B, TASK-055-C, TASK-055-D)
 - No unresolved high-severity defects in core role/flow matrix (TASK-060)
-- Performance and accessibility checks pass agreed thresholds (TASK-053/TASK-054)
+- Performance and accessibility checks pass agreed thresholds (TASK-053/TASK-054, TASK-053-A/TASK-054-A)
+- **Image upload tests pass** (TASK-049-A, TASK-049-B, TASK-051-A, TASK-055-A, TASK-056-A)
+- **Image cleanup cascade verified** (no orphaned files in upload directory after test runs)
+- **Azure VM deployment verified** (nginx serving images correctly, PM2 process management stable, backup/restore procedures tested)
+- **Input sanitization verified** (no XSS vulnerabilities in user-generated content)
 
 ## 6. Reporting Artifacts
 
