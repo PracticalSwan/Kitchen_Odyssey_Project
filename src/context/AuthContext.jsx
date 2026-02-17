@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
             } else {
                 // No user session - restore guest session from localStorage if available
                 try {
-                    const guestId = localStorage.getItem('cookhub_guest_id');
+                    const guestId = localStorage.getItem('kitchen_odyssey_guest_id');
                     if (guestId) {
                         setIsGuest(true);
                     }
@@ -107,7 +107,7 @@ export function AuthProvider({ children }) {
             setUser(loggedUser);
             // Clear guest state on successful login
             setIsGuest(false);
-            try { localStorage.removeItem('cookhub_guest_id'); } catch { /* ignore */ }
+            try { localStorage.removeItem('kitchen_odyssey_guest_id'); } catch { /* ignore */ }
             return { success: true };
         } catch (error) {
             return { success: false, error: error.message };
@@ -118,7 +118,7 @@ export function AuthProvider({ children }) {
         if (isGuest) {
             // Exit guest mode - just clear the flag
             setIsGuest(false);
-            try { localStorage.removeItem('cookhub_guest_id'); } catch { /* ignore */ }
+            try { localStorage.removeItem('kitchen_odyssey_guest_id'); } catch { /* ignore */ }
         } else {
             // Normal logout - update user status
             storage.logout(user?.id);
@@ -146,7 +146,7 @@ export function AuthProvider({ children }) {
 
         // Clear guest state on signup
         setIsGuest(false);
-        try { localStorage.removeItem('cookhub_guest_id'); } catch { /* ignore */ }
+        try { localStorage.removeItem('kitchen_odyssey_guest_id'); } catch { /* ignore */ }
 
         // Auto-login after signup
         const loggedInUser = storage.login(userData.email, userData.password);
@@ -165,7 +165,7 @@ export function AuthProvider({ children }) {
 
     const exitGuestMode = useCallback(() => {
         setIsGuest(false);
-        try { localStorage.removeItem('cookhub_guest_id'); } catch { /* ignore */ }
+        try { localStorage.removeItem('kitchen_odyssey_guest_id'); } catch { /* ignore */ }
     }, []);
 
     const updateProfile = (updates) => {

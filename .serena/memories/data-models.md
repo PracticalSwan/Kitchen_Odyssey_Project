@@ -4,7 +4,7 @@
 
 **Location:** `src/lib/storage.js`
 **Type:** Centralized localStorage wrapper
-**Key Prefix:** `cookhub_*` (backward compatibility)
+**Key Prefix:** `kitchen_odyssey_*` (backward compatibility)
 **Seed Data:** 3 admins, 9 users, 12 recipes
 
 ## Data Models
@@ -450,15 +450,15 @@ storage.resetData()
 ```javascript
 // 3 admin accounts (all inactive until first login)
 {
-  username: 'admin1', email: 'admin1@cookhub.com',
+  username: 'admin1', email: 'admin1@kitchen_odyssey.com',
   password: 'admin123', role: 'admin', status: 'inactive'
 }
 {
-  username: 'admin2', email: 'admin2@cookhub.com',
+  username: 'admin2', email: 'admin2@kitchen_odyssey.com',
   password: 'admin123', role: 'admin', status: 'inactive'
 }
 {
-  username: 'admin3', email: 'admin3@cookhub.com',
+  username: 'admin3', email: 'admin3@kitchen_odyssey.com',
   password: 'admin123', role: 'admin', status: 'inactive'
 }
 ```
@@ -491,16 +491,16 @@ const DEFAULT_AVATARS = [
 
 ## localStorage Keys
 
-All keys use `cookhub_*` prefix:
+All keys use `kitchen_odyssey_*` prefix:
 ```javascript
-cookhub_users                    // User array
-cookhub_recipes                  // Recipe array
-cookhub_current_user             // Current logged-in user
-cookhub_guest_id                 // Guest ID (if in guest mode)
-cookhub_reviews                  // Review array (nested in recipes)
-cookhub_search_history           // Search history per user
-cookhub_daily_stats              // Daily statistics (date-keyed)
-cookhub_activity                 // Activity log entries
+kitchen_odyssey_users                    // User array
+kitchen_odyssey_recipes                  // Recipe array
+kitchen_odyssey_current_user             // Current logged-in user
+kitchen_odyssey_guest_id                 // Guest ID (if in guest mode)
+kitchen_odyssey_reviews                  // Review array (nested in recipes)
+kitchen_odyssey_search_history           // Search history per user
+kitchen_odyssey_daily_stats              // Daily statistics (date-keyed)
+kitchen_odyssey_activity                 // Activity log entries
 ```
 
 ## Data Migration Path
@@ -572,7 +572,7 @@ export const storage = {
     if (USE_API) {
       return await fetch('/api/v1/recipes').then(r => r.json())
     }
-    return JSON.parse(localStorage.getItem('cookhub_recipes') || '[]')
+    return JSON.parse(localStorage.getItem('kitchen_odyssey_recipes') || '[]')
   }
   // ... other methods
 }

@@ -17,31 +17,31 @@ Source of truth before migration:
 - `Kitchen_Odyssey/src/lib/storage.js`
 
 Primary localStorage keys:
-- `cookhub_users`
-- `cookhub_recipes`
-- `cookhub_reviews`
-- `cookhub_search_history`
-- `cookhub_daily_stats`
-- `cookhub_activity_logs`
+- `kitchen_odyssey_users`
+- `kitchen_odyssey_recipes`
+- `kitchen_odyssey_reviews`
+- `kitchen_odyssey_search_history`
+- `kitchen_odyssey_daily_stats`
+- `kitchen_odyssey_activity_logs`
 
 Keys intentionally not migrated as persistent records:
-- `cookhub_current_user`
-- `cookhub_guest_id` (remains client-local for guest continuity)
+- `kitchen_odyssey_current_user`
+- `kitchen_odyssey_guest_id` (remains client-local for guest continuity)
 
 ## 2. Target Collections
 
 | Source Key | Target Collection | Notes |
 | --- | --- | --- |
-| `cookhub_users` | `users` | Password hashing required during import. |
-| `cookhub_recipes` | `recipes` | Preserve ownership, status, and interaction counters. |
-| `cookhub_reviews` | `reviews` | Preserve recipe/user linkage and rating metadata. |
-| `cookhub_search_history` | `search_history` | Preserve per-user chronological history. |
-| `cookhub_daily_stats` | `daily_stats` | Preserve daily aggregate metrics in UTC-aligned format. |
-| `cookhub_activity_logs` | `activity_logs` | Preserve recent admin/system activity; older data can be TTL-managed. |
+| `kitchen_odyssey_users` | `users` | Password hashing required during import. |
+| `kitchen_odyssey_recipes` | `recipes` | Preserve ownership, status, and interaction counters. |
+| `kitchen_odyssey_reviews` | `reviews` | Preserve recipe/user linkage and rating metadata. |
+| `kitchen_odyssey_search_history` | `search_history` | Preserve per-user chronological history. |
+| `kitchen_odyssey_daily_stats` | `daily_stats` | Preserve daily aggregate metrics in UTC-aligned format. |
+| `kitchen_odyssey_activity_logs` | `activity_logs` | Preserve recent admin/system activity; older data can be TTL-managed. |
 
 ## 3. Core Field Transformations
 
-### 3.1 Users (`cookhub_users` -> `users`)
+### 3.1 Users (`kitchen_odyssey_users` -> `users`)
 
 - `id` -> `_id` (string, stable)
 - `password` -> `passwordHash` (bcrypt hash during import)
@@ -53,7 +53,7 @@ Keys intentionally not migrated as persistent records:
 Mandatory rule:
 - Never write plaintext password to MongoDB.
 
-### 3.2 Recipes (`cookhub_recipes` -> `recipes`)
+### 3.2 Recipes (`kitchen_odyssey_recipes` -> `recipes`)
 
 - `id` -> `_id`
 - `authorId`/owner identity preserved
@@ -62,26 +62,26 @@ Mandatory rule:
 - Category/tag arrays normalized to consistent array shape
 - Numeric fields (`prepTime`, `cookTime`, servings/rating counts) coerced to valid number range
 
-### 3.3 Reviews (`cookhub_reviews` -> `reviews`)
+### 3.3 Reviews (`kitchen_odyssey_reviews` -> `reviews`)
 
 - `id` -> `_id`
 - `recipeId` and `userId` links preserved
 - `rating`, `comment`, `createdAt` preserved with validation
 - Invalid orphan references must be flagged before commit
 
-### 3.4 Search History (`cookhub_search_history` -> `search_history`)
+### 3.4 Search History (`kitchen_odyssey_search_history` -> `search_history`)
 
 - Preserve entry order and timestamps
 - Associate each record with user identity key
 - Deduplicate only if current behavior requires dedup on write
 
-### 3.5 Daily Stats (`cookhub_daily_stats` -> `daily_stats`)
+### 3.5 Daily Stats (`kitchen_odyssey_daily_stats` -> `daily_stats`)
 
 - Preserve day key and aggregate values
 - Store canonical day boundary in UTC
 - Keep metrics compatible with AdminStats calculations
 
-### 3.6 Activity Logs (`cookhub_activity_logs` -> `activity_logs`)
+### 3.6 Activity Logs (`kitchen_odyssey_activity_logs` -> `activity_logs`)
 
 - Preserve actor, action, target, and timestamp metadata
 - Apply retention policy for old events after migration stabilization

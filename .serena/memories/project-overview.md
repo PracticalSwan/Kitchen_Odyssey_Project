@@ -47,7 +47,7 @@
 - **Test Files:** 4 spec files covering guest mode, random recipe, analytics, transitions
 
 ### Data Persistence (Current)
-- **Storage:** localStorage with `cookhub_*` key prefix
+- **Storage:** localStorage with `kitchen_odyssey_*` key prefix
 - **Seed Data:** 3 admins, 9 users, 12 recipes
 - **Data Layer:** Centralized `src/lib/storage.js` module
 
@@ -156,7 +156,7 @@ Components use window events for cross-component state sync:
 ## Important Implementation Details
 
 ### localStorage Prefix Convention
-All keys use `cookhub_*` prefix (e.g., `cookhub_users`, `cookhub_recipes`) despite Kitchen Odyssey branding. This is intentional for backward compatibility.
+All keys use `kitchen_odyssey_*` prefix (e.g., `kitchen_odyssey_users`, `kitchen_odyssey_recipes`) despite Kitchen Odyssey branding. This is intentional for backward compatibility.
 
 ### Guest Mode Analytics Bypass
 Guest IDs starting with `guest-` bypass:

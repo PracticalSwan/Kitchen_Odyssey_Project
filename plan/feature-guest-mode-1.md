@@ -307,7 +307,7 @@ Guest Transitions Tests (tests/guest-transitions.spec.js) — 5 tests:
   - **Decision**: REJECTED (from assessment feedback)
   - **Rationale**: Guest mode is client-side localStorage feature; rollback = clear localStorage keys
   - **Trade-off**: Simple, self-contained rollback mechanism already exists
-  - **Implementation Note**: To "undo" guest mode release, clear localStorage keys (`cookhub_guest_id`, `cookhub_daily_stats` guest entries) and revert code changes via version control
+  - **Implementation Note**: To "undo" guest mode release, clear localStorage keys (`kitchen_odyssey_guest_id`, `kitchen_odyssey_daily_stats` guest entries) and revert code changes via version control
 
 - **ALT-007**: Add detailed task-level time estimates to implementation plan
   - **Decision**: DEFERRED (modified approach from assessment feedback)
@@ -348,7 +348,7 @@ The following items were proposed during plan assessment and have been addressed
 - **DEP-005**: `src/lib/storage.js` - Must be updated before UI components (TASK-004 to TASK-005)
 - **DEP-006**: Existing React components must be working before guest mode integration
 - **DEP-007**: Existing storage.js API must remain backward compatible
-- **DEP-008**: localStorage key `cookhub_guest_id` must already be defined
+- **DEP-008**: localStorage key `kitchen_odyssey_guest_id` must already be defined
 
 ### Build Dependencies
 
@@ -517,9 +517,9 @@ The Guest Mode feature is **DONE** when:
 ### Manual Testing (Chrome DevTools)
 
 - **TEST-006**: LocalStorage Inspection (TASK-037)
-  - Check `cookhub_guest_id` key exists and has format `guest-{randomId}`
-  - Check `cookhub_daily_stats` does NOT contain any entries with guest IDs
-  - Check guest search history in `cookhub_search_history` with guest IDs
+  - Check `kitchen_odyssey_guest_id` key exists and has format `guest-{randomId}`
+  - Check `kitchen_odyssey_daily_stats` does NOT contain any entries with guest IDs
+  - Check guest search history in `kitchen_odyssey_search_history` with guest IDs
   - Verify localStorage cleared on explicit logout/exit or when user logs in
 
 - **TEST-007**: React DevTools Inspection (TASK-038)

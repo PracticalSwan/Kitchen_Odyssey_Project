@@ -199,14 +199,14 @@ Kitchen_Odyssey/
 **Admin Accounts:**
 | Email | Password | Name |
 |-------|----------|------|
-| admin@cookhub.com | admin | Admin User |
-| olivia@cookhub.com | admin | Olivia Admin |
-| marcus@cookhub.com | admin | Marcus Admin |
+| admin@kitchen_odyssey.com | admin | Admin User |
+| olivia@kitchen_odyssey.com | admin | Olivia Admin |
+| marcus@kitchen_odyssey.com | admin | Marcus Admin |
 
 Additional test users with various roles are pre-configured.
 
 > [!NOTE]
-> Demo account emails use `@cookhub.com` domain for backward compatibility. Internal localStorage keys use `cookhub_*` prefix.
+> Demo account emails use `@kitchen_odyssey.com` domain for backward compatibility. Internal localStorage keys use `kitchen_odyssey_*` prefix.
 
 ## Documentation
 

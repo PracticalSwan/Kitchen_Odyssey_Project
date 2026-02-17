@@ -355,8 +355,8 @@ export default useLocalStorage
 import useLocalStorage from '../hooks/useLocalStorage'
 
 function Home() {
-  const [viewMode, setViewMode] = useLocalStorage('cookhub_viewMode', 'grid')
-  const [recentRecipes, setRecentRecipes] = useLocalStorage('cookhub_recent', [])
+  const [viewMode, setViewMode] = useLocalStorage('kitchen_odyssey_viewMode', 'grid')
+  const [recentRecipes, setRecentRecipes] = useLocalStorage('kitchen_odyssey_recent', [])
 
   return (
     <div>
@@ -372,7 +372,7 @@ function Home() {
 #### Search History
 ```javascript
 // src/pages/Recipe/Search.jsx
-const [searchHistory, setSearchHistory] = useLocalStorage('cookhub_searchHistory', [])
+const [searchHistory, setSearchHistory] = useLocalStorage('kitchen_odyssey_searchHistory', [])
 
 const handleSearch = useCallback((query) => {
   if (query.trim()) {

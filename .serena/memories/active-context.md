@@ -25,7 +25,7 @@ All three implementation phases are complete:
 ## Key Design Decisions
 - Guest "Continue as Guest" button kept (not in Stitch, required per guest-mode plan)
 - "Surprise Me" button kept (not in Stitch, required per random-recipe plan)
-- localStorage key prefix `cookhub_` unchanged for backward compatibility
+- localStorage key prefix `kitchen_odyssey_` unchanged for backward compatibility
 - Stitch "Cookhub" branding → "Kitchen Odyssey" in implementation
 
 ## Tech Stack

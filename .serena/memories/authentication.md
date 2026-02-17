@@ -330,7 +330,7 @@ const updateProfile = (updates) => {
 // Listen for storage changes to sync auth state across tabs
 useEffect(() => {
   const handleStorageChange = (e) => {
-    if (e.key === 'cookhub_current_user') {
+    if (e.key === 'kitchen_odyssey_current_user') {
       const newUser = JSON.parse(e.newValue)
       setCurrentUser(newUser)
     }
@@ -347,7 +347,7 @@ useEffect(() => {
 useEffect(() => {
   if (isGuest) {
     const handleStorageChange = (e) => {
-      if (e.key === 'cookhub_guest_id' && !e.newValue) {
+      if (e.key === 'kitchen_odyssey_guest_id' && !e.newValue) {
         // Guest logged out in another tab
         setIsGuest(false)
       }

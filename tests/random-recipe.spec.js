@@ -6,7 +6,13 @@ const BASE = '/recipe-sharing-system-deploy/';
 /** Log in as the demo user */
 async function loginAsUser(page) {
   await page.goto(`${BASE}#/login`);
-  await page.getByPlaceholder('admin@cookhub.com').fill('user@cookhub.com');
+  // Clear any old localStorage data first
+  await page.evaluate(() => {
+    Object.keys(localStorage).forEach(key => localStorage.removeItem(key));
+  });
+  await page.reload();
+  // Now fill in credentials
+  await page.getByPlaceholder('admin@kitchen_odyssey.com').fill('user@kitchen_odyssey.com');
   await page.getByPlaceholder('••••••').fill('user');
   await page.getByRole('button', { name: 'Login' }).click();
   await page.waitForURL(`**${BASE}#/`);
@@ -114,7 +120,7 @@ test.describe('Random Recipe Suggestion', () => {
 
     // Get daily_stats before
     const statsBefore = await page.evaluate(() => {
-      const raw = localStorage.getItem('cookhub_daily_stats');
+      const raw = localStorage.getItem('kitchen_odyssey_daily_stats');
       return raw ? JSON.parse(raw) : null;
     });
 
@@ -125,7 +131,7 @@ test.describe('Random Recipe Suggestion', () => {
 
     // Get daily_stats after
     const statsAfter = await page.evaluate(() => {
-      const raw = localStorage.getItem('cookhub_daily_stats');
+      const raw = localStorage.getItem('kitchen_odyssey_daily_stats');
       return raw ? JSON.parse(raw) : null;
     });
 

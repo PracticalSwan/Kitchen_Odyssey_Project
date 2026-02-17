@@ -13,7 +13,13 @@ async function enterGuestMode(page) {
 /** Log in as the demo user */
 async function loginAsUser(page) {
   await page.goto(`${BASE}#/login`);
-  await page.getByPlaceholder('admin@cookhub.com').fill('user@cookhub.com');
+  // Clear any old localStorage data first
+  await page.evaluate(() => {
+    Object.keys(localStorage).forEach(key => localStorage.removeItem(key));
+  });
+  await page.reload();
+  // Now fill in credentials
+  await page.getByPlaceholder('admin@kitchen_odyssey.com').fill('user@kitchen_odyssey.com');
   await page.getByPlaceholder('••••••').fill('user');
   await page.getByRole('button', { name: 'Login' }).click();
   await page.waitForURL(`**${BASE}#/`);
@@ -29,7 +35,7 @@ test.describe('Guest Mode Transitions', () => {
     await expect(page).toHaveURL(/.*#\/login/);
 
     // Log in
-    await page.getByPlaceholder('admin@cookhub.com').fill('user@cookhub.com');
+    await page.getByPlaceholder('admin@kitchen_odyssey.com').fill('user@kitchen_odyssey.com');
     await page.getByPlaceholder('••••••').fill('user');
     await page.getByRole('button', { name: 'Login' }).click();
     await page.waitForURL(`**${BASE}#/`);
@@ -78,25 +84,25 @@ test.describe('Guest Mode Transitions', () => {
     await expect(page.getByText('Guest', { exact: true })).toBeVisible();
 
     // Guest ID should persist in localStorage
-    const guestId = await page.evaluate(() => localStorage.getItem('cookhub_guest_id'));
+    const guestId = await page.evaluate(() => localStorage.getItem('kitchen_odyssey_guest_id'));
     expect(guestId).toBeTruthy();
     expect(guestId).toMatch(/^guest-/);
   });
 
   test('GuestIdClearedOnLogin — guest ID removed when user logs in', async ({ page }) => {
     await enterGuestMode(page);
-    const guestIdBefore = await page.evaluate(() => localStorage.getItem('cookhub_guest_id'));
+    const guestIdBefore = await page.evaluate(() => localStorage.getItem('kitchen_odyssey_guest_id'));
     expect(guestIdBefore).toBeTruthy();
 
     // Login
     await page.getByRole('link', { name: 'Login' }).click();
-    await page.getByPlaceholder('admin@cookhub.com').fill('user@cookhub.com');
+    await page.getByPlaceholder('admin@kitchen_odyssey.com').fill('user@kitchen_odyssey.com');
     await page.getByPlaceholder('••••••').fill('user');
     await page.getByRole('button', { name: 'Login' }).click();
     await page.waitForURL(`**${BASE}#/`);
 
     // Guest ID should be cleared
-    const guestIdAfter = await page.evaluate(() => localStorage.getItem('cookhub_guest_id'));
+    const guestIdAfter = await page.evaluate(() => localStorage.getItem('kitchen_odyssey_guest_id'));
     expect(guestIdAfter).toBeFalsy();
   });
 });

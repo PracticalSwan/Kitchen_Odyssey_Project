@@ -14,7 +14,7 @@ test.describe('Guest Mode Functionality', () => {
   test.beforeEach(async ({ page }) => {
     // Clear guest state
     await page.goto(`${BASE}#/login`);
-    await page.evaluate(() => localStorage.removeItem('cookhub_guest_id'));
+    await page.evaluate(() => localStorage.removeItem('kitchen_odyssey_guest_id'));
   });
 
   test('GuestEntryFromLogin — Continue as Guest works from Login page', async ({ page }) => {

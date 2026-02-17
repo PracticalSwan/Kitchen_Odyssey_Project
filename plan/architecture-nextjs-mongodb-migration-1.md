@@ -59,7 +59,7 @@ Boundary rules:
 - Access token: short-lived HttpOnly cookie.
 - Refresh token: HttpOnly cookie, server-side revocation support.
 - Token payload includes `tokenVersion` to support global logout/logout-all.
-- Guest sessions remain unauthenticated and use `cookhub_guest_id` local persistence.
+- Guest sessions remain unauthenticated and use `kitchen_odyssey_guest_id` local persistence.
 
 ### 3.2 Environment Baseline
 
@@ -95,8 +95,8 @@ Target collections:
 - `search_history`
 
 Migration decisions:
-- `cookhub_current_user` is not migrated as persistent data.
-- `cookhub_guest_id` remains local-only for guest continuity.
+- `kitchen_odyssey_current_user` is not migrated as persistent data.
+- `kitchen_odyssey_guest_id` remains local-only for guest continuity.
 - Imported user passwords from localStorage plaintext must be hashed during import.
 - Timestamps stored in UTC.
 - Add deletion cascade handling to prevent orphaned references.

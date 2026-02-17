@@ -40,16 +40,16 @@ This implementation plan provides a complete design overhaul for the Kitchen Ody
 
 ### Version 1.8 (2026-02-14)
 - Session delta documentation update: recorded broad UI refinement changes across shared components, layouts, and admin/recipe/auth pages.
-- Confirmed branding/docs state remains: app name "Kitchen Odyssey" with demo credentials still using `@cookhub.com`.
+- Confirmed branding/docs state remains: app name "Kitchen Odyssey" with demo credentials still using `@kitchen_odyssey.com`.
 
 ### Version 1.7 (2026-02-14)
-- Documentation clarification: branding is "Kitchen Odyssey" while demo credentials remain `@cookhub.com`.
+- Documentation clarification: branding is "Kitchen Odyssey" while demo credentials remain `@kitchen_odyssey.com`.
 - Synchronized README + Serena memory notes to avoid ambiguity between app naming and demo-account domains.
 
 ### Version 1.6 (2026-02-14)
 - Documentation alignment update for brand rename to "Kitchen Odyssey" across plan references and related docs.
 - Added implementation note that auth branding lockup (logo + title) is centered in `AuthLayout` for Login/Signup consistency.
-- Confirmed localStorage key prefix `cookhub_` remains unchanged for backward compatibility.
+- Confirmed localStorage key prefix `kitchen_odyssey_` remains unchanged for backward compatibility.
 
 ### Version 1.5 (2026-02-14)
 - Clarified guest analytics requirement to exclude guest views from per-recipe view counts (`viewedBy` / `getViewCount`) in addition to `daily_stats.views`.

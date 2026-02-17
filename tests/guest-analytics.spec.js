@@ -24,7 +24,7 @@ test.describe('Guest Analytics Verification', () => {
 
     // Capture daily_stats after
     const statsAfter = await page.evaluate(() => {
-      const raw = localStorage.getItem('cookhub_daily_stats');
+      const raw = localStorage.getItem('kitchen_odyssey_daily_stats');
       return raw ? JSON.parse(raw) : null;
     });
 
@@ -42,7 +42,7 @@ test.describe('Guest Analytics Verification', () => {
     await page.waitForTimeout(500);
 
     const stats = await page.evaluate(() => {
-      const raw = localStorage.getItem('cookhub_daily_stats');
+      const raw = localStorage.getItem('kitchen_odyssey_daily_stats');
       return raw ? JSON.parse(raw) : null;
     });
 
@@ -60,7 +60,7 @@ test.describe('Guest Analytics Verification', () => {
     await page.waitForTimeout(500);
 
     // Guest search should be in localStorage (client-side only)
-    const guestId = await page.evaluate(() => localStorage.getItem('cookhub_guest_id'));
+    const guestId = await page.evaluate(() => localStorage.getItem('kitchen_odyssey_guest_id'));
     expect(guestId).toBeTruthy();
     expect(guestId).toMatch(/^guest-/);
   });
@@ -72,7 +72,7 @@ test.describe('Guest Analytics Verification', () => {
 
     // Check the recipe data in localStorage
     const recipeData = await page.evaluate(() => {
-      const raw = localStorage.getItem('cookhub_recipes');
+      const raw = localStorage.getItem('kitchen_odyssey_recipes');
       if (!raw) return null;
       const recipes = JSON.parse(raw);
       return recipes.find(r => r.id === 'recipe-1');
