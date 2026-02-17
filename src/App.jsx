@@ -9,6 +9,8 @@
  */
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './components/ui/Toast';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { AuthLayout } from './layouts/AuthLayout';
 import { RootLayout } from './layouts/RootLayout';
 import { AdminLayout } from './layouts/AdminLayout';
@@ -28,7 +30,9 @@ import { AdminRecipes } from './pages/Admin/AdminRecipes';
 function App() {
   return (
     // AuthProvider wraps entire app to give all components access to auth state
+    <ToastProvider>
     <AuthProvider>
+      <ErrorBoundary>
       <Router>
         <Routes>
           {/* Auth Routes - No authentication required, minimal layout */}
@@ -63,7 +67,9 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
+      </ErrorBoundary>
     </AuthProvider>
+    </ToastProvider>
   );
 }
 

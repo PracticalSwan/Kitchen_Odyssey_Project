@@ -8,7 +8,8 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { storage } from '../../lib/storage';
+import { storageApi as storage } from '../../lib/storageApiAdapter';
+import { useToast, formatError } from '../../components/ui/Toast';
 import { RecipeCard } from '../../components/recipe/RecipeCard';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -25,18 +26,23 @@ const SORT_OPTIONS = [
 
 export function Search() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const toast = useToast();
     const query = searchParams.get('q') || '';
     const urlCategory = searchParams.get('category') || 'All';
     const urlDifficulty = searchParams.get('difficulty') || 'All';
     const sortParam = searchParams.get('sort');
     const urlSort = SORT_OPTIONS.some(opt => opt.value === sortParam) ? sortParam : 'trending';
 
-    const getCurrentUserId = () => {
-        const user = storage.getCurrentUser();
-        return user?.id || (storage.getOrCreateGuestId ? `guest:${storage.getOrCreateGuestId()}` : null);
+    const getCurrentUserId = async () => {
+        try {
+            const user = await storage.getCurrentUser();
+            return user?.id || user?._id || (storage.getOrCreateGuestId ? `guest:${storage.getOrCreateGuestId()}` : null);
+        } catch {
+            return storage.getOrCreateGuestId ? `guest:${storage.getOrCreateGuestId()}` : null;
+        }
     };
 
-    const [recipes, setRecipes] = useState(() => storage.getRecipes().filter(r => r.status === 'published'));
+    const [recipes, setRecipes] = useState([]);
 
     const [filters, setFilters] = useState({
         keyword: query,
@@ -45,14 +51,29 @@ export function Search() {
         sort: urlSort
     });
 
-    const [searchHistory, setSearchHistory] = useState(() => {
-        const userId = getCurrentUserId();
-        return userId ? storage.getSearchHistory(userId).slice(0, 5) : [];
-    });
+    const [searchHistory, setSearchHistory] = useState([]);
     const [debouncedKeyword, setDebouncedKeyword] = useState(query);
 
     const hasMountedRef = useRef(false);
     const lastLoggedKeywordRef = useRef('');
+
+    // Load recipes and search history on mount
+    useEffect(() => {
+        const init = async () => {
+            try {
+                const allRecipes = await storage.getRecipes();
+                setRecipes(allRecipes.filter(r => r.status === 'published'));
+            } catch (err) { toast.error(formatError(err)); }
+            try {
+                const userId = await getCurrentUserId();
+                if (userId) {
+                    const history = await storage.getSearchHistory(userId);
+                    setSearchHistory((history || []).slice(0, 5));
+                }
+            } catch (err) { toast.error(formatError(err)); }
+        };
+        init();
+    }, []);
 
     // Debounce keyword before logging to storage (1.5s delay)
     useEffect(() => {
@@ -92,8 +113,11 @@ export function Search() {
 
     // Sync recipe list when recipes are updated elsewhere
     useEffect(() => {
-        const refreshRecipes = () => {
-            setRecipes(storage.getRecipes().filter(r => r.status === 'published'));
+        const refreshRecipes = async () => {
+            try {
+                const allRecipes = await storage.getRecipes();
+                setRecipes(allRecipes.filter(r => r.status === 'published'));
+            } catch (err) { toast.error(formatError(err)); }
         };
         window.addEventListener('recipeUpdated', refreshRecipes);
         window.addEventListener('favoriteToggled', refreshRecipes);
@@ -113,13 +137,18 @@ export function Search() {
         if (!trimmedKeyword) return;
         if (lastLoggedKeywordRef.current === trimmedKeyword) return;
 
-        storage.addSearchHistory({ query: trimmedKeyword });
-        lastLoggedKeywordRef.current = trimmedKeyword;
-
-        setTimeout(() => {
-            const userId = getCurrentUserId();
-            if (userId) setSearchHistory(storage.getSearchHistory(userId).slice(0, 5));
-        }, 0);
+        const logSearch = async () => {
+            try {
+                await storage.addSearchHistory({ query: trimmedKeyword });
+                lastLoggedKeywordRef.current = trimmedKeyword;
+                const userId = await getCurrentUserId();
+                if (userId) {
+                    const history = await storage.getSearchHistory(userId);
+                    setSearchHistory((history || []).slice(0, 5));
+                }
+            } catch (err) { toast.error(formatError(err)); }
+        };
+        logSearch();
     }, [debouncedKeyword]);
 
     // Filter and sort recipes
@@ -148,22 +177,21 @@ export function Search() {
                 break;
             case 'rating':
                 result.sort((a, b) => {
-                    const avgDiff = storage.getAverageRating(b.id) - storage.getAverageRating(a.id);
-                    if (avgDiff !== 0) return avgDiff;
-                    return (b.likedBy?.length || 0) - (a.likedBy?.length || 0);
+                    const likeDiff = (b.likedBy?.length || 0) - (a.likedBy?.length || 0);
+                    if (likeDiff !== 0) return likeDiff;
+                    return (b.viewedBy?.length || 0) - (a.viewedBy?.length || 0);
                 });
                 break;
             case 'title':
                 result.sort((a, b) => a.title.localeCompare(b.title));
                 break;
-            default: // trending - most reviews then likes then rating
+            default: // trending - most views, then likes
                 result.sort((a, b) => {
-                    const aReviews = storage.getReviews(a.id).length;
-                    const bReviews = storage.getReviews(b.id).length;
-                    if (bReviews !== aReviews) return bReviews - aReviews;
+                    const viewDiff = (b.viewedBy?.length || 0) - (a.viewedBy?.length || 0);
+                    if (viewDiff !== 0) return viewDiff;
                     const likeDiff = (b.likedBy?.length || 0) - (a.likedBy?.length || 0);
                     if (likeDiff !== 0) return likeDiff;
-                    return storage.getAverageRating(b.id) - storage.getAverageRating(a.id);
+                    return new Date(b.createdAt) - new Date(a.createdAt);
                 });
         }
 
@@ -188,10 +216,10 @@ export function Search() {
         setFilters(prev => ({ ...prev, category: [], difficulty: 'All', sort: 'trending' }));
     };
 
-    const clearHistory = () => {
-        const userId = getCurrentUserId();
-        if (userId && storage.clearSearchHistory) storage.clearSearchHistory(userId);
-        else if (storage.clearSearchHistory) storage.clearSearchHistory();
+    const clearHistory = async () => {
+        try {
+            await storage.clearSearchHistory();
+        } catch (err) { toast.error(formatError(err)); }
         setSearchHistory([]);
     };
 
@@ -338,7 +366,7 @@ export function Search() {
             {/* Results */}
             <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {filteredRecipes.length > 0 ? (
-                    filteredRecipes.map(r => <RecipeCard key={r.id} recipe={r} />)
+                    filteredRecipes.map(r => <RecipeCard key={r._id || r.id} recipe={r} />)
                 ) : (
                     <div className="col-span-full flex flex-col items-center justify-center py-16 gap-4 text-center">
                         <SearchX className="h-12 w-12 text-warm-gray-30" />

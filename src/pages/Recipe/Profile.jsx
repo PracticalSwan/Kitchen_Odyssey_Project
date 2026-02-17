@@ -7,12 +7,15 @@
  * Avatar selector with preset options + custom URL input.
  * Tab switching persists in URL params for shareable links.
  */
+/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams, Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { storage, DEFAULT_AVATARS } from '../../lib/storage';
+import { storageApi as storage, DEFAULT_AVATARS } from '../../lib/storageApiAdapter';
+import { useToast, formatError } from '../../components/ui/Toast';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { ImageUpload } from '../../components/ui/ImageUpload';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import { RecipeCard } from '../../components/recipe/RecipeCard';
 import { Badge } from '../../components/ui/Badge';
@@ -24,19 +27,30 @@ export function Profile() {
     const { userId } = useParams();
     const navigate = useNavigate();
     const { user: currentUser, updateProfile, canInteract, isPending, isSuspended, isGuest } = useAuth();
+    const toast = useToast();
     const [searchParams, setSearchParams] = useSearchParams();
     const defaultTab = searchParams.get('tab') || 'recipes';
 
     // Determine if viewing own profile or another user's profile
-    const isOwnProfile = !userId || (currentUser && currentUser.id === userId);
+    const currentUserId = currentUser?._id || currentUser?.id;
+    const isOwnProfile = !userId || (currentUser && currentUserId === userId);
     const shouldBlockGuestOwnProfile = isGuest && isOwnProfile;
 
-    const profileUser = useMemo(() => {
+    const [profileUser, setProfileUser] = useState(isOwnProfile ? currentUser : null);
+
+    useEffect(() => {
         if (isOwnProfile) {
-            return currentUser;
+            setProfileUser(currentUser);
+            return;
         }
-        const users = storage.getUsers();
-        return users.find(u => u.id === userId) || null;
+        let cancelled = false;
+        (async () => {
+            try {
+                const users = await storage.getUsers();
+                if (!cancelled) setProfileUser(users.find(u => (u._id || u.id) === userId) || null);
+            } catch (err) { toast.error(formatError(err)); }
+        })();
+        return () => { cancelled = true; };
     }, [userId, currentUser, isOwnProfile]);
 
     const [isEditing, setIsEditing] = useState(false);
@@ -68,19 +82,29 @@ export function Profile() {
         };
     }, [triggerRefresh]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const allRecipes = useMemo(() => storage.getRecipes(), [refreshKey]);
+    const [allRecipes, setAllRecipes] = useState([]);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const recipes = await storage.getRecipes();
+                if (!cancelled) setAllRecipes(recipes);
+            } catch (err) { toast.error(formatError(err)); }
+        })();
+        return () => { cancelled = true; };
+    }, [refreshKey]);
 
     const myRecipes = useMemo(() => {
         if (!profileUser) return [];
-        const userRecipes = allRecipes.filter(r => r.authorId === profileUser.id);
-        // Own profile: show all statuses; Other users: only published
+        const puid = profileUser._id || profileUser.id;
+        const userRecipes = allRecipes.filter(r => r.authorId === puid);
         return isOwnProfile ? userRecipes : userRecipes.filter(r => r.status === 'published');
     }, [allRecipes, profileUser, isOwnProfile]);
 
     const favorites = useMemo(() => {
         if (!profileUser?.favorites?.length) return [];
-        const favoriteRecipes = allRecipes.filter(r => profileUser.favorites.includes(r.id));
+        const favoriteRecipes = allRecipes.filter(r => profileUser.favorites.includes(r._id || r.id));
         return isOwnProfile ? favoriteRecipes : favoriteRecipes.filter(r => r.status === 'published');
     }, [allRecipes, profileUser, isOwnProfile]);
 
@@ -88,12 +112,14 @@ export function Profile() {
         setDeleteRecipeId(recipeId);
     };
 
-    const confirmDeleteRecipe = () => {
+    const confirmDeleteRecipe = async () => {
         if (deleteRecipeId) {
-            storage.deleteRecipe(deleteRecipeId);
-            triggerRefresh();
-            window.dispatchEvent(new CustomEvent('recipeUpdated'));
-            setDeleteRecipeId(null);
+            try {
+                await storage.deleteRecipe(deleteRecipeId);
+                triggerRefresh();
+                window.dispatchEvent(new CustomEvent('recipeUpdated'));
+                setDeleteRecipeId(null);
+            } catch (err) { toast.error(formatError(err)); }
         }
     };
 
@@ -209,6 +235,19 @@ export function Profile() {
                             onChange={(e) => setEditForm(prev => ({ ...prev, avatar: e.target.value }))}
                             className="mt-2"
                         />
+                        <ImageUpload
+                            label="Upload Avatar"
+                            variant="avatar"
+                            value={editForm.avatar}
+                            onUploaded={(result) => {
+                                setEditForm((prev) => ({
+                                    ...prev,
+                                    avatar: result?.avatarUrl || prev.avatar,
+                                    avatarUrl: result?.avatarUrl || prev.avatarUrl,
+                                }));
+                            }}
+                            onError={(message) => toast.error(message)}
+                        />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -287,7 +326,7 @@ export function Profile() {
                 <TabsContent value="recipes" className="space-y-4">
                     <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                         {myRecipes.map(recipe => (
-                            <div key={recipe.id} className="h-full">
+                            <div key={recipe._id || recipe.id} className="h-full">
                                 <RecipeCard
                                     recipe={recipe}
                                     onFavoriteToggle={triggerRefresh}
@@ -305,7 +344,7 @@ export function Profile() {
                                                     size="icon"
                                                     variant="ghost"
                                                     className="h-7 w-7 bg-white/90 hover:bg-white shadow-sm"
-                                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleEditRecipe(recipe.id); }}
+                                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleEditRecipe(recipe._id || recipe.id); }}
                                                     title="Edit Recipe"
                                                     aria-label="Edit recipe"
                                                 >
@@ -315,7 +354,7 @@ export function Profile() {
                                                     size="icon"
                                                     variant="ghost"
                                                     className="h-7 w-7 bg-white/90 hover:bg-red-50 shadow-sm"
-                                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteRecipe(recipe.id); }}
+                                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteRecipe(recipe._id || recipe.id); }}
                                                     title="Delete Recipe"
                                                     aria-label="Delete recipe"
                                                 >
@@ -342,7 +381,7 @@ export function Profile() {
                 <TabsContent value="favorites">
                     <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                         {favorites.map(recipe => (
-                            <RecipeCard key={recipe.id} recipe={recipe} onFavoriteToggle={triggerRefresh} />
+                            <RecipeCard key={recipe._id || recipe.id} recipe={recipe} onFavoriteToggle={triggerRefresh} />
                         ))}
                         {favorites.length === 0 && (
                             <div className="text-warm-gray-60 col-span-full text-center py-10 text-sm">

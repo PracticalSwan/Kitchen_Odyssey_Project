@@ -8,7 +8,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { storage } from '../../lib/storage';
+import { storageApi as storage } from '../../lib/storageApiAdapter';
+import { useToast, formatError } from '../../components/ui/Toast';
 import { Users, FileText, Activity, UserPlus, Heart, AlertTriangle, CalendarDays, TrendingUp } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
@@ -50,6 +51,7 @@ const StatCard = ({ title, value, icon, subtext, accent = 'blue', warning = fals
 
 export function AdminStats() {
     const navigate = useNavigate();
+    const toast = useToast();
     // Format today's date as MM/DD/YYYY for daily stats lookup
     const todayLabel = new Date().toLocaleDateString('en-US', {
         month: '2-digit',
@@ -86,17 +88,22 @@ export function AdminStats() {
     const proTipActionLabel = hasPendingRecipes ? 'Review Pending Recipes' : 'Manage Recipes';
 
     useEffect(() => {
-        const loadStats = () => {
-            const users = storage.getUsers();
-            const recipes = storage.getRecipes();
+        const loadStats = async () => {
+            try {
+                const [users, recipes, recentActivity, allActivity] = await Promise.all([
+                    storage.getUsers(),
+                    storage.getRecipes(),
+                    storage.getRecentActivity(5),
+                    storage.getRecentActivity(200),
+                ]);
 
-            const nonAdminUsers = users.filter(u => u.role !== 'admin');
-            const totalUsers = nonAdminUsers.length;
-            const publishedRecipes = recipes.filter(r => r.status === 'published');
-            const publishedCount = publishedRecipes.length;
-            const activeRecipeCount = publishedRecipes.filter(r => (r.viewedBy?.length || 0) > 0 || (r.likedBy?.length || 0) > 0).length;
+                const nonAdminUsers = users.filter(u => u.role !== 'admin');
+                const totalUsers = nonAdminUsers.length;
+                const publishedRecipes = recipes.filter(r => r.status === 'published');
+                const publishedCount = publishedRecipes.length;
+                const activeRecipeCount = publishedRecipes.filter(r => (r.viewedBy?.length || 0) > 0 || (r.likedBy?.length || 0) > 0).length;
 
-            const totalLikes = publishedRecipes.reduce((acc, recipe) => acc + (recipe.likedBy?.length || 0), 0);
+                const totalLikes = publishedRecipes.reduce((acc, recipe) => acc + (recipe.likedBy?.length || 0), 0);
 
             // Month-over-month user growth
             const now = new Date();
@@ -161,8 +168,8 @@ export function AdminStats() {
                 publishedRecipes: publishedCount,
                 pendingRecipes: recipes.filter(r => r.status === 'pending').length,
                 totalLikes,
-                recentActivity: storage.getRecentActivity(5),
-                allActivity: storage.getRecentActivity(200),
+                recentActivity,
+                allActivity,
                 userGrowthText,
                 activeRecipesText,
                 likesText
@@ -170,6 +177,7 @@ export function AdminStats() {
 
             setCategoryTrend(allTrendRows.slice(0, 4));
             setAllCategoryTrend(allTrendRows);
+            } catch (err) { toast.error(formatError(err)); }
         };
 
         loadStats();

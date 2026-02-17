@@ -8,7 +8,8 @@
  */
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { storage } from '../../lib/storage';
+import { storageApi as storage } from '../../lib/storageApiAdapter';
+import { useToast, formatError } from '../../components/ui/Toast';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -20,6 +21,7 @@ export function RecipeDetail() {
     const { id } = useParams();                    // Recipe ID from URL
     const navigate = useNavigate();
     const { user, canInteract, isPending, isSuspended, isAdmin, isGuest } = useAuth();
+    const toast = useToast();
 
     // Recipe state
     const [recipe, setRecipe] = useState(null);
@@ -48,88 +50,110 @@ export function RecipeDetail() {
 
     // Load recipe data with access control check
     useEffect(() => {
-        const recipes = storage.getRecipes();
-        const found = recipes.find(r => r.id === id);
-        const isOwnerViewing = Boolean(user && found && user.id === found.authorId);
-        let frameId = null;
+        let cancelled = false;
 
-        // Access control: redirect if not found or not authorized
-        if (!found) { navigate('/'); return; }
-        if (found.status !== 'published' && !isAdmin && !isOwnerViewing) { navigate('/'); return; }
+        const loadRecipe = async () => {
+            try {
+                const found = await storage.getRecipeById(id);
+                if (cancelled) return;
 
-        const users = storage.getUsers();
-        // Defer state updates to next frame for performance
-        frameId = window.requestAnimationFrame(() => {
-            setRecipe(found);
-            setLikeCount(found.likedBy?.length || 0);
-            setReviews(storage.getReviews(id));
-            setAuthor(users.find(u => u.id === found.authorId));
-            if (user) {
-                setIsLiked(storage.hasUserLiked(user.id, id));
-                setIsFavorited(storage.hasUserFavorited(user.id, id));
-            }
-        });
+                const currentUserId = user?._id || user?.id;
+                const isOwnerViewing = Boolean(user && found && currentUserId === found.authorId);
 
-        // Record view count for analytics (separate user/guest tracking)
-        if (user) {
-            storage.recordView({ viewerId: user.id, recipeId: id, viewerType: 'user' });
-        } else {
-            const guestId = storage.getOrCreateGuestId();
-            storage.recordView({ viewerId: guestId, recipeId: id, viewerType: 'guest' });
-        }
+                if (!found) { navigate('/'); return; }
+                if (found.status !== 'published' && !isAdmin && !isOwnerViewing) { navigate('/'); return; }
 
-        return () => {
-            if (frameId !== null) {
-                window.cancelAnimationFrame(frameId);
+                const users = await storage.getUsers();
+                if (cancelled) return;
+
+                const recipeReviews = await storage.getReviews(id);
+                if (cancelled) return;
+
+                setRecipe(found);
+                setLikeCount(found.likedBy?.length || 0);
+                setReviews(recipeReviews);
+                setAuthor(users.find(u => (u._id || u.id) === found.authorId));
+
+                if (user) {
+                    setIsLiked(found.likedBy?.includes(currentUserId) || false);
+                    setIsFavorited(user.favorites?.includes(found._id || found.id) || false);
+                }
+
+                // Record view count for analytics
+                if (user) {
+                    storage.recordView({ viewerId: currentUserId, recipeId: id, viewerType: 'user' });
+                } else {
+                    const guestId = storage.getOrCreateGuestId();
+                    storage.recordView({ viewerId: guestId, recipeId: id, viewerType: 'guest' });
+                }
+            } catch (err) {
+                toast.error(formatError(err));
+                if (!cancelled) navigate('/');
             }
         };
+
+        loadRecipe();
+        return () => { cancelled = true; };
     }, [id, navigate, user, isAdmin]);
 
     // Action handlers
-    const handleToggleLike = () => {
+    const handleToggleLike = async () => {
         if (!user || !canInteract) return;
-        const result = storage.toggleLike(user.id, id);
-        setIsLiked(result.liked);
-        setLikeCount(result.count);
-        window.dispatchEvent(new CustomEvent('recipeUpdated'));
+        try {
+            const result = await storage.toggleLike(user._id || user.id, id);
+            setIsLiked(result.liked);
+            setLikeCount(result.likeCount ?? likeCount);
+            window.dispatchEvent(new CustomEvent('recipeUpdated'));
+        } catch (err) { toast.error(formatError(err)); }
     };
 
-    const handleToggleFavorite = () => {
+    const handleToggleFavorite = async () => {
         if (!user || !canInteract) return;
-        const nowFavorited = storage.toggleFavorite(user.id, id);
-        setIsFavorited(nowFavorited);
-        window.dispatchEvent(new CustomEvent('favoriteToggled'));
+        try {
+            const result = await storage.toggleFavorite(user._id || user.id, id);
+            setIsFavorited(result.favorited);
+            window.dispatchEvent(new CustomEvent('favoriteToggled'));
+        } catch (err) { toast.error(formatError(err)); }
     };
 
-    const handleSubmitReview = (e) => {
+    const handleSubmitReview = async (e) => {
         e.preventDefault();
         if (!canInteract || !newComment.trim()) return;
-        storage.addReview({
-            recipeId: id, userId: user.id, username: user.username,
-            avatar: user.avatar, rating, comment: newComment
-        });
-        setReviews(storage.getReviews(id));
-        setNewComment('');  // Clear form after submission
+        try {
+            const currentUserId = user._id || user.id;
+            await storage.addReview({
+                recipeId: id, userId: currentUserId, username: user.username,
+                avatar: user.avatar, rating, comment: newComment
+            });
+            const updatedReviews = await storage.getReviews(id);
+            setReviews(updatedReviews);
+            setNewComment('');
+        } catch (err) { toast.error(formatError(err)); }
     };
 
     const handleDeleteReview = (reviewId) => setDeleteReviewId(reviewId);
 
-    const confirmDeleteReview = () => {
+    const confirmDeleteReview = async () => {
         if (!deleteReviewId) return;
-        storage.deleteReview(deleteReviewId);
-        setReviews(storage.getReviews(id));
-        setDeleteReviewId(null);  // Close confirmation modal
+        try {
+            await storage.deleteReview(deleteReviewId);
+            const updatedReviews = await storage.getReviews(id);
+            setReviews(updatedReviews);
+            setDeleteReviewId(null);
+        } catch (err) { toast.error(formatError(err)); }
     };
 
     const handleEditRecipe = () => navigate(`/recipes/edit/${id}`);
 
     const handleDeleteRecipe = () => setIsDeleteConfirmOpen(true);
 
-    const confirmDeleteRecipe = () => {
-        storage.deleteRecipe(id);
-        window.dispatchEvent(new CustomEvent('recipeUpdated'));
-        setIsDeleteConfirmOpen(false);
-        navigate('/profile?tab=recipes');  // Redirect to profile after deletion
+    const confirmDeleteRecipe = async () => {
+        try {
+            await storage.deleteRecipe(id);
+            window.dispatchEvent(new CustomEvent('recipeUpdated'));
+            setIsDeleteConfirmOpen(false);
+            navigate('/profile?tab=recipes');
+        } catch (err) { toast.error(formatError(err)); }
     };
 
     const handleShare = async () => {
@@ -140,7 +164,7 @@ export function RecipeDetail() {
         } catch { setShareCopied(false); }
     };
 
-    const isOwner = user && recipe?.authorId === user.id;
+    const isOwner = user && recipe?.authorId === (user._id || user.id);
     const avgRating = reviews.length > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length : 0;
     const totalTime = recipe ? (recipe.prepTime || 0) + (recipe.cookTime || 0) : 0;
 
@@ -174,7 +198,7 @@ export function RecipeDetail() {
                             <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">{recipe.title}</h1>
                             <div className="flex flex-wrap items-center gap-3 text-sm text-white/90">
                                 {author ? (
-                                    <Link to={`/users/${author.id}`} className="flex items-center gap-1.5">
+                                    <Link to={`/users/${author._id || author.id}`} className="flex items-center gap-1.5">
                                         {author.avatar ? (
                                             <img src={author.avatar} className="h-6 w-6 rounded-full border border-white/50 object-cover" alt="" />
                                         ) : (
@@ -405,8 +429,8 @@ export function RecipeDetail() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs text-warm-gray-40">{new Date(review.createdAt).toLocaleDateString()}</span>
-                                    {user && user.id === review.userId && (
-                                        <button type="button" onClick={() => handleDeleteReview(review.id)}
+                                    {user && (user._id || user.id) === review.userId && (
+                                        <button type="button" onClick={() => handleDeleteReview(review._id || review.id)}
                                             className="text-warm-gray-40 hover:text-red-500 transition-colors" aria-label="Delete Review">
                                             <Trash2 className="h-3.5 w-3.5" />
                                         </button>

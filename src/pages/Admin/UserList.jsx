@@ -5,8 +5,10 @@
  * Actions: approve pending users, suspend/unsuspend accounts, delete users.
  * Online status display with auto-refresh every 30 seconds.
  */
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState, useReducer } from 'react';
-import { storage } from '../../lib/storage';
+import { storageApi as storage } from '../../lib/storageApiAdapter';
+import { useToast, formatError } from '../../components/ui/Toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -21,12 +23,21 @@ const SESSION_TIMEOUT = 5 * 60 * 1000;
 const forceUpdateReducer = (x) => x + 1;
 
 export function UserList() {
-    // Load all users from storage on mount
-    const [users, setUsers] = useState(() => storage.getUsers());
+    const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [roleFilter, setRoleFilter] = useState('all');  // 'all', 'user', or 'admin'
-    const [deleteId, setDeleteId] = useState(null);        // User ID pending deletion confirmation
-    const [, forceUpdate] = useReducer(forceUpdateReducer, 0);  // Triggers re-render for online status updates
+    const [roleFilter, setRoleFilter] = useState('all');
+    const [deleteId, setDeleteId] = useState(null);
+    const [, forceUpdate] = useReducer(forceUpdateReducer, 0);
+    const toast = useToast();
+
+    const refreshUsers = async () => {
+        try {
+            const data = await storage.getUsers();
+            setUsers(data);
+        } catch (err) { toast.error(formatError(err)); }
+    };
+
+    useEffect(() => { refreshUsers(); }, []);
 
     // Refresh periodically to update online status display
     useEffect(() => {
@@ -35,10 +46,6 @@ export function UserList() {
         }, 30000);
         return () => clearInterval(interval);
     }, []);
-
-    const refreshUsers = () => {
-        setUsers(storage.getUsers());
-    };
 
     // Check if user was active within the session timeout (session-based activity)
     const isUserOnline = (user) => {
@@ -56,19 +63,22 @@ export function UserList() {
         return isUserOnline(user) ? 'active' : 'inactive';
     };
 
-    const handleStatusChange = (userId, newStatus) => {
-        const user = users.find(u => u.id === userId);
+    const handleStatusChange = async (userId, newStatus) => {
+        const user = users.find(u => (u._id || u.id) === userId);
         if (user) {
-            storage.saveUser({ ...user, status: newStatus });
-            const adminName = storage.getCurrentUser()?.username || 'Admin';
-            const actionLabel = newStatus === 'active' ? 'approved' : newStatus === 'suspended' ? 'suspended' : 'updated';
-            storage.addActivity({
-                type: 'admin-user',
-                text: `${adminName} ${actionLabel} ${user.username}`
-            });
-            refreshUsers();
-            window.dispatchEvent(new CustomEvent('userUpdated'));
-            window.dispatchEvent(new CustomEvent('statsUpdated'));
+            try {
+                await storage.saveUser({ ...user, _id: userId, status: newStatus });
+                const currentUser = await storage.getCurrentUser();
+                const adminName = currentUser?.username || 'Admin';
+                const actionLabel = newStatus === 'active' ? 'approved' : newStatus === 'suspended' ? 'suspended' : 'updated';
+                await storage.addActivity({
+                    type: 'admin-user',
+                    text: `${adminName} ${actionLabel} ${user.username}`
+                });
+                await refreshUsers();
+                window.dispatchEvent(new CustomEvent('userUpdated'));
+                window.dispatchEvent(new CustomEvent('statsUpdated'));
+            } catch (err) { toast.error(formatError(err)); }
         }
     };
 
@@ -76,19 +86,22 @@ export function UserList() {
         setDeleteId(userId);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (deleteId) {
-            const userToDelete = users.find(u => u.id === deleteId);
-            storage.deleteUser(deleteId);
-            const adminName = storage.getCurrentUser()?.username || 'Admin';
-            if (userToDelete) {
-                storage.addActivity({
-                    type: 'admin-user',
-                    text: `${adminName} removed ${userToDelete.username}`
-                });
-            }
-            refreshUsers();
-            setDeleteId(null);
+            try {
+                const userToDelete = users.find(u => (u._id || u.id) === deleteId);
+                await storage.deleteUser(deleteId);
+                const currentUser = await storage.getCurrentUser();
+                const adminName = currentUser?.username || 'Admin';
+                if (userToDelete) {
+                    await storage.addActivity({
+                        type: 'admin-user',
+                        text: `${adminName} removed ${userToDelete.username}`
+                    });
+                }
+                await refreshUsers();
+                setDeleteId(null);
+            } catch (err) { toast.error(formatError(err)); }
         }
     };
 
@@ -143,7 +156,7 @@ export function UserList() {
                     </TableHeader>
                     <TableBody>
                         {filteredUsers.map((user) => (
-                            <TableRow key={user.id}>
+                            <TableRow key={user._id || user.id}>
                                 <TableCell>
                                     <div className="flex items-center gap-3">
                                         <img src={user.avatar} className="h-8 w-8 rounded-full" alt="" />
@@ -177,7 +190,7 @@ export function UserList() {
                                             size="icon"
                                             variant="ghost"
                                             title="Approve"
-                                            onClick={() => handleStatusChange(user.id, 'active')}
+                                            onClick={() => handleStatusChange(user._id || user.id, 'active')}
                                             disabled={user.status === 'active' || user.status === 'inactive'}
                                         >
                                             <ShieldCheck className={`h-4 w-4 ${(user.status === 'active' || user.status === 'inactive') ? 'text-warm-gray-30' : 'text-green-500'}`} />
@@ -186,12 +199,12 @@ export function UserList() {
                                             size="icon"
                                             variant="ghost"
                                             title="Suspend"
-                                            onClick={() => handleStatusChange(user.id, 'suspended')}
+                                            onClick={() => handleStatusChange(user._id || user.id, 'suspended')}
                                             disabled={user.status === 'suspended'}
                                         >
                                             <Ban className={`h-4 w-4 ${user.status === 'suspended' ? 'text-warm-gray-30' : 'text-red-500'}`} />
                                         </Button>
-                                        <Button size="icon" variant="ghost" title="Delete User" onClick={() => handleDelete(user.id)}>
+                                        <Button size="icon" variant="ghost" title="Delete User" onClick={() => handleDelete(user._id || user.id)}>
                                             <Trash2 className="h-4 w-4 text-red-500" />
                                         </Button>
                                     </div>

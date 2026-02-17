@@ -5,8 +5,10 @@
  * Admin can approve/reject pending recipes, preview, edit, delete.
  * Uses RecipeTable sub-component for consistent table rendering.
  */
-import React, { useState } from 'react';
-import { storage } from '../../lib/storage';
+/* eslint-disable react-hooks/set-state-in-effect */
+import React, { useEffect, useState } from 'react';
+import { storageApi as storage } from '../../lib/storageApiAdapter';
+import { useToast, formatError } from '../../components/ui/Toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -39,8 +41,8 @@ const RecipeTable = ({ statusFilter, recipes, getAuthorName, handlePreview, upda
                             <TableCell colSpan={8} className="text-center h-24 text-warm-gray-60">No recipes found.</TableCell>
                         </TableRow>
                     ) : filtered.map((recipe) => (
-                        <TableRow key={recipe.id}>
-                            <TableCell className="font-mono text-xs text-warm-gray-60">{recipe.id}</TableCell>
+                        <TableRow key={recipe._id || recipe.id}>
+                            <TableCell className="font-mono text-xs text-warm-gray-60">{recipe._id || recipe.id}</TableCell>
                             <TableCell>
                                 <img 
                                     src={recipe.images?.[0] || 'https://via.placeholder.com/40'} 
@@ -65,15 +67,15 @@ const RecipeTable = ({ statusFilter, recipes, getAuthorName, handlePreview, upda
                                     </Button>
                                     {statusFilter === 'pending' && (
                                         <>
-                                            <Button size="icon" variant="ghost" title="Approve" onClick={() => updateStatus(recipe.id, 'published')}>
+                                            <Button size="icon" variant="ghost" title="Approve" onClick={() => updateStatus(recipe._id || recipe.id, 'published')}>
                                                 <Check className="h-4 w-4 text-green-500" />
                                             </Button>
-                                            <Button size="icon" variant="ghost" title="Reject" onClick={() => updateStatus(recipe.id, 'rejected')}>
+                                            <Button size="icon" variant="ghost" title="Reject" onClick={() => updateStatus(recipe._id || recipe.id, 'rejected')}>
                                                 <X className="h-4 w-4 text-red-500" />
                                             </Button>
                                         </>
                                     )}
-                                    <Button size="icon" variant="ghost" title="Delete" onClick={() => handleDelete(recipe.id)}>
+                                    <Button size="icon" variant="ghost" title="Delete" onClick={() => handleDelete(recipe._id || recipe.id)}>
                                         <Trash2 className="h-4 w-4 text-red-500" />
                                     </Button>
                                 </div>
@@ -87,37 +89,46 @@ const RecipeTable = ({ statusFilter, recipes, getAuthorName, handlePreview, upda
 };
 
 export function AdminRecipes() {
-    const [recipes, setRecipes] = useState(() => storage.getRecipes());
-    const [users, setUsers] = useState(() => storage.getUsers());
+    const [recipes, setRecipes] = useState([]);
+    const [users, setUsers] = useState([]);
     const [selectedRecipe, setSelectedRecipe] = useState(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [deleteRecipeId, setDeleteRecipeId] = useState(null);
+    const toast = useToast();
 
-    const loadRecipes = () => {
-        setRecipes(storage.getRecipes());
-        setUsers(storage.getUsers());
+    const loadRecipes = async () => {
+        try {
+            const [r, u] = await Promise.all([storage.getRecipes(), storage.getUsers()]);
+            setRecipes(r);
+            setUsers(u);
+        } catch (err) { toast.error(formatError(err)); }
     };
+
+    useEffect(() => { loadRecipes(); }, []);
 
     // Helper to get author username from ID
     const getAuthorName = (authorId) => {
-        const author = users.find(u => u.id === authorId);
+        const author = users.find(u => (u._id || u.id) === authorId);
         return author?.username || authorId;
     };
 
-    const updateStatus = (id, status) => {
-        const recipe = recipes.find(r => r.id === id);
+    const updateStatus = async (id, status) => {
+        const recipe = recipes.find(r => (r._id || r.id) === id);
         if (recipe) {
-            storage.saveRecipe({ ...recipe, status });
-            const adminName = storage.getCurrentUser()?.username || 'Admin';
-            const actionLabel = status === 'published' ? 'approved' : status === 'rejected' ? 'rejected' : 'updated';
-            storage.addActivity({
-                type: 'admin-recipe',
-                text: `${adminName} ${actionLabel} "${recipe.title}"`
-            });
-            loadRecipes();
-            setIsPreviewOpen(false);
-            window.dispatchEvent(new CustomEvent('recipeUpdated'));
-            window.dispatchEvent(new CustomEvent('statsUpdated'));
+            try {
+                await storage.saveRecipe({ ...recipe, _id: id, status });
+                const currentUser = await storage.getCurrentUser();
+                const adminName = currentUser?.username || 'Admin';
+                const actionLabel = status === 'published' ? 'approved' : status === 'rejected' ? 'rejected' : 'updated';
+                await storage.addActivity({
+                    type: 'admin-recipe',
+                    text: `${adminName} ${actionLabel} "${recipe.title}"`
+                });
+                await loadRecipes();
+                setIsPreviewOpen(false);
+                window.dispatchEvent(new CustomEvent('recipeUpdated'));
+                window.dispatchEvent(new CustomEvent('statsUpdated'));
+            } catch (err) { toast.error(formatError(err)); }
         }
     };
 
@@ -125,27 +136,32 @@ export function AdminRecipes() {
         setDeleteRecipeId(id);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (!deleteRecipeId) return;
-        const recipe = recipes.find(r => r.id === deleteRecipeId);
-        storage.deleteRecipe(deleteRecipeId);
-        const adminName = storage.getCurrentUser()?.username || 'Admin';
-        if (recipe) {
-            storage.addActivity({
-                type: 'admin-recipe',
-                text: `${adminName} removed "${recipe.title}"`
-            });
-        }
-        loadRecipes();
-        setDeleteRecipeId(null);
-        window.dispatchEvent(new CustomEvent('recipeUpdated'));
-        window.dispatchEvent(new CustomEvent('statsUpdated'));
+        try {
+            const recipe = recipes.find(r => (r._id || r.id) === deleteRecipeId);
+            await storage.deleteRecipe(deleteRecipeId);
+            const currentUser = await storage.getCurrentUser();
+            const adminName = currentUser?.username || 'Admin';
+            if (recipe) {
+                await storage.addActivity({
+                    type: 'admin-recipe',
+                    text: `${adminName} removed "${recipe.title}"`
+                });
+            }
+            await loadRecipes();
+            setDeleteRecipeId(null);
+            window.dispatchEvent(new CustomEvent('recipeUpdated'));
+            window.dispatchEvent(new CustomEvent('statsUpdated'));
+        } catch (err) { toast.error(formatError(err)); }
     };
 
-    const handlePreview = (recipe) => {
-        const latest = storage.getRecipeById(recipe.id) || recipe;
-        setSelectedRecipe(latest);
-        setIsPreviewOpen(true);
+    const handlePreview = async (recipe) => {
+        try {
+            const latest = await storage.getRecipeById(recipe._id || recipe.id) || recipe;
+            setSelectedRecipe(latest);
+            setIsPreviewOpen(true);
+        } catch { setSelectedRecipe(recipe); setIsPreviewOpen(true); }
     };
 
 
@@ -239,8 +255,8 @@ export function AdminRecipes() {
 
                         {selectedRecipe.status === 'pending' && (
                             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-warm-gray-20 items-center">
-                                <Button variant="outline" onClick={() => updateStatus(selectedRecipe.id, 'rejected')}>Reject</Button>
-                                <Button onClick={() => updateStatus(selectedRecipe.id, 'published')}>Approve</Button>
+                                <Button variant="outline" onClick={() => updateStatus(selectedRecipe._id || selectedRecipe.id, 'rejected')}>Reject</Button>
+                                <Button onClick={() => updateStatus(selectedRecipe._id || selectedRecipe.id, 'published')}>Approve</Button>
                             </div>
                         )}
                     </div>

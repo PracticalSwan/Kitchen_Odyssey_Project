@@ -11,7 +11,7 @@
  * Uses window events (favoriteToggled) for cross-component state synchronization.
  */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { storage } from '../lib/storage';
+import { storageApi as storage } from '../lib/storageApiAdapter';
 
 const AuthContext = createContext(null);
 
@@ -20,78 +20,54 @@ export function AuthProvider({ children }) {
     const [isGuest, setIsGuest] = useState(false);     // Guest mode flag (read-only browsing)
     const [loading, setLoading] = useState(true);      // Initial session loading state
 
-    // Initialize: restore session or guest mode on app mount
+    // Initialize: restore session from backend on app mount
     useEffect(() => {
-        // Initialize storage handling (seeds data if empty)
-        storage.initialize();
-
-        // Check for active user session
-        try {
-            const currentUser = storage.getCurrentUser();
-            if (currentUser) {
-                setUser(currentUser);
-            } else {
-                // No user session - restore guest session from localStorage if available
+        async function restoreSession() {
+            try {
+                const currentUser = await storage.getCurrentUser();
+                if (currentUser) {
+                    setUser(currentUser);
+                } else {
+                    // No active session — check for guest mode
+                    try {
+                        const guestId = localStorage.getItem('kitchen_odyssey_guest_id');
+                        if (guestId) {
+                            setIsGuest(true);
+                        }
+                    } catch {
+                        // localStorage unavailable
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to load user session", error);
+                // Check for guest mode even on API failure
                 try {
                     const guestId = localStorage.getItem('kitchen_odyssey_guest_id');
                     if (guestId) {
                         setIsGuest(true);
                     }
-                } catch {
-                    // localStorage unavailable (private browsing, etc.)
-                }
+                } catch { /* ignore */ }
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error("Failed to load user session", error);
-        } finally {
-            setLoading(false);
         }
+        restoreSession();
     }, []);
 
-    // Activity tracking: heartbeat and DAU recording for logged-in users
-    // Only runs for non-guest users to avoid localStorage operations in guest mode
-    useEffect(() => {
-        if (!user?.id || isGuest) return;
-
-        const handleExit = () => {
-            storage.updateLastActive(user.id);
-        };
-
-        const handleDailyActive = () => storage.recordActiveUser(user.id);
-        handleDailyActive(); // Record immediately on mount
-
-        // Initial heartbeat
-        storage.updateLastActive(user.id);
-
-        // Record DAU every hour
-        const dailyInterval = setInterval(handleDailyActive, 60 * 60 * 1000);
-        // Heartbeat every minute for "last active" tracking
-        const heartbeatInterval = setInterval(() => {
-            storage.updateLastActive(user.id);
-        }, 60 * 1000);
-
-        // Update last active on page unload/close
-        window.addEventListener('beforeunload', handleExit);
-        window.addEventListener('pagehide', handleExit);
-
-        return () => {
-            clearInterval(dailyInterval);
-            clearInterval(heartbeatInterval);
-            window.removeEventListener('beforeunload', handleExit);
-            window.removeEventListener('pagehide', handleExit);
-        };
-    }, [user, isGuest]);
+    // Activity tracking: the backend records lastActive on each authenticated request
+    // No explicit heartbeat needed — server handles it via auth middleware
 
     // Sync user state when favorites change across components
-    // Window event ensures UI updates without prop drilling
     useEffect(() => {
         if (!user?.id) return;
 
-        const syncCurrentUser = () => {
-            const current = storage.getCurrentUser();
-            if (current?.id === user.id) {
-                setUser(current);
-            }
+        const syncCurrentUser = async () => {
+            try {
+                const current = await storage.getCurrentUser();
+                if (current && (current._id === user.id || current.id === user.id)) {
+                    setUser(current);
+                }
+            } catch { /* ignore sync failures */ }
         };
 
         window.addEventListener('favoriteToggled', syncCurrentUser);
@@ -101,11 +77,10 @@ export function AuthProvider({ children }) {
         };
     }, [user?.id]);
 
-    const login = (email, password) => {
+    const login = async (email, password) => {
         try {
-            const loggedUser = storage.login(email, password);
+            const loggedUser = await storage.login(email, password);
             setUser(loggedUser);
-            // Clear guest state on successful login
             setIsGuest(false);
             try { localStorage.removeItem('kitchen_odyssey_guest_id'); } catch { /* ignore */ }
             return { success: true };
@@ -114,43 +89,29 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
         if (isGuest) {
-            // Exit guest mode - just clear the flag
             setIsGuest(false);
             try { localStorage.removeItem('kitchen_odyssey_guest_id'); } catch { /* ignore */ }
         } else {
-            // Normal logout - update user status
-            storage.logout(user?.id);
+            try { await storage.logout(); } catch { /* ignore */ }
         }
         setUser(null);
     };
 
-    const signup = (userData) => {
-        // New users start with 'pending' status (require admin approval)
-        const newUser = {
-            id: `user-${Date.now()}`,
-            role: 'user',
-            status: 'pending',
-            joinedDate: new Date().toISOString(),
-            favorites: [],
-            viewedRecipes: [],
-            ...userData
-        };
-        storage.saveUser(newUser);
-        storage.addActivity({
-            type: 'user',
-            text: `${newUser.username} joined the platform`
+    const signup = async (userData) => {
+        const newUser = await storage.signup({
+            username: userData.username,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email,
+            password: userData.password,
+            birthday: userData.birthday,
         });
-        storage.recordNewUser(newUser.id, newUser.role);
 
-        // Clear guest state on signup
         setIsGuest(false);
         try { localStorage.removeItem('kitchen_odyssey_guest_id'); } catch { /* ignore */ }
-
-        // Auto-login after signup
-        const loggedInUser = storage.login(userData.email, userData.password);
-        setUser(loggedInUser);
+        setUser(newUser);
     };
 
     const enterGuestMode = useCallback(() => {
@@ -168,15 +129,15 @@ export function AuthProvider({ children }) {
         try { localStorage.removeItem('kitchen_odyssey_guest_id'); } catch { /* ignore */ }
     }, []);
 
-    const updateProfile = (updates) => {
+    const updateProfile = async (updates) => {
         if (!user) return;
-        const updatedUser = { ...user, ...updates };
-        storage.saveUser(updatedUser);
-        storage.setCurrentUser(updatedUser);
+        const userId = user._id || user.id;
+        const updatedUser = await storage.saveUser({ ...updates, _id: userId, id: userId });
         setUser(updatedUser);
     };
 
     // Computed auth states for easier consumption
+    const userId = user?._id || user?.id;
     const isAdmin = user?.role === 'admin';
     const isPending = user?.status === 'pending';
     const isSuspended = user?.status === 'suspended';
@@ -185,6 +146,7 @@ export function AuthProvider({ children }) {
 
     const value = {
         user,
+        userId,
         loading,
         isAdmin,
         isGuest,

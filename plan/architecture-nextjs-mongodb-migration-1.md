@@ -1,7 +1,10 @@
 ---
 goal: Migrate Kitchen Odyssey from frontend-only localStorage architecture to split Frontend + Next.js Backend + MongoDB Atlas while preserving existing behavior and design-overhaul compatibility
-last_updated: 2026-02-18
+last_updated: 2026-02-17
 revision_notes: >
+  Rev 7 (2026-02-17): End-to-end verification pass completed for Phase 1 through Phase 6.
+  Updated task status table to evidence-based DONE/PARTIAL/PENDING marks. Fixed remaining
+  frontend lint blockers (Home toast wiring) and backend auth cookie tests for access+refresh+csrf.
   Rev 6 (2026-02-18): Verified against Next.js 16.1.6 documentation via Context7. Added critical
   Next.js 16 patterns: Promise-based params with await, async headers/cookies. All route handler
   patterns validated against current docs. Confirmed proxy.js naming convention.
@@ -120,100 +123,100 @@ Field-level mapping details are maintained in `Kitchen_Odyssey/docs/migration-da
 
 | Task | Description | Status |
 | --- | --- | --- |
-| TASK-001 | Create ADR for frontend/backend split and Atlas data source decision. |  |
-| TASK-002 | Create migration readiness checklist with pass/fail gates for Guest Mode, Random Recipe, and design-overhaul dependencies. |  |
-| TASK-003 | Create compatibility matrix mapping each `src/lib/storage.js` function to API endpoint/shape. |  |
+| TASK-001 | Create ADR for frontend/backend split and Atlas data source decision. | DONE |
+| TASK-002 | Create migration readiness checklist with pass/fail gates for Guest Mode, Random Recipe, and design-overhaul dependencies. | DONE |
+| TASK-003 | Create compatibility matrix mapping each `src/lib/storage.js` function to API endpoint/shape. | DONE |
 
 ### Phase 2: Backend Bootstrap
 
 | Task | Description | Status |
 | --- | --- | --- |
 | TASK-005 | Confirm backend workspace and API project layout at `Project2/kitchen-odyssey-backend`. | DONE |
-| TASK-006 | Add backend `.env.example` template with required variables. |  |
-| TASK-007 | Add `src/lib/config.js` with env schema validation. |  |
-| TASK-008 | Add `GET /api/v1/health` route with version, uptime, DB status. |  |
-| TASK-008-A | Add ESLint config for backend JavaScript. |  |
+| TASK-006 | Add backend `.env.example` template with required variables. | DONE |
+| TASK-007 | Add `src/lib/config.js` with env schema validation. | DONE |
+| TASK-008 | Add `GET /api/v1/health` route with version, uptime, DB status. | DONE |
+| TASK-008-A | Add ESLint config for backend JavaScript. | DONE |
 | TASK-008-B | Verify backend `.gitignore` baseline. | DONE |
-| TASK-008-C | Add backend `test` script in `package.json`. |  |
-| TASK-008-D | Add shared CORS helper for route handlers (`OPTIONS` + allowlist + credentials). |  |
-| TASK-008-E | Install `mongoose` and `bcryptjs`; remove backend-unused frontend deps. |  |
-| TASK-008-F | Ensure `!.env.example` is present in backend `.gitignore`. |  |
-| TASK-008-G | Remove default create-next-app UI files from backend (API-only). |  |
-| TASK-008-H | Add cached MongoDB connection utility (`src/lib/db.js`) with pooling settings from env. Prerequisite for all database operations. |  |
+| TASK-008-C | Add backend `test` script in `package.json`. | DONE |
+| TASK-008-D | Add shared CORS helper for route handlers (`OPTIONS` + allowlist + credentials). | DONE |
+| TASK-008-E | Install `mongoose` and `bcryptjs`; remove backend-unused frontend deps. | DONE |
+| TASK-008-F | Ensure `!.env.example` is present in backend `.gitignore`. | DONE |
+| TASK-008-G | Remove default create-next-app UI files from backend (API-only). | DONE |
+| TASK-008-H | Add cached MongoDB connection utility (`src/lib/db.js`) with pooling settings from env. Prerequisite for all database operations. | DONE |
 
 ### Phase 3: Data Model and Migration Scripts
 
 | Task | Description | Status |
 | --- | --- | --- |
-| TASK-009 | Define Mongoose schemas for core collections with strict validation. |  |
-| TASK-009-A | Add image metadata fields to User schema (`avatar`, `avatarUrl`, `avatarStoragePath`). |  |
-| TASK-009-B | Add image metadata fields to Recipe schema (`image`, `imageUrl`, `imageStoragePath`, `imageThumbnailUrl`). |  |
-| TASK-010 | Add required indexes and uniqueness constraints. |  |
-| TASK-010-A | Add TTL/retention policy for non-critical collections. |  |
-| TASK-010-B | Add query-budget guardrails (projection, `lean()`, cursor defaults). |  |
-| TASK-011 | Finalize migration mapping document. |  |
-| TASK-012 | Add idempotent import utility with dry-run mode. |  |
-| TASK-013 | Add rollback utility for migration batches. |  |
+| TASK-009 | Define Mongoose schemas for core collections with strict validation. | DONE |
+| TASK-009-A | Add image metadata fields to User schema (`avatar`, `avatarUrl`, `avatarStoragePath`). | DONE |
+| TASK-009-B | Add image metadata fields to Recipe schema (`image`, `imageUrl`, `imageStoragePath`, `imageThumbnailUrl`). | DONE |
+| TASK-010 | Add required indexes and uniqueness constraints. | DONE |
+| TASK-010-A | Add TTL/retention policy for non-critical collections. | PARTIAL |
+| TASK-010-B | Add query-budget guardrails (projection, `lean()`, cursor defaults). | PARTIAL |
+| TASK-011 | Finalize migration mapping document. | DONE |
+| TASK-012 | Add idempotent import utility with dry-run mode. | DONE |
+| TASK-013 | Add rollback utility for migration batches. | DONE |
 
 ### Phase 4: API Surface Implementation
 
 | Task | Description | Status |
 | --- | --- | --- |
-| TASK-014 | Maintain OpenAPI contract (`docs/openapi.yaml`) aligned with implementation. |  |
-| TASK-015 | Implement auth routes (`login`, `signup`, `guest-session`, `logout`, `logout-all`, `refresh`, `profile`). |  |
-| TASK-015-A | Implement image upload utility for local filesystem (`src/lib/storage/imageUpload.js`) with file validation, size limits, local directory management, and thumbnail generation using Sharp library. Configure Next.js to serve uploaded files via `public/uploads` or API route proxy at `/uploads/*`. **Security:** magic byte validation, filename sanitization (prevent path traversal), set secure file permissions (644), validate image dimensions (prevent decompression bombs). |  |
-| TASK-016 | Implement recipe routes with unified sorting and pagination defaults. |  |
-| TASK-016-A | Implement user management routes (`GET /users`, `GET /users/:id`, `PATCH /users/:id`, `DELETE /users/:id`) with self-access and admin access patterns. Required by Profile.jsx and `updateProfile()`. |  |
-| TASK-016-B | Implement deletion cascade logic for user and recipe deletions. User deletion must cascade across recipes, reviews, favorites references, daily_stats, and activity_logs. Recipe deletion must cascade across reviews and user favorites. |  |
-| TASK-016-C | Implement image cleanup on cascade (delete files from local filesystem when user/recipe deleted). Use `fs.unlink` with proper error handling for missing files. |  |
-| TASK-017 | Implement interaction routes (`like`, `favorite`, `reviews`, `POST /recipes/:id/view` with guest analytics bypass, `GET /recipes/:id/rating`) with role restrictions. |  |
-| TASK-017-A | Implement image upload endpoints: `POST /upload/recipe-image` (multipart/form-data), `POST /upload/user-avatar`. Returns storage metadata including URL and CDN path. |  |
-| TASK-017-B | Implement image deletion endpoint: `DELETE /upload/image/:storagePath` for cleanup during updates. |  |
-| TASK-017-C | Implement input sanitization middleware for XSS prevention (sanitize user-generated text content: titles, descriptions, comments, search queries). Use validator.js or similar. |  |
-| TASK-017-D | Implement secure error response handler that sanitizes error messages before sending to clients (hide stack traces, internal paths, DB schema details). |  |
-| TASK-018 | Implement admin moderation routes for users/recipes. |  |
-| TASK-019 | Implement random suggestion route preserving existing quality constraints. |  |
-| TASK-020 | Implement stats routes returning real computed data expected by `AdminStats.jsx`. |  |
-| TASK-021 | Implement activity routes (`GET`, `POST`). |  |
-| TASK-022 | Implement search history routes (`GET`, `POST`, `DELETE`). |  |
-| TASK-023 | Standardize response/error envelope utilities. |  |
+| TASK-014 | Maintain OpenAPI contract (`docs/openapi.yaml`) aligned with implementation. | DONE |
+| TASK-015 | Implement auth routes (`login`, `signup`, `guest-session`, `logout`, `logout-all`, `refresh`, `profile`). | DONE |
+| TASK-015-A | Implement image upload utility for local filesystem (`src/lib/storage/imageUpload.js`) with file validation, size limits, local directory management, and thumbnail generation using Sharp library. Configure Next.js to serve uploaded files via `public/uploads` or API route proxy at `/uploads/*`. **Security:** magic byte validation, filename sanitization (prevent path traversal), set secure file permissions (644), validate image dimensions (prevent decompression bombs). | DONE |
+| TASK-016 | Implement recipe routes with unified sorting and pagination defaults. | DONE |
+| TASK-016-A | Implement user management routes (`GET /users`, `GET /users/:id`, `PATCH /users/:id`, `DELETE /users/:id`) with self-access and admin access patterns. Required by Profile.jsx and `updateProfile()`. | DONE |
+| TASK-016-B | Implement deletion cascade logic for user and recipe deletions. User deletion must cascade across recipes, reviews, favorites references, daily_stats, and activity_logs. Recipe deletion must cascade across reviews and user favorites. | DONE |
+| TASK-016-C | Implement image cleanup on cascade (delete files from local filesystem when user/recipe deleted). Use `fs.unlink` with proper error handling for missing files. | DONE |
+| TASK-017 | Implement interaction routes (`like`, `favorite`, `reviews`, `POST /recipes/:id/view` with guest analytics bypass, `GET /recipes/:id/rating`) with role restrictions. | DONE |
+| TASK-017-A | Implement image upload endpoints: `POST /upload/recipe-image` (multipart/form-data), `POST /upload/user-avatar`. Returns storage metadata including URL and CDN path. | DONE |
+| TASK-017-B | Implement image deletion endpoint: `DELETE /upload/image/:storagePath` for cleanup during updates. | DONE |
+| TASK-017-C | Implement input sanitization middleware for XSS prevention (sanitize user-generated text content: titles, descriptions, comments, search queries). Use validator.js or similar. | DONE |
+| TASK-017-D | Implement secure error response handler that sanitizes error messages before sending to clients (hide stack traces, internal paths, DB schema details). | DONE |
+| TASK-018 | Implement admin moderation routes for users/recipes. | DONE |
+| TASK-019 | Implement random suggestion route preserving existing quality constraints. | DONE |
+| TASK-020 | Implement stats routes returning real computed data expected by `AdminStats.jsx`. | DONE |
+| TASK-021 | Implement activity routes (`GET`, `POST`). | DONE |
+| TASK-022 | Implement search history routes (`GET`, `POST`, `DELETE`). | DONE |
+| TASK-023 | Standardize response/error envelope utilities. | DONE |
 
 ### Phase 5: Frontend Integration
 
 | Task | Description | Status |
 | --- | --- | --- |
-| TASK-024 | Add `src/lib/apiClient.js` with timeout, retry, and interceptors. |  |
-| TASK-025 | Add `src/lib/storageApiAdapter.js` matching `storage.js` public signatures. |  |
-| TASK-025-A | Add image upload helper in `src/lib/imageUpload.js` with progress tracking, preview generation, and error handling. |  |
-| TASK-026 | Add `src/lib/featureFlags.js` and runtime toggles. |  |
-| TASK-026-A | Add reusable `ImageUpload` component in `src/components/ui/ImageUpload.jsx` with drag-and-drop, preview, and validation feedback. **UX requirements:** upload progress bar, file size/type validation display, drag-over visual feedback, thumbnail preview after selection, clear/remove button, error retry option. |  |
-| TASK-027 | Update `AuthContext.jsx` to use adapter while preserving state semantics. |  |
-| TASK-028 | Update storage consumers to call adapter only (Home/Search/Recipe/Admin/Profile/etc.). |  |
-| TASK-028-A | Update recipe create/edit forms to use `ImageUpload` component for recipe images. |  |
-| TASK-028-B | Update profile edit form to use `ImageUpload` component for avatar upload. |  |
-| TASK-029 | Preserve event bridge compatibility for existing UI listeners. |  |
-| TASK-029-A | Add consistent error boundary components with user-friendly error messages and retry buttons. |  |
-| TASK-029-B | Add loading skeleton components for async data loading states (recipes list, user profile, admin dashboard). |  |
-| TASK-029-C | Validate frontend component compatibility with backend API responses. Test critical components (RecipeCard, UserProfile, AdminStats, CreateRecipeForm) with actual API payloads to ensure data shape matches component expectations. |  |
-| TASK-030 | Add read-through fallback behavior for recoverable API failures. |  |
-| TASK-031 | Add optimistic updates with rollback for like/favorite toggles. |  |
-| TASK-032 | Add request deduplication for rapid interactions. |  |
+| TASK-024 | Add `src/lib/apiClient.js` with timeout, retry, and interceptors. | DONE |
+| TASK-025 | Add `src/lib/storageApiAdapter.js` matching `storage.js` public signatures. | DONE |
+| TASK-025-A | Add image upload helper in `src/lib/imageUpload.js` with progress tracking, preview generation, and error handling. | DONE |
+| TASK-026 | Add `src/lib/featureFlags.js` and runtime toggles. | DONE |
+| TASK-026-A | Add reusable `ImageUpload` component in `src/components/ui/ImageUpload.jsx` with drag-and-drop, preview, and validation feedback. **UX requirements:** upload progress bar, file size/type validation display, drag-over visual feedback, thumbnail preview after selection, clear/remove button, error retry option. | DONE |
+| TASK-027 | Update `AuthContext.jsx` to use adapter while preserving state semantics. | DONE |
+| TASK-028 | Update storage consumers to call adapter only (Home/Search/Recipe/Admin/Profile/etc.). | DONE |
+| TASK-028-A | Update recipe create/edit forms to use `ImageUpload` component for recipe images. | DONE |
+| TASK-028-B | Update profile edit form to use `ImageUpload` component for avatar upload. | DONE |
+| TASK-029 | Preserve event bridge compatibility for existing UI listeners. | DONE |
+| TASK-029-A | Add consistent error boundary components with user-friendly error messages and retry buttons. | DONE |
+| TASK-029-B | Add loading skeleton components for async data loading states (recipes list, user profile, admin dashboard). | DONE |
+| TASK-029-C | Validate frontend component compatibility with backend API responses. Test critical components (RecipeCard, UserProfile, AdminStats, CreateRecipeForm) with actual API payloads to ensure data shape matches component expectations. | PARTIAL |
+| TASK-030 | Add read-through fallback behavior for recoverable API failures. | DONE |
+| TASK-031 | Add optimistic updates with rollback for like/favorite toggles. | DONE |
+| TASK-032 | Add request deduplication for rapid interactions. | DONE |
 
 ### Phase 6: Security and Observability Hardening
 
 | Task | Description | Status |
 | --- | --- | --- |
-| TASK-033 | Add auth/role guard utilities in backend auth layer. |  |
-| TASK-034 | Add per-route request validation utilities. |  |
-| TASK-034-A | Add input validation schemas for all user inputs (email, usernames, recipe fields, search queries). Use Joi or similar with whitelist approach. |  |
-| TASK-035 | Add auth/write-focused rate limiting. |  |
-| TASK-036 | Add CSRF protections for state-changing operations. |  |
-| TASK-036-A | Configure CORS middleware with strict allowlist from `ALLOWED_ORIGINS` env var. Validate Origin header on all requests. |  |
-| TASK-037 | Add NoSQL injection defenses in query builders. |  |
-| TASK-038 | Add security headers via `src/proxy.js` and route responses. |  |
-| TASK-039 | Add request payload size limits. |  |
-| TASK-040 | Add structured logging + correlation IDs. |  |
-| TASK-041 | Add metrics endpoint/counters for latency, error rate, and DB timing. |  |
+| TASK-033 | Add auth/role guard utilities in backend auth layer. | DONE |
+| TASK-034 | Add per-route request validation utilities. | DONE |
+| TASK-034-A | Add input validation schemas for all user inputs (email, usernames, recipe fields, search queries). Use Joi or similar with whitelist approach. | PARTIAL |
+| TASK-035 | Add auth/write-focused rate limiting. | DONE |
+| TASK-036 | Add CSRF protections for state-changing operations. | DONE |
+| TASK-036-A | Configure CORS middleware with strict allowlist from `ALLOWED_ORIGINS` env var. Validate Origin header on all requests. | PARTIAL |
+| TASK-037 | Add NoSQL injection defenses in query builders. | PARTIAL |
+| TASK-038 | Add security headers via `src/proxy.js` and route responses. | DONE |
+| TASK-039 | Add request payload size limits. | DONE |
+| TASK-040 | Add structured logging + correlation IDs. | PARTIAL |
+| TASK-041 | Add metrics endpoint/counters for latency, error rate, and DB timing. | PENDING |
 
 ### Phase 7: Deployment and Cutover
 

@@ -8,10 +8,12 @@
  */
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { storage } from '../../lib/storage';
+import { storageApi as storage } from '../../lib/storageApiAdapter';
+import { useToast, formatError } from '../../components/ui/Toast';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { ImageUpload } from '../../components/ui/ImageUpload';
 import { Card, CardContent } from '../../components/ui/Card';
 import { RECIPE_CATEGORIES, RECIPE_DIFFICULTIES } from '../../lib/utils';
 import { Plus, Trash2, ArrowLeft, ChevronRight } from 'lucide-react';
@@ -21,6 +23,7 @@ export function CreateRecipe() {
     const navigate = useNavigate();
     const { id } = useParams(); // If id exists, we're in edit mode
     const { user, canInteract, isPending, isSuspended, isGuest } = useAuth();
+    const toast = useToast();
     const [isLoading, setIsLoading] = useState(false);
     const isEditMode = Boolean(id);
     const isBlocked = isSuspended || isPending;
@@ -46,34 +49,43 @@ export function CreateRecipe() {
     useEffect(() => {
         if (!canInteract || isBlocked) return;
         if (isEditMode) {
-            const recipe = storage.getRecipeById(id);
-            if (recipe) {
-                // Check if user owns this recipe
-                if (recipe.authorId !== user?.id) {
+            const loadRecipe = async () => {
+                try {
+                    const recipe = await storage.getRecipeById(id);
+                    if (recipe) {
+                        const recipeUserId = recipe.authorId;
+                        const currentUserId = user?._id || user?.id;
+                        if (recipeUserId !== currentUserId) {
+                            navigate('/profile?tab=recipes');
+                            return;
+                        }
+                        setOriginalRecipe(recipe);
+                        const nextCategories = Array.isArray(recipe.categories)
+                            ? recipe.categories
+                            : recipe.category
+                                ? [recipe.category]
+                                : ['Breakfast'];
+                        setFormData({
+                            title: recipe.title || '',
+                            description: recipe.description || '',
+                            categories: nextCategories.length ? nextCategories : ['Breakfast'],
+                            prepTime: recipe.prepTime || 15,
+                            cookTime: recipe.cookTime || 15,
+                            servings: recipe.servings || 2,
+                            difficulty: recipe.difficulty || 'Medium',
+                            image: recipe.images?.[0] || '',
+                        });
+                        setIngredients(recipe.ingredients?.length ? recipe.ingredients : [{ name: '', quantity: '', unit: '' }]);
+                        setInstructions(recipe.instructions?.length ? recipe.instructions : ['']);
+                    } else {
+                        navigate('/profile?tab=recipes');
+                    }
+                } catch (err) {
+                    toast.error(formatError(err));
                     navigate('/profile?tab=recipes');
-                    return;
                 }
-                setOriginalRecipe(recipe);
-                const nextCategories = Array.isArray(recipe.categories)
-                    ? recipe.categories
-                    : recipe.category
-                        ? [recipe.category]
-                        : ['Breakfast'];
-                setFormData({
-                    title: recipe.title || '',
-                    description: recipe.description || '',
-                    categories: nextCategories.length ? nextCategories : ['Breakfast'],
-                    prepTime: recipe.prepTime || 15,
-                    cookTime: recipe.cookTime || 15,
-                    servings: recipe.servings || 2,
-                    difficulty: recipe.difficulty || 'Medium',
-                    image: recipe.images?.[0] || '',
-                });
-                setIngredients(recipe.ingredients?.length ? recipe.ingredients : [{ name: '', quantity: '', unit: '' }]);
-                setInstructions(recipe.instructions?.length ? recipe.instructions : ['']);
-            } else {
-                navigate('/profile?tab=recipes');
-            }
+            };
+            loadRecipe();
         }
     }, [id, isEditMode, user, navigate, canInteract, isBlocked]);
 
@@ -218,12 +230,11 @@ export function CreateRecipe() {
         setIsLoading(true);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 800));
+            const userId = user._id || user.id;
 
             if (isEditMode && originalRecipe) {
                 // Update existing recipe
                 const updatedRecipe = {
-                    ...originalRecipe,
                     ...formData,
                     prepTime: Number(formData.prepTime),
                     cookTime: Number(formData.cookTime),
@@ -231,14 +242,12 @@ export function CreateRecipe() {
                     ingredients,
                     instructions,
                     images: [formData.image || originalRecipe.images?.[0] || 'https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&q=80'],
-                    // Keep original status, or set to pending if it was rejected (re-submit for review)
                     status: originalRecipe.status === 'rejected' ? 'pending' : originalRecipe.status
                 };
-                storage.saveRecipe(updatedRecipe);
+                await storage.saveRecipe({ ...updatedRecipe, id: originalRecipe._id || originalRecipe.id });
             } else {
                 // Create new recipe
                 const newRecipe = {
-                    id: `recipe-${Date.now()}`,
                     ...formData,
                     prepTime: Number(formData.prepTime),
                     cookTime: Number(formData.cookTime),
@@ -246,19 +255,16 @@ export function CreateRecipe() {
                     ingredients,
                     instructions,
                     images: [formData.image || 'https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&q=80'],
-                    authorId: user.id,
-                    status: 'pending',
-                    createdAt: new Date().toISOString(),
-                    likedBy: [],
-                    viewedBy: []
+                    authorId: userId,
+                    category: formData.categories[0],
                 };
-                storage.saveRecipe(newRecipe);
+                await storage.saveRecipe(newRecipe);
             }
             
             window.dispatchEvent(new CustomEvent('recipeUpdated'));
             navigate('/profile?tab=recipes');
         } catch (err) {
-            console.error(err);
+            toast.error(formatError(err));
         } finally {
             setIsLoading(false);
         }
@@ -400,6 +406,19 @@ export function CreateRecipe() {
                             <Input id="image" label="Image URL (optional)" placeholder="https://..." value={formData.image} onChange={handleChange} />
                             {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
                         </div>
+                        <ImageUpload
+                            label="Upload Recipe Image"
+                            variant="recipe"
+                            recipeId={isEditMode ? (originalRecipe?._id || originalRecipe?.id || id) : null}
+                            value={formData.image}
+                            onUploaded={(result) => {
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    image: result?.imageUrl || prev.image,
+                                }));
+                            }}
+                            onError={(message) => toast.error(message)}
+                        />
                     </CardContent>
                 </Card>
 

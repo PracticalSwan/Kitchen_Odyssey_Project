@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { formatError } from '../../components/ui/Toast';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
 
 export function Login() {
@@ -27,17 +28,14 @@ export function Login() {
         setIsLoading(true);
 
         try {
-            // Simulate network delay for realistic UX
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            const result = login(email, password);
+            const result = await login(email, password);
             if (result.success) {
                 navigate('/');
             } else {
-                setError(result.error);
+                setError(result.error || 'Invalid email or password');
             }
-        } catch {
-            setError('An unexpected error occurred');
+        } catch (err) {
+            setError(formatError(err));
         } finally {
             setIsLoading(false);
         }

@@ -7,10 +7,12 @@
  * Syncs with storage via window events for real-time recipe updates.
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { storage } from '../../lib/storage';
+import { storageApi as storage } from '../../lib/storageApiAdapter';
+import { useToast, formatError } from '../../components/ui/Toast';
 import { RecipeCard } from '../../components/recipe/RecipeCard';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
+import { RecipeGridSkeleton } from '../../components/ui/LoadingSkeleton';
 import { Search, X, Sparkles, Flame, Clock, Leaf, Cake, Sunrise, ThumbsUp, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { RecipeSuggestionModal } from '../../components/recipe/RecipeSuggestionModal';
@@ -35,9 +37,9 @@ const SORT_OPTIONS = [
 const PAGE_SIZE = 30;
 
 export function Home() {
-    const [allPublished, setAllPublished] = useState(() =>
-        storage.getRecipes().filter(r => r.status === 'published')
-    );
+    const toast = useToast();
+    const [allPublished, setAllPublished] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState(null);
     const [sortBy, setSortBy] = useState('trending');
@@ -46,9 +48,20 @@ export function Home() {
     const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    const loadRecipes = useCallback(() => {
-        setAllPublished(storage.getRecipes().filter(r => r.status === 'published'));
+    const loadRecipes = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const recipes = await storage.getRecipes();
+            setAllPublished(recipes.filter(r => r.status === 'published'));
+        } catch (err) {
+            toast.error(formatError(err));
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
+
+    // Load recipes on mount
+    useEffect(() => { loadRecipes(); }, [loadRecipes]);
 
     // Sync recipe list when recipes are updated elsewhere
     useEffect(() => {
@@ -62,6 +75,8 @@ export function Home() {
     }, [loadRecipes]);
 
     // Filter and sort recipes based on active filter and sort option
+    // Note: sorting uses data available on recipe objects (likedBy, viewedBy, createdAt)
+    // since getAverageRating/getReviews are now async API calls
     const filteredRecipes = useMemo(() => {
         let list = [...allPublished];
 
@@ -99,29 +114,28 @@ export function Home() {
             }
         }
 
-        // Sort by selected option
+        // Sort using recipe-level data (likedBy, viewedBy, createdAt)
         switch (sortBy) {
             case 'newest':
                 list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 break;
             case 'rating':
                 list.sort((a, b) => {
-                    const avgDiff = storage.getAverageRating(b.id) - storage.getAverageRating(a.id);
-                    if (avgDiff !== 0) return avgDiff;
-                    return (b.likedBy?.length || 0) - (a.likedBy?.length || 0);
+                    const likeDiff = (b.likedBy?.length || 0) - (a.likedBy?.length || 0);
+                    if (likeDiff !== 0) return likeDiff;
+                    return (b.viewedBy?.length || 0) - (a.viewedBy?.length || 0);
                 });
                 break;
             case 'title':
                 list.sort((a, b) => a.title.localeCompare(b.title));
                 break;
-            default: // trending - most reviews then likes then rating
+            default: // trending - most views, then likes
                 list.sort((a, b) => {
-                    const aReviews = storage.getReviews(a.id).length;
-                    const bReviews = storage.getReviews(b.id).length;
-                    if (bReviews !== aReviews) return bReviews - aReviews;
+                    const viewDiff = (b.viewedBy?.length || 0) - (a.viewedBy?.length || 0);
+                    if (viewDiff !== 0) return viewDiff;
                     const likeDiff = (b.likedBy?.length || 0) - (a.likedBy?.length || 0);
                     if (likeDiff !== 0) return likeDiff;
-                    return storage.getAverageRating(b.id) - storage.getAverageRating(a.id);
+                    return new Date(b.createdAt) - new Date(a.createdAt);
                 });
         }
 
@@ -138,15 +152,19 @@ export function Home() {
         }
     };
 
-    const handleSurpriseMe = () => {
-        const suggestion = storage.getRandomSuggestion();
-        setRandomSuggestion(suggestion);
-        setIsSuggestionModalOpen(true);
+    const handleSurpriseMe = async () => {
+        try {
+            const suggestion = await storage.getRandomSuggestion();
+            setRandomSuggestion(suggestion);
+            setIsSuggestionModalOpen(true);
+        } catch (err) { toast.error(formatError(err)); }
     };
 
-    const handleTryAnother = () => {
-        const suggestion = storage.getRandomSuggestion();
-        setRandomSuggestion(suggestion);
+    const handleTryAnother = async () => {
+        try {
+            const suggestion = await storage.getRandomSuggestion();
+            setRandomSuggestion(suggestion);
+        } catch (err) { toast.error(formatError(err)); }
     };
 
     const handleFilterClick = (key) => {
@@ -232,17 +250,21 @@ export function Home() {
 
             {/* Recipe Grid */}
             <section className="space-y-6">
-                <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {visibleRecipes.length > 0 ? (
-                        visibleRecipes.map(recipe => (
-                            <RecipeCard key={recipe.id} recipe={recipe} onFavoriteToggle={loadRecipes} />
-                        ))
-                    ) : (
-                        <p className="col-span-full text-center text-warm-gray-60 py-10">
-                            {activeFilter ? 'No recipes match this filter.' : 'No recipes published yet. Be the first!'}
-                        </p>
-                    )}
-                </div>
+                {isLoading ? (
+                    <RecipeGridSkeleton count={10} />
+                ) : (
+                    <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                        {visibleRecipes.length > 0 ? (
+                            visibleRecipes.map(recipe => (
+                                <RecipeCard key={recipe._id || recipe.id} recipe={recipe} onFavoriteToggle={loadRecipes} />
+                            ))
+                        ) : (
+                            <p className="col-span-full text-center text-warm-gray-60 py-10">
+                                {activeFilter ? 'No recipes match this filter.' : 'No recipes published yet. Be the first!'}
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 {/* Load More pagination */}
                 {hasMore && (

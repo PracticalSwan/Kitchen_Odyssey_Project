@@ -5,18 +5,35 @@
  * Handles image load errors gracefully with fallback icon display.
  * Shows empty state when no eligible recipes exist (requires >= 5 likes AND >= 1 review).
  */
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Heart, MessageSquare, RefreshCw, ChefHat } from 'lucide-react';
-import { storage } from '../../lib/storage';
+import { storageApi as storage } from '../../lib/storageApiAdapter';
 
 export function RecipeSuggestionModal({ isOpen, onClose, suggestion, onTryAnother }) {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [imgError, setImgError] = useState(false);
+    const [reviews, setReviews] = useState([]);
+
+    const suggestionId = suggestion?._id || suggestion?.id;
+
+    // Load reviews for the suggestion
+    useEffect(() => {
+        if (!suggestionId) { setReviews([]); return; }
+        let cancelled = false;
+        (async () => {
+            try {
+                const data = await storage.getReviews(suggestionId);
+                if (!cancelled) setReviews(data || []);
+            } catch { if (!cancelled) setReviews([]); }
+        })();
+        return () => { cancelled = true; };
+    }, [suggestionId]);
 
     const handleTryAnother = async () => {
         setIsLoading(true);
@@ -29,7 +46,7 @@ export function RecipeSuggestionModal({ isOpen, onClose, suggestion, onTryAnothe
 
     const handleViewRecipe = () => {
         onClose();
-        navigate(`/recipes/${suggestion.id}`);
+        navigate(`/recipes/${suggestionId}`);
     };
 
     // Empty state when no recipes meet the criteria for suggestions
@@ -47,7 +64,6 @@ export function RecipeSuggestionModal({ isOpen, onClose, suggestion, onTryAnothe
         );
     }
 
-    const reviews = storage.getReviews(suggestion.id) || [];
     const likeCount = suggestion.likedBy?.length || 0;
 
     return (

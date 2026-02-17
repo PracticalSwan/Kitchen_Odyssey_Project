@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { formatError } from '../../components/ui/Toast';
 import { Mail, Lock, User, AlertCircle } from 'lucide-react';
 
 export function Signup() {
@@ -59,24 +60,20 @@ export function Signup() {
         setIsLoading(true);
 
         try {
-            // Simulate network delay for realistic UX
-            await new Promise(resolve => setTimeout(resolve, 500));
-
             const username = `${formData.firstName} ${formData.lastName}`;
-            signup({
+            await signup({
                 username,
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
                 birthday: formData.birthday,
                 password: formData.password,
-                // Auto-generate avatar using DiceBear API
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.firstName}`
             });
 
             navigate('/');
-        } catch {
-            setError('Failed to create account');
+        } catch (err) {
+            setError(formatError(err));
         } finally {
             setIsLoading(false);
         }

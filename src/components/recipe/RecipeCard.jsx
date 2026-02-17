@@ -11,33 +11,52 @@ import { Link } from 'react-router-dom';
 import { Clock, Heart, Star, Bookmark } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
-import { storage } from '../../lib/storage';
+import { storageApi as storage } from '../../lib/storageApiAdapter';
+import { useToast, formatError } from '../../components/ui/Toast';
 import { useAuth } from '../../context/AuthContext';
 import { cn, normalizeCategories } from '../../lib/utils';
 
 export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
     const { user, canInteract, isGuest } = useAuth();
+    const toast = useToast();
     const [isLiked, setIsLiked] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
     const [optimisticLikeCount, setOptimisticLikeCount] = useState(null);
+    const [displayRating, setDisplayRating] = useState(null);
+    const [author, setAuthor] = useState(null);
 
-    const averageRating = storage.getAverageRating(recipe.id);
-    const displayRating = averageRating > 0 ? averageRating.toFixed(1) : null;
-
+    const recipeId = recipe._id || recipe.id;
     const categories = normalizeCategories(recipe.categories ?? recipe.category);
-    const author = storage.getUsers().find(u => u.id === recipe.authorId);
     const authorName = author ? author.username : `User ${recipe.authorId}`;
     const likeCount = optimisticLikeCount ?? (recipe.likedBy?.length || 0);
 
     const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
     const timeLabel = totalTime >= 60 ? `${Math.round(totalTime / 60)} hr` : `${totalTime} min`;
 
-    // Sync like/favorite state with localStorage and window events
+    // Load author and rating data
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const [users, avg] = await Promise.all([
+                    storage.getUsers(),
+                    storage.getAverageRating(recipeId),
+                ]);
+                if (cancelled) return;
+                setAuthor(users.find(u => (u._id || u.id) === recipe.authorId) || null);
+                setDisplayRating(avg > 0 ? avg.toFixed(1) : null);
+            } catch (err) { toast.error(formatError(err)); }
+        })();
+        return () => { cancelled = true; };
+    }, [recipeId, recipe.authorId]);
+
+    // Sync like/favorite state with API and window events
     useEffect(() => {
         const syncState = () => {
             if (!user) { setIsLiked(false); setIsFavorited(false); return; }
-            setIsLiked(storage.hasUserLiked(user.id, recipe.id));
-            setIsFavorited(storage.hasUserFavorited(user.id, recipe.id));
+            const uid = user._id || user.id;
+            setIsLiked(recipe.likedBy?.includes(uid) || false);
+            setIsFavorited(user.favorites?.includes(recipeId) || false);
         };
         syncState();
         window.addEventListener('recipeUpdated', syncState);
@@ -46,31 +65,35 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay }) {
             window.removeEventListener('recipeUpdated', syncState);
             window.removeEventListener('favoriteToggled', syncState);
         };
-    }, [recipe.id, user]);
+    }, [recipeId, user, recipe.likedBy]);
 
-    const handleLikeClick = (e) => {
+    const handleLikeClick = async (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (!user || !canInteract) return;
-        const result = storage.toggleLike(user.id, recipe.id);
-        setIsLiked(result.liked);
-        setOptimisticLikeCount(result.count);  // Optimistic UI update
-        if (onFavoriteToggle) onFavoriteToggle();
-        window.dispatchEvent(new CustomEvent('recipeUpdated'));
+        try {
+            const result = await storage.toggleLike(user._id || user.id, recipeId);
+            setIsLiked(result.liked);
+            setOptimisticLikeCount(result.likeCount ?? likeCount);
+            if (onFavoriteToggle) onFavoriteToggle();
+            window.dispatchEvent(new CustomEvent('recipeUpdated'));
+        } catch (err) { toast.error(formatError(err)); }
     };
 
-    const handleSaveClick = (e) => {
+    const handleSaveClick = async (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (!user || !canInteract) return;
-        const result = storage.toggleFavorite(user.id, recipe.id);
-        setIsFavorited(result);
-        if (onFavoriteToggle) onFavoriteToggle();
-        window.dispatchEvent(new CustomEvent('favoriteToggled'));
+        try {
+            const result = await storage.toggleFavorite(user._id || user.id, recipeId);
+            setIsFavorited(result.favorited);
+            if (onFavoriteToggle) onFavoriteToggle();
+            window.dispatchEvent(new CustomEvent('favoriteToggled'));
+        } catch (err) { toast.error(formatError(err)); }
     };
 
     return (
-        <Link to={`/recipes/${recipe.id}`} className="group block h-full">
+        <Link to={`/recipes/${recipeId}`} className="group block h-full">
             <Card className="h-full flex flex-col overflow-hidden transition-all hover:shadow-lg border-warm-gray-20 hover:border-brand-accent hover:bg-brand-pale/50 hover-lift cursor-pointer">
                 {/* Recipe Image with overlays */}
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-warm-gray-10">

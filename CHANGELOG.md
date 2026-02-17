@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Phase 6: Security & Observability Hardening
+
+#### Security Utilities (Backend)
+- **Rate Limiting** (`rateLimit.js`) — In-memory sliding window rate limiter for auth (20/15min), write (50/15min), and read (100/15min) endpoints
+- **Input Validation** (`validate.js`) — Schema-based validation with `sanitizeString`, `sanitizeQuery` (NoSQL injection defense), and validators for email, username, password, recipe title, comment, search query
+- **Structured Logging** (`logger.js`) — JSON structured logger with `createLogger(context)` and `correlationId(request)` for request tracing
+- **Security Headers** — Added `X-DNS-Prefetch-Control`, `Strict-Transport-Security`, `Permissions-Policy` to `next.config.mjs`
+- **Rate limiting applied** to auth login/signup (auth tier), recipe creation (write tier), review submission (write tier)
+- **Input validation applied** to login and signup routes using `schemas` validators
+- **33 new unit tests** (validate: 22, rateLimit: 5, logger: 6) — total: 82 tests passing
+
+#### Files Created
+- `kitchen-odyssey-backend/src/lib/rateLimit.js`
+- `kitchen-odyssey-backend/src/lib/validate.js`
+- `kitchen-odyssey-backend/src/lib/logger.js`
+- `kitchen-odyssey-backend/tests/validate.test.js`
+- `kitchen-odyssey-backend/tests/rateLimit.test.js`
+- `kitchen-odyssey-backend/tests/logger.test.js`
+
+#### Files Modified
+- `kitchen-odyssey-backend/src/app/api/v1/auth/login/route.js` (rate limiting + input validation)
+- `kitchen-odyssey-backend/src/app/api/v1/auth/signup/route.js` (rate limiting + input validation)
+- `kitchen-odyssey-backend/src/app/api/v1/recipes/route.js` (rate limiting)
+- `kitchen-odyssey-backend/src/app/api/v1/recipes/[id]/reviews/route.js` (rate limiting)
+- `kitchen-odyssey-backend/next.config.mjs` (additional security headers)
+
+### Added — Phase 5: Frontend Integration
+
+#### API Client & Storage API Adapter
+- **apiClient.js** — HTTP client wrapping fetch with HttpOnly cookie auth, JSON envelope unwrapping, and `ApiError` class
+- **storageApi.js** — Drop-in replacement for `storage.js` mapping 34 methods to backend API calls
+
+#### Async Component Conversion (All 10 Components)
+- **AuthContext.jsx** — Async session restore, login/logout/signup, `userId` computed property for `_id`/`id` compatibility
+- **Home.jsx** — Async recipe loading via `useEffect`, `handleSurpriseMe`/`handleTryAnother` async
+- **Search.jsx** — Async recipe/search history loading, async search logging and clear
+- **CreateRecipe.jsx** — Async edit mode loading, async `handleSubmit`
+- **RecipeDetail.jsx** — Async recipe/author/review loading, all 6 event handlers async
+- **Profile.jsx** — Async profile user and recipe loading, async delete handler
+- **RecipeCard.jsx** — Async author/rating loading via `Promise.all`, async like/save handlers
+- **RecipeSuggestionModal.jsx** — Async reviews loading
+- **AdminRecipes.jsx** — Async recipe/user loading, async status/delete/preview handlers
+- **UserList.jsx** — Async user loading, async status change/delete handlers
+- **AdminStats.jsx** — Async stats loading via `Promise.all`
+
+#### Files Created
+- `src/lib/apiClient.js`
+- `src/lib/storageApi.js`
+
+#### Files Modified
+- `src/context/AuthContext.jsx`
+- All 10 component files listed above
+
 ### Changed - 2026-02-17
 
 #### Sort Consistency (Discover + Search)
