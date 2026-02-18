@@ -1,10 +1,4 @@
-/**
- * Input - Reusable input field with label, error, and icon support
- *
- * Auto-handles password type with show/hide toggle button.
- * Icon prop renders left-aligned icon with proper padding adjustment.
- * Error state changes border color to red with error message below.
- */
+// Input - Reusable form input with label, icon, and password toggle
 import { useState } from 'react';
 import { cn } from '../../lib/utils';
 import { Eye, EyeOff } from 'lucide-react';

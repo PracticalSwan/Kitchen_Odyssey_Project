@@ -1,10 +1,4 @@
-/**
- * AdminRecipes - Admin recipe management interface
- *
- * Tabbed view of pending, published, and rejected recipes.
- * Admin can approve/reject pending recipes, preview, edit, delete.
- * Uses RecipeTable sub-component for consistent table rendering.
- */
+// AdminRecipes - Admin page for approving, rejecting, and managing recipes
 /* eslint-disable react-hooks/set-state-in-effect */
 import React, { useCallback, useEffect, useState } from 'react';
 import { storageApi as storage } from '../../lib/storageApiAdapter';

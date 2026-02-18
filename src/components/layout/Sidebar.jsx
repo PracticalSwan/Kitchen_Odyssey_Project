@@ -1,11 +1,4 @@
-/**
- * Sidebar - Fixed admin dashboard navigation sidebar
- *
- * Fixed positioning (inset-y-0 left-0) creates persistent 256px-wide sidebar.
- * Active route highlighting with brand color background for current page.
- * User profile section at bottom with avatar fallback (initial letter).
- * NAV_ITEMS array centralizes navigation config for easy maintenance.
- */
+// Sidebar - Admin dashboard sidebar with navigation and user info
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';

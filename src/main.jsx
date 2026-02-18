@@ -1,4 +1,4 @@
-// Application entry point - mounts React app to DOM
+// main.jsx - Application entry point that mounts React app to DOM
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

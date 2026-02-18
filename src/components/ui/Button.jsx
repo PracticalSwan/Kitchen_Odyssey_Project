@@ -1,10 +1,4 @@
-/**
- * Button - Reusable button component with variants and sizes
- *
- * Supports loading state with spinner and multiple visual styles.
- * isLoading prop automatically disables button and shows loading indicator.
- * icon size is for square icon-only buttons.
- */
+// Button - Reusable button component with variants and sizes
 import { Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 

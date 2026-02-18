@@ -1,10 +1,4 @@
-/**
- * Modal - Accessible modal dialog with backdrop and ESC close
- *
- * Uses createPortal to render outside React tree (z-index isolation).
- * Locks body scroll when open to prevent background scrolling.
- * persistent prop disables click-outside and ESC key close behavior.
- */
+// Modal - Accessible modal dialog with backdrop and escape handling
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';

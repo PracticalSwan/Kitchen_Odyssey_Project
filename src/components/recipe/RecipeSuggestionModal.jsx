@@ -1,10 +1,4 @@
-/**
- * RecipeSuggestionModal - Random recipe suggestion modal
- *
- * Shows a random recipe with "Try Another" and "View Recipe" actions.
- * Handles image load errors gracefully with fallback icon display.
- * Shows empty state when no eligible recipes exist (requires >= 5 likes AND >= 1 review).
- */
+// RecipeSuggestionModal - Surprise Me modal for quality-based recipe suggestions
 /* eslint-disable react-hooks/set-state-in-effect */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

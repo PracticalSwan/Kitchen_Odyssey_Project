@@ -1,11 +1,4 @@
-/**
- * RecipeCard - Display card for recipe grid/list views
- *
- * Shows recipe image, title, description, author, rating, likes, and difficulty.
- * Like and Save (favorite) buttons update optimistically for instant feedback.
- * Syncs state via window events (recipeUpdated, favoriteToggled) for cross-component updates.
- * actionOverlay prop allows injecting additional actions (edit/delete) for admin/my-recipes views.
- */
+// RecipeCard - Recipe card with image, stats, like, and save actions
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, Heart, Star, Bookmark } from 'lucide-react';

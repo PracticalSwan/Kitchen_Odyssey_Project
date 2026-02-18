@@ -1,12 +1,4 @@
-/**
- * Profile - User profile page with recipes and favorites tabs
- *
- * Displays user info, avatar, bio, location, cooking level.
- * Own profile: shows all recipes (including pending/rejected) with edit/delete.
- * Other user's profile: only shows published recipes.
- * Avatar selector with preset options + custom URL input.
- * Tab switching persists in URL params for shareable links.
- */
+// Profile - User profile page with recipes, favorites, and editable settings
 /* eslint-disable react-hooks/set-state-in-effect */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams, Link, useParams, useNavigate } from 'react-router-dom';

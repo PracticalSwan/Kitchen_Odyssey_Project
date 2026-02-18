@@ -1,11 +1,4 @@
-/**
- * CreateRecipe - Recipe creation and editing form
- *
- * Supports both create mode (status: 'pending') and edit mode (update existing).
- * Multi-select categories (1-3), dynamic ingredients/instructions lists.
- * Validation for all fields (title 3-100 chars, description 10-500, etc.).
- * Edit mode: only author can edit; rejected recipes re-submit as pending.
- */
+// CreateRecipe - Recipe creation and editing form with validation
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { storageApi as storage } from '../../lib/storageApiAdapter';

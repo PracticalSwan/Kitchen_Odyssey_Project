@@ -1,10 +1,4 @@
-/**
- * AdminStats - Admin dashboard with platform analytics
- *
- * Displays key metrics: total users/recipes, DAU, MAU, pending approvals,
- * recent activity log, and daily stats chart.
- * Data sourced from localStorage's activity tracking and storage.
- */
+// AdminStats - Admin dashboard with real-time metrics and activity tracking
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';

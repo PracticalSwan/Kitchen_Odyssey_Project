@@ -1,10 +1,4 @@
-/**
- * UserList - Admin user management interface
- *
- * Searchable, filterable table of all users with role-based access control.
- * Actions: approve pending users, suspend/unsuspend accounts, delete users.
- * Online status display with auto-refresh every 30 seconds.
- */
+// UserList - Admin user management with search, filters, and status actions
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useCallback, useEffect, useState, useReducer } from 'react';
 import { storageApi as storage } from '../../lib/storageApiAdapter';

@@ -1,11 +1,4 @@
-/**
- * Navbar - Mobile-first navigation for regular users
- *
- * Sticky positioning with backdrop blur for overlay effect on scroll.
- * Shows different content based on auth state (guest vs logged-in).
- * Create Recipe button hidden for guests, admins, and pending users via canInteract.
- * active route highlighting for Discover and Search links.
- */
+// Navbar - Main navigation bar with logo, links, and user controls
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';

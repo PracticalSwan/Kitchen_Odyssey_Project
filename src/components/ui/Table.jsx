@@ -1,10 +1,4 @@
-/**
- * Table - Compound component for data tables with sticky headers
- *
- * Wraps table in overflow-auto div for responsive horizontal scrolling.
- * Sticky header stays visible while scrolling (top-0, z-10).
- * [&:has([role=checkbox])]:pr-0 removes right padding for checkbox cells.
- */
+// Table - Table components with header, body, row, and cell variants
 import { cn } from '../../lib/utils';
 
 export function Table({ className, children, ...props }) {

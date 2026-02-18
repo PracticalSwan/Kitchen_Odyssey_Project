@@ -1,11 +1,4 @@
-/**
- * Home - Recipe discovery page with filters and search
- *
- * Main landing page showing published recipes in a responsive grid.
- * Features: filter chips (trending, quick, vegetarian, etc.), sort options,
- * search form, "Surprise Me" random recipe suggestion, and load more pagination.
- * Syncs with storage via window events for real-time recipe updates.
- */
+// Home - Recipe discovery page with search, filters, sorting, and Surprise Me
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { storageApi as storage } from '../../lib/storageApiAdapter';
 import { useToast, formatError } from '../../components/ui/Toast';

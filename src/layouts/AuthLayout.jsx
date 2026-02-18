@@ -1,10 +1,4 @@
-/**
- * AuthLayout - Unauthenticated route layout for login/signup
- *
- * Split-screen layout: form on left (3 columns), branding on right (2 columns).
- * Mobile devices see only the form; branding panel hidden on screens < lg breakpoint.
- * Right panel uses gradient background with decorative blur circles for visual depth.
- */
+// AuthLayout - Public layout for authentication pages (login/signup)
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Logo from '../assets/Logo.png';

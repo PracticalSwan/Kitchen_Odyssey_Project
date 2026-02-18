@@ -1,10 +1,4 @@
-/**
- * AdminLayout - Protected route layout for admin users
- *
- * Guards admin routes with role-based access control.
- * Only accessible by users with role: 'admin'. Non-admins are redirected.
- * Uses fixed sidebar (ml-64) instead of mobile navbar for admin dashboard.
- */
+// AdminLayout - Protected route layout for admin dashboard
 import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';

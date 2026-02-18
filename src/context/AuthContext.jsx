@@ -1,15 +1,4 @@
-/**
- * AuthContext - Global authentication and user session state management
- *
- * Provides authentication state (user, guest mode, loading) and auth operations
- * (login, logout, signup) to all components via useAuth() hook.
- *
- * Activity tracking: Updates lastActive timestamp every 60 seconds and records
- * daily active users for analytics. Heartbeat ensures accurate "online" status.
- *
- * Guest mode: Allows read-only browsing without localStorage persistence.
- * Uses window events (favoriteToggled) for cross-component state synchronization.
- */
+// AuthContext - Authentication context with login, logout, guest mode, and session management
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { storageApi as storage } from '../lib/storageApiAdapter';
 

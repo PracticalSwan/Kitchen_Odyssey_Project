@@ -1,10 +1,4 @@
-/**
- * Tabs - Compound component for tabbed content with controlled/uncontrolled modes
- *
- * Context-based state sharing between TabsList, TabsTrigger, and TabsContent.
- * Supports controlled mode (value + onValueChange props) or uncontrolled (defaultValue).
- * Only renders the active tab's content (early return in TabsContent).
- */
+// Tabs - Tabbed interface with controlled and uncontrolled modes
 import { createContext, useContext, useState } from 'react';
 import { cn } from '../../lib/utils';
 

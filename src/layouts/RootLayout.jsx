@@ -1,10 +1,4 @@
-/**
- * RootLayout - Protected route layout for regular users
- *
- * Guards routes that require authentication (user or guest mode).
- * Redirects admins to /admin and unauthenticated users to /login.
- * pb-20 accounts for mobile navbar height (bottom navigation).
- */
+// RootLayout - Protected route layout for regular users
 import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';

@@ -1,11 +1,4 @@
-/**
- * Signup - User registration page
- *
- * Creates new account with 'pending' status (requires admin approval).
- * Avatar auto-generated via DiceBear API based on first name.
- * Client-side validation for password matching and minimum length.
- * Social auth buttons are UI placeholders (not functional in demo).
- */
+// Signup - User registration page with validation and social auth placeholders
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';

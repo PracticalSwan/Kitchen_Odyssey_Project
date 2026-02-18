@@ -1,11 +1,4 @@
-/**
- * Login - User authentication page
- *
- * Email/password login with validation against localStorage users.
- * Guest mode bypasses authentication for read-only browsing.
- * Social auth buttons are UI placeholders (not functional in demo).
- * Demo credentials displayed at bottom for testing convenience.
- */
+// Login - User authentication page with email, password, and guest mode
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';

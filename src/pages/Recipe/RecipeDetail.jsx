@@ -1,11 +1,4 @@
-/**
- * RecipeDetail - Individual recipe view page
- *
- * Shows full recipe details with ingredients (checkable), instructions,
- * reviews, and action buttons (like, favorite, share, edit, delete).
- * Access control: published recipes visible to all; pending/rejected only to author/admin.
- * Reviews: one per user, rating (1-5 stars), delete own review option.
- */
+// RecipeDetail - Full recipe view with ingredients, instructions, reviews, and interactions
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { storageApi as storage } from '../../lib/storageApiAdapter';

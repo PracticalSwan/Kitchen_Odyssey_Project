@@ -1,12 +1,4 @@
-/**
- * App Component - Root routing configuration
- *
- * Uses HashRouter instead of BrowserRouter for deployment compatibility with GitHub Pages
- * and other static hosts that don't support server-side routing configuration.
- *
- * Route protection is handled at the layout level (AuthLayout, RootLayout, AdminLayout)
- * rather than through wrapper components for better performance and cleaner code.
- */
+// App - Main app component with routing, code-splitting, and provider setup
 import { lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';

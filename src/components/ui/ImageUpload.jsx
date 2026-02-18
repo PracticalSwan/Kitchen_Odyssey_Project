@@ -1,3 +1,4 @@
+// ImageUpload - Drag-and-drop image upload with progress tracking
 import React, { useMemo, useRef, useState } from 'react';
 import { Button } from './Button';
 import { createPreviewURL, uploadRecipeImage, uploadUserAvatar, validateImageFile } from '../../lib/imageUpload';
@@ -18,16 +19,19 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
+  // Generate preview URL from selected file or existing value
   const preview = useMemo(() => {
     if (selectedFile) return createPreviewURL(selectedFile);
     return value || '';
   }, [selectedFile, value]);
 
+  // Centralized error reporting to component state and parent callback
   function reportError(message) {
     setError(message);
     if (typeof onError === 'function') onError(message);
   }
 
+  // Validate and select a file for upload
   function pickFile(file) {
     if (!file) return;
     const check = validateImageFile(file);
@@ -40,6 +44,7 @@ export function ImageUpload({
     setProgress(0);
   }
 
+  // Upload selected file to backend API with progress tracking
   async function handleUpload() {
     if (!selectedFile || uploading || disabled) return;
 
@@ -51,6 +56,7 @@ export function ImageUpload({
     try {
       setUploading(true);
       setError('');
+      // Route to appropriate upload handler based on variant
       const result = variant === 'recipe'
         ? await uploadRecipeImage(selectedFile, recipeId, setProgress)
         : await uploadUserAvatar(selectedFile, setProgress);
@@ -67,6 +73,7 @@ export function ImageUpload({
     }
   }
 
+  // Reset component state to initial values
   function clearSelection() {
     setSelectedFile(null);
     setProgress(0);
@@ -77,6 +84,7 @@ export function ImageUpload({
     <div className="space-y-2">
       <label className="text-sm font-medium text-warm-gray-60">{label}</label>
 
+      {/* Drag-and-drop zone with visual feedback */}
       <div
         className={[
           'rounded-lg border-2 border-dashed p-4 transition-colors',
@@ -94,6 +102,7 @@ export function ImageUpload({
           pickFile(event.dataTransfer.files?.[0]);
         }}
       >
+        {/* Hidden file input triggered by Select File button */}
         <input
           ref={inputRef}
           type="file"
@@ -103,6 +112,7 @@ export function ImageUpload({
           disabled={disabled}
         />
 
+        {/* Preview image or placeholder text */}
         {preview ? (
           <img
             src={preview}
@@ -116,6 +126,7 @@ export function ImageUpload({
         )}
       </div>
 
+      {/* Upload progress bar - shows when upload is in progress */}
       {progress > 0 && (
         <div className="h-2 w-full overflow-hidden rounded bg-warm-gray-20">
           <div
@@ -125,8 +136,10 @@ export function ImageUpload({
         </div>
       )}
 
+      {/* Error message display */}
       {error && <p className="text-xs text-red-600">{error}</p>}
 
+      {/* Action buttons: select file, upload, clear */}
       <div className="flex items-center gap-2">
         <Button
           type="button"

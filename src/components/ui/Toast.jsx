@@ -1,4 +1,4 @@
-// Toast notification system for user-facing error/success feedback
+// Toast - Toast notification system with error, success, warning, and info variants
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { AlertCircle, CheckCircle, Info, X, AlertTriangle } from 'lucide-react';

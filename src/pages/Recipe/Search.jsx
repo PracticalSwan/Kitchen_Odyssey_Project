@@ -1,11 +1,4 @@
-/**
- * Search - Advanced recipe search with filters and search history
- *
- * Features: keyword search, category/difficulty filters, sort options,
- * search history (last 5), URL params sync for shareable links.
- * Debounced keyword logging (1.5s) to avoid excessive storage writes.
- * Multi-category selection via toggle (not radio-style).
- */
+// Search - Advanced recipe search with filters, sorting, and search history
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { storageApi as storage } from '../../lib/storageApiAdapter';

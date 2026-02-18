@@ -1,10 +1,4 @@
-/**
- * Badge - Small status/label indicator with semantic color variants
- *
- * Used for displaying status (pending, active, etc.) and metadata labels.
- * Semantic variants (success, warning, error) convey meaning through color.
- * secondary variant uses brand accent color for branded badges.
- */
+// Badge - Small status indicator with color variants
 import { cn } from "../../lib/utils";
 
 export function Badge({ className, variant = "default", children, ...props }) {
