@@ -194,7 +194,7 @@ export function AdminStats() {
             window.removeEventListener('recipeUpdated', handleStatsUpdate);
             window.removeEventListener('userUpdated', handleStatsUpdate);
         };
-    }, []);
+    }, [toast]);
 
     return (
         <div className="space-y-3">

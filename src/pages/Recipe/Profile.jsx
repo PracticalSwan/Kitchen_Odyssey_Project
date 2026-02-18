@@ -51,7 +51,7 @@ export function Profile() {
             } catch (err) { toast.error(formatError(err)); }
         })();
         return () => { cancelled = true; };
-    }, [userId, currentUser, isOwnProfile]);
+    }, [userId, currentUser, isOwnProfile, toast]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState({});
@@ -93,7 +93,7 @@ export function Profile() {
             } catch (err) { toast.error(formatError(err)); }
         })();
         return () => { cancelled = true; };
-    }, [refreshKey]);
+    }, [refreshKey, toast]);
 
     const myRecipes = useMemo(() => {
         if (!profileUser) return [];

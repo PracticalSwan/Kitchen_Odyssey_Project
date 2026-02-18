@@ -54,7 +54,7 @@ export function RecipeCard({ recipe, onFavoriteToggle, actionOverlay, usersMap, 
         })();
 
         return () => { cancelled = true; };
-    }, [recipeId, recipe.authorId, usersMap, ratingsMap]);
+    }, [recipeId, recipe.authorId, usersMap, ratingsMap, toast]);
 
     // Sync like/favorite state with API and window events
     useEffect(() => {

@@ -87,7 +87,7 @@ export function CreateRecipe() {
             };
             loadRecipe();
         }
-    }, [id, isEditMode, user, navigate, canInteract, isBlocked]);
+    }, [id, isEditMode, user, navigate, canInteract, isBlocked, toast]);
 
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.id]: e.target.value }));

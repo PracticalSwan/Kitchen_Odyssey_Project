@@ -81,7 +81,7 @@ export function Home() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [toast]);
 
     // Load recipes on mount
     useEffect(() => { loadRecipes(); }, [loadRecipes]);

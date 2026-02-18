@@ -6,7 +6,7 @@
  * Online status display with auto-refresh every 30 seconds.
  */
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useState, useReducer } from 'react';
+import { useCallback, useEffect, useState, useReducer } from 'react';
 import { storageApi as storage } from '../../lib/storageApiAdapter';
 import { useToast, formatError } from '../../components/ui/Toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
@@ -30,14 +30,14 @@ export function UserList() {
     const [, forceUpdate] = useReducer(forceUpdateReducer, 0);
     const toast = useToast();
 
-    const refreshUsers = async () => {
+    const refreshUsers = useCallback(async () => {
         try {
             const data = await storage.getUsers();
             setUsers(data);
         } catch (err) { toast.error(formatError(err)); }
-    };
+    }, [toast]);
 
-    useEffect(() => { refreshUsers(); }, []);
+    useEffect(() => { refreshUsers(); }, [refreshUsers]);
 
     // Refresh periodically to update online status display
     useEffect(() => {

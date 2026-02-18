@@ -54,18 +54,6 @@ export function RecipeDetail() {
     const [newComment, setNewComment] = useState('');
     const [rating, setRating] = useState(5);
 
-    // Debug: Log canInteract state
-    useEffect(() => {
-        console.log('RecipeDetail Debug:', {
-            user: user ? { id: user._id || user.id, username: user.username, role: user.role, status: user.status } : null,
-            canInteract,
-            isGuest,
-            isAdmin,
-            isPending,
-            isSuspended
-        });
-    }, [user, canInteract, isGuest, isAdmin, isPending, isSuspended]);
-
     // Interaction state
     const [isLiked, setIsLiked] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
@@ -152,7 +140,7 @@ export function RecipeDetail() {
 
         loadRecipe();
         return () => { cancelled = true; };
-    }, [id, navigate, user, isAdmin]);
+    }, [id, navigate, user, isAdmin, toast]);
 
     // Action handlers
     const handleToggleLike = async () => {

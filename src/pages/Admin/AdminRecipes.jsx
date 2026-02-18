@@ -6,7 +6,7 @@
  * Uses RecipeTable sub-component for consistent table rendering.
  */
 /* eslint-disable react-hooks/set-state-in-effect */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { storageApi as storage } from '../../lib/storageApiAdapter';
 import { useToast, formatError } from '../../components/ui/Toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
@@ -96,15 +96,15 @@ export function AdminRecipes() {
     const [deleteRecipeId, setDeleteRecipeId] = useState(null);
     const toast = useToast();
 
-    const loadRecipes = async () => {
+    const loadRecipes = useCallback(async () => {
         try {
             const [r, u] = await Promise.all([storage.getRecipes(), storage.getUsers()]);
             setRecipes(r);
             setUsers(u);
         } catch (err) { toast.error(formatError(err)); }
-    };
+    }, [toast]);
 
-    useEffect(() => { loadRecipes(); }, []);
+    useEffect(() => { loadRecipes(); }, [loadRecipes]);
 
     // Helper to get author username from ID
     const getAuthorName = (authorId) => {
