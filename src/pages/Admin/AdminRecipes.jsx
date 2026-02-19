@@ -111,18 +111,27 @@ export function AdminRecipes() {
         if (recipe) {
             try {
                 await storage.saveRecipe({ ...recipe, _id: id, status });
+            } catch (err) {
+                toast.error(formatError(err));
+                return;
+            }
+            const actionLabel = status === 'published' ? 'approved' : status === 'rejected' ? 'rejected' : 'updated';
+            toast.success(`Recipe "${recipe.title}" ${actionLabel}`);
+            setIsPreviewOpen(false);
+            // Non-critical follow-ups: activity log + refresh
+            try {
                 const currentUser = await storage.getCurrentUser();
                 const adminName = currentUser?.username || 'Admin';
-                const actionLabel = status === 'published' ? 'approved' : status === 'rejected' ? 'rejected' : 'updated';
                 await storage.addActivity({
                     type: 'admin-recipe',
                     text: `${adminName} ${actionLabel} "${recipe.title}"`
                 });
+            } catch { /* activity logging is non-critical */ }
+            try {
                 await loadRecipes();
-                setIsPreviewOpen(false);
-                window.dispatchEvent(new CustomEvent('recipeUpdated'));
-                window.dispatchEvent(new CustomEvent('statsUpdated'));
-            } catch (err) { toast.error(formatError(err)); }
+            } catch { /* refresh failure is non-critical */ }
+            window.dispatchEvent(new CustomEvent('recipeUpdated'));
+            window.dispatchEvent(new CustomEvent('statsUpdated'));
         }
     };
 
@@ -132,9 +141,17 @@ export function AdminRecipes() {
 
     const confirmDelete = async () => {
         if (!deleteRecipeId) return;
+        const recipe = recipes.find(r => (r._id || r.id) === deleteRecipeId);
         try {
-            const recipe = recipes.find(r => (r._id || r.id) === deleteRecipeId);
             await storage.deleteRecipe(deleteRecipeId);
+        } catch (err) {
+            toast.error(formatError(err));
+            return;
+        }
+        toast.success(`Recipe "${recipe?.title || 'Unknown'}" deleted`);
+        setDeleteRecipeId(null);
+        // Non-critical follow-ups
+        try {
             const currentUser = await storage.getCurrentUser();
             const adminName = currentUser?.username || 'Admin';
             if (recipe) {
@@ -143,11 +160,12 @@ export function AdminRecipes() {
                     text: `${adminName} removed "${recipe.title}"`
                 });
             }
+        } catch { /* activity logging is non-critical */ }
+        try {
             await loadRecipes();
-            setDeleteRecipeId(null);
-            window.dispatchEvent(new CustomEvent('recipeUpdated'));
-            window.dispatchEvent(new CustomEvent('statsUpdated'));
-        } catch (err) { toast.error(formatError(err)); }
+        } catch { /* refresh failure is non-critical */ }
+        window.dispatchEvent(new CustomEvent('recipeUpdated'));
+        window.dispatchEvent(new CustomEvent('statsUpdated'));
     };
 
     const handlePreview = async (recipe) => {

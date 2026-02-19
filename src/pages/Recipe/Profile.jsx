@@ -77,15 +77,32 @@ export function Profile() {
     const [allRecipes, setAllRecipes] = useState([]);
 
     useEffect(() => {
+        if (!profileUser) return;
         let cancelled = false;
+        const puid = profileUser._id || profileUser.id;
         (async () => {
             try {
-                const recipes = await storage.getRecipes();
-                if (!cancelled) setAllRecipes(recipes);
+                // Fetch all published recipes + user's own recipes (all statuses) in parallel
+                const fetches = [storage.getRecipes()];
+                if (isOwnProfile && puid) {
+                    fetches.push(storage.getRecipesByAuthor(puid));
+                }
+                const results = await Promise.all(fetches);
+                if (!cancelled) {
+                    if (results.length === 2) {
+                        // Merge: all published + own recipes (dedup by id)
+                        const merged = new Map();
+                        for (const r of results[0]) merged.set(r._id || r.id, r);
+                        for (const r of results[1]) merged.set(r._id || r.id, r);
+                        setAllRecipes([...merged.values()]);
+                    } else {
+                        setAllRecipes(results[0]);
+                    }
+                }
             } catch (err) { toast.error(formatError(err)); }
         })();
         return () => { cancelled = true; };
-    }, [refreshKey, toast]);
+    }, [refreshKey, toast, profileUser, isOwnProfile]);
 
     const myRecipes = useMemo(() => {
         if (!profileUser) return [];

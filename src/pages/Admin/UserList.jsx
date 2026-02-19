@@ -62,17 +62,26 @@ export function UserList() {
         if (user) {
             try {
                 await storage.saveUser({ ...user, _id: userId, status: newStatus });
+            } catch (err) {
+                toast.error(formatError(err));
+                return;
+            }
+            const actionLabel = newStatus === 'active' ? 'approved' : newStatus === 'suspended' ? 'suspended' : 'updated';
+            toast.success(`User "${user.username}" ${actionLabel}`);
+            // Non-critical follow-ups: activity log + refresh
+            try {
                 const currentUser = await storage.getCurrentUser();
                 const adminName = currentUser?.username || 'Admin';
-                const actionLabel = newStatus === 'active' ? 'approved' : newStatus === 'suspended' ? 'suspended' : 'updated';
                 await storage.addActivity({
                     type: 'admin-user',
                     text: `${adminName} ${actionLabel} ${user.username}`
                 });
+            } catch { /* activity logging is non-critical */ }
+            try {
                 await refreshUsers();
-                window.dispatchEvent(new CustomEvent('userUpdated'));
-                window.dispatchEvent(new CustomEvent('statsUpdated'));
-            } catch (err) { toast.error(formatError(err)); }
+            } catch { /* refresh failure is non-critical */ }
+            window.dispatchEvent(new CustomEvent('userUpdated'));
+            window.dispatchEvent(new CustomEvent('statsUpdated'));
         }
     };
 
@@ -82,9 +91,17 @@ export function UserList() {
 
     const confirmDelete = async () => {
         if (deleteId) {
+            const userToDelete = users.find(u => (u._id || u.id) === deleteId);
             try {
-                const userToDelete = users.find(u => (u._id || u.id) === deleteId);
                 await storage.deleteUser(deleteId);
+            } catch (err) {
+                toast.error(formatError(err));
+                return;
+            }
+            toast.success(`User "${userToDelete?.username || 'Unknown'}" deleted`);
+            setDeleteId(null);
+            // Non-critical follow-ups
+            try {
                 const currentUser = await storage.getCurrentUser();
                 const adminName = currentUser?.username || 'Admin';
                 if (userToDelete) {
@@ -93,9 +110,10 @@ export function UserList() {
                         text: `${adminName} removed ${userToDelete.username}`
                     });
                 }
+            } catch { /* activity logging is non-critical */ }
+            try {
                 await refreshUsers();
-                setDeleteId(null);
-            } catch (err) { toast.error(formatError(err)); }
+            } catch { /* refresh failure is non-critical */ }
         }
     };
 

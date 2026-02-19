@@ -161,6 +161,12 @@ export const storageApi = {
     return recipes.map(normalizeRecipe);
   },
 
+  getRecipesByAuthor: async (authorId) => {
+    const result = await api.get(`/recipes?limit=500&authorId=${encodeURIComponent(authorId)}`);
+    const recipes = result?.recipes || [];
+    return recipes.map(normalizeRecipe);
+  },
+
   getRecipeById: async (recipeId) => {
     const result = await api.get(`/recipes/${recipeId}`, { dedupeKey: `recipe:${recipeId}` });
     return normalizeRecipe(result?.recipe || result);
