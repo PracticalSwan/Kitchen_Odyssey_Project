@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "&": true,
+        "npx eslint": true,
+        "C:/Users/LOQ/AppData/Local/Python/pythoncore-3.14-64/python.exe": true,
+        "Set-Location": true
+    }
+}
