@@ -235,9 +235,12 @@ export function CreateRecipe() {
                     ingredients,
                     instructions,
                     images: [formData.image || originalRecipe.images?.[0] || 'https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&q=80'],
-                    status: originalRecipe.status === 'rejected' ? 'pending' : originalRecipe.status
+                    status: (originalRecipe.status === 'rejected' || originalRecipe.status === 'published') ? 'pending' : originalRecipe.status
                 };
                 await storage.saveRecipe({ ...updatedRecipe, id: originalRecipe._id || originalRecipe.id });
+                if (originalRecipe.status === 'published') {
+                    toast.info('Recipe updated — moved back to pending for admin review.');
+                }
             } else {
                 // Create new recipe
                 const newRecipe = {

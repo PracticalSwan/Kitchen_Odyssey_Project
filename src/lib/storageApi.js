@@ -300,8 +300,10 @@ export const storageApi = {
     });
   },
 
-  getRecentActivity: async (limit = 5) => {
-    const result = await api.get(`/activity?limit=${limit}`);
+  getRecentActivity: async (limit = 5, type = '') => {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (type) params.set('type', type);
+    const result = await api.get(`/activity?${params}`);
     return (result?.items || []).map(normalizeActivity);
   },
 

@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { storageApi as storage } from '../../lib/storageApiAdapter';
 import { useToast, formatError } from '../../components/ui/Toast';
-import { Users, FileText, Activity, UserPlus, Heart, AlertTriangle, CalendarDays, TrendingUp } from 'lucide-react';
+import { Users, FileText, Activity, UserPlus, Heart, AlertTriangle, CalendarDays, TrendingUp, ShieldCheck, ChefHat } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
 import { normalizeCategories } from '../../lib/utils';
 
 // StatCard component moved outside to prevent recreation on each render
@@ -60,14 +61,17 @@ export function AdminStats() {
         publishedRecipes: 0,
         pendingRecipes: 0,
         totalLikes: 0,
-        recentActivity: [],
-        allActivity: [],
+        adminActivity: [],
+        userActivity: [],
+        allAdminActivity: [],
+        allUserActivity: [],
         userGrowthText: '',
         activeRecipesText: '',
         likesText: ''
     });
     const [categoryTrend, setCategoryTrend] = useState([]);      // Sorted by recipe count (top categories)
     const [allCategoryTrend, setAllCategoryTrend] = useState([]); // All categories with counts
+    const [activityTab, setActivityTab] = useState('admin');        // Active tab for Recent Activity
     const [showAllActivity, setShowAllActivity] = useState(false);  // Expand activity log toggle
     const [showFullReport, setShowFullReport] = useState(false); // Full stats modal toggle
 
@@ -84,11 +88,13 @@ export function AdminStats() {
     useEffect(() => {
         const loadStats = async () => {
             try {
-                const [users, recipes, recentActivity, allActivity] = await Promise.all([
+                const [users, recipes, adminActivity, userActivity, allAdminActivity, allUserActivity] = await Promise.all([
                     storage.getUsers(),
                     storage.getRecipes(),
-                    storage.getRecentActivity(5),
-                    storage.getRecentActivity(200),
+                    storage.getRecentActivity(5, 'admin'),
+                    storage.getRecentActivity(5, 'user'),
+                    storage.getRecentActivity(100, 'admin'),
+                    storage.getRecentActivity(100, 'user'),
                 ]);
 
                 const nonAdminUsers = users.filter(u => u.role !== 'admin');
@@ -162,8 +168,10 @@ export function AdminStats() {
                 publishedRecipes: publishedCount,
                 pendingRecipes: recipes.filter(r => r.status === 'pending').length,
                 totalLikes,
-                recentActivity,
-                allActivity,
+                adminActivity,
+                userActivity,
+                allAdminActivity,
+                allUserActivity,
                 userGrowthText,
                 activeRecipesText,
                 likesText
@@ -217,33 +225,31 @@ export function AdminStats() {
 
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_293px]">
                 <Card>
-                    <CardHeader className="pb-5">
+                    <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                             <CardTitle>Recent Activity</CardTitle>
                             <button type="button" className="text-xs font-medium text-brand-accent hover:underline" onClick={() => setShowAllActivity(true)}>View All</button>
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-1.5">
-                            {stats.recentActivity.length ? (
-                                stats.recentActivity.map((activity, index) => (
-                                    <div key={`${activity.type}-${activity.time}-${index}`} className="flex items-start gap-3 rounded-lg border border-warm-gray-20 p-3">
-                                        <span className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-full bg-warm-gray-10 text-warm-gray-60">
-                                            <UserPlus className="h-4 w-4" />
-                                        </span>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate text-sm font-semibold text-charcoal">{formatActivityType(activity.type)}</p>
-                                            <p className="mt-0.5 text-xs text-warm-gray-60">{activity.text}</p>
-                                        </div>
-                                        <span className="whitespace-nowrap text-[10px] text-warm-gray-30">
-                                            {new Date(activity.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-sm text-warm-gray-60">No recent activity yet.</p>
-                            )}
-                        </div>
+                        <Tabs value={activityTab} onValueChange={setActivityTab}>
+                            <TabsList className="mb-3 w-full">
+                                <TabsTrigger value="admin" className="flex-1 gap-1.5">
+                                    <ShieldCheck className="h-3.5 w-3.5" />
+                                    Admin
+                                </TabsTrigger>
+                                <TabsTrigger value="user" className="flex-1 gap-1.5">
+                                    <ChefHat className="h-3.5 w-3.5" />
+                                    User
+                                </TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="admin">
+                                <ActivityList items={stats.adminActivity} />
+                            </TabsContent>
+                            <TabsContent value="user">
+                                <ActivityList items={stats.userActivity} />
+                            </TabsContent>
+                        </Tabs>
                     </CardContent>
                 </Card>
 
@@ -318,26 +324,28 @@ export function AdminStats() {
                 className="max-w-2xl"
                 persistent
             >
-                <div className="max-h-[60vh] overflow-y-auto space-y-1.5 pr-1">
-                    {stats.allActivity.length ? (
-                        stats.allActivity.map((activity, index) => (
-                            <div key={`all-${activity.type}-${activity.time}-${index}`} className="flex items-start gap-3 rounded-lg border border-warm-gray-20 p-3">
-                                <span className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-full bg-warm-gray-10 text-warm-gray-60">
-                                    <UserPlus className="h-4 w-4" />
-                                </span>
-                                <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-semibold text-charcoal">{formatActivityType(activity.type)}</p>
-                                    <p className="mt-0.5 text-xs text-warm-gray-60">{activity.text}</p>
-                                </div>
-                                <span className="whitespace-nowrap text-[10px] text-warm-gray-30">
-                                    {new Date(activity.time).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="py-8 text-center text-sm text-warm-gray-60">No activity recorded yet.</p>
-                    )}
-                </div>
+                <Tabs defaultValue={activityTab}>
+                    <TabsList className="mb-3 w-full">
+                        <TabsTrigger value="admin" className="flex-1 gap-1.5">
+                            <ShieldCheck className="h-3.5 w-3.5" />
+                            Admin
+                        </TabsTrigger>
+                        <TabsTrigger value="user" className="flex-1 gap-1.5">
+                            <ChefHat className="h-3.5 w-3.5" />
+                            User
+                        </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="admin">
+                        <div className="max-h-[55vh] overflow-y-auto space-y-1.5 pr-1">
+                            <ActivityList items={stats.allAdminActivity} showDate />
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="user">
+                        <div className="max-h-[55vh] overflow-y-auto space-y-1.5 pr-1">
+                            <ActivityList items={stats.allUserActivity} showDate />
+                        </div>
+                    </TabsContent>
+                </Tabs>
             </Modal>
 
             <Modal
@@ -382,10 +390,49 @@ export function AdminStats() {
     );
 }
 
+function ActivityList({ items, showDate = false }) {
+    if (!items?.length) {
+        return <p className="py-6 text-center text-sm text-warm-gray-60">No activity recorded yet.</p>;
+    }
+    return (
+        <div className="space-y-1.5">
+            {items.map((activity, index) => {
+                const Icon = getActivityIcon(activity.type);
+                return (
+                    <div key={`${activity.type}-${activity.time}-${index}`} className="flex items-start gap-3 rounded-lg border border-warm-gray-20 p-3">
+                        <span className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-full bg-warm-gray-10 text-warm-gray-60">
+                            <Icon className="h-4 w-4" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-charcoal">{formatActivityType(activity.type)}</p>
+                            <p className="mt-0.5 text-xs text-warm-gray-60">{activity.text}</p>
+                        </div>
+                        <span className="whitespace-nowrap text-[10px] text-warm-gray-30">
+                            {showDate
+                                ? new Date(activity.time).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                : new Date(activity.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+function getActivityIcon(type) {
+    const iconMap = {
+        'admin-user': ShieldCheck,
+        'admin-recipe': ShieldCheck,
+        'user-recipe': ChefHat,
+    };
+    return iconMap[type] || UserPlus;
+}
+
 function formatActivityType(type) {
     const typeMap = {
         'admin-user': 'User Management',
         'admin-recipe': 'Recipe Moderation',
+        'user-recipe': 'Recipe Activity',
         user: 'User Activity',
         recipe: 'Recipe Activity'
     };
