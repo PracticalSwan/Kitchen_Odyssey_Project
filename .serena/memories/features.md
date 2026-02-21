@@ -414,6 +414,33 @@ const addReview = (recipeId, review) => {
 **Location:** `/admin`
 **Component:** `src/pages/Admin/AdminStats.jsx`
 
+#### Activity Type Filtering (2026-02-20)
+
+```javascript
+// Filter activity by type
+const allActivity = await storageApi.getRecentActivity(5);
+const adminActivity = await storageApi.getRecentActivity(5, 'admin');
+const userActivity = await storageApi.getRecentActivity(5, 'user');
+
+// Display filtered activity views
+<Tabs
+  tabs={[
+    { key: 'all', label: 'All Activity' },
+    { key: 'admin', label: 'Admin Actions' },
+    { key: 'user', label: 'User Actions' }
+  ]}
+  activeTab={activeTab}
+  onChange={setActiveTab}
+/>
+```
+
+**Activity Types:**
+- `admin-recipe-status` - Recipe published or rejected by admin
+- `admin-user-status` - User activated or suspended by admin
+- `user-recipe-created` - New recipe submitted for approval
+- `user-recipe-updated` - Existing recipe edited
+- `user-profile-updated` - User profile information changed
+
 #### Real Metrics
 
 ```javascript
@@ -670,12 +697,21 @@ const profileUser = isOwnProfile
   <RecipeGrid
     recipes={
       isOwnProfile
-        ? getAllUserRecipes(profileUser.id)  // All statuses
+        ? getAllUserRecipes(profileUser.id)  // All statuses via authorId filter
         : getPublishedUserRecipes(profileUser.id)  // Published only
     }
     showStatusBadge={isOwnProfile}
   />
 )}
+
+**Recipe Retrieval (2026-02-20):**
+```javascript
+// Use author-based retrieval for performance
+const myRecipes = await storageApi.getRecipesByAuthor(user._id);
+
+// Backend: GET /api/v1/recipes?authorId=<id>
+// Returns all recipes by author (including pending/rejected)
+```
 ```
 
 ### Edit Profile
@@ -721,6 +757,6 @@ const profileUser = isOwnProfile
 
 ## Memory Management
 - **Project:** Kitchen_Odyssey (React frontend)
-- **Last Updated:** 2026-02-18
+- **Last Updated:** 2026-02-20
 - **Maintained By:** Serena MCP Server
 - **Purpose:** Feature implementation reference

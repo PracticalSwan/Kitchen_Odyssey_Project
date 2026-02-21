@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - 2026-02-20
+
+#### Activity Logging & Filtering
+- **Backend**: Added activity logging for admin actions and user recipe submissions
+  - Recipe status changes (publish/reject) now log with type `admin-recipe-status`
+  - User status changes (activate/suspend) now log with type `admin-user-status`
+  - Recipe create/update operations now log with type `user-recipe-created`/`user-recipe-updated`
+  - User profile updates now log with type `user-profile-updated`
+- **Frontend**: Enhanced activity tracking in AdminStats with type filtering
+  - Added optional `type` parameter to `getRecentActivity()` for filtering by `admin` or `user` actions
+  - AdminStats now shows filtered activity views for admin-only and user-only actions
+- **API**: Activity log endpoint now supports `?type=admin` or `?type=user` query parameter for filtering
+
+#### Recipe Retrieval by Author
+- Added `storageApi.getRecipesByAuthor(authorId)` method for fetching all recipes by a specific author
+- Added backend support for filtering recipes by `authorId` query parameter
+- Profile page now uses author-based recipe retrieval for better performance
+
+### Fixed - 2026-02-20
+
+#### Profile Recipe Status Filtering
+- Fixed recipes showing in profile regardless of status (pending, rejected, accepted)
+- Profile "My Recipes" tab now filters to show only user's own recipes regardless of publication status
+- Backend API now correctly filters recipes by author ID
+
+#### Error Handling Improvements
+- Enhanced error handling in admin user management with better user feedback
+- Improved error messages for failed admin operations (status changes, deletions)
+
+### Files Modified
+
+**Frontend:**
+- `src/lib/storageApi.js` - Added `getRecipesByAuthor()` method, enhanced `getRecentActivity()` with type filtering
+- `src/pages/Admin/AdminStats.jsx` - Enhanced activity tracking with type filtering
+- `src/pages/Admin/AdminRecipes.jsx` - Enhanced error handling
+- `src/pages/Admin/UserList.jsx` - Enhanced error handling
+- `src/pages/Recipe/Profile.jsx` - Added author-based recipe retrieval
+- `src/pages/Recipe/CreateRecipe.jsx` - Updated recipe status handling
+
+**Backend:**
+- `src/app/api/v1/activity/route.js` - Added type filter support
+- `src/app/api/v1/admin/recipes/[id]/status/route.js` - Added activity logging
+- `src/app/api/v1/admin/users/[id]/status/route.js` - Added activity logging
+- `src/app/api/v1/recipes/route.js` - Added authorId filter, activity logging
+- `src/app/api/v1/recipes/[id]/route.js` - Added activity logging
+- `src/app/api/v1/users/[id]/route.js` - Added activity logging
+
 ### Fixed - 2026-02-17
 
 #### Auth Session Stability (User Not Downgraded to Guest)
