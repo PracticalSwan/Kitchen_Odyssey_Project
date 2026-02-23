@@ -1,5 +1,19 @@
 # Active Context - 2026-02-18
 
+## Latest Update - 2026-02-23
+
+### Auth UI Documentation + Memory Sync
+
+**Changes implemented:**
+1. Aligned implementation docs with current auth UI: email/password + "Continue as Guest" only
+2. Removed stale social-auth task wording in `plan/design-overhaul-1.md`
+3. Updated Serena design memory references for Login/Signup auth details
+
+**Files modified:**
+- `plan/design-overhaul-1.md` - Auth phase notes/tasks updated
+- `.serena/memories/design-overhaul-plan.md` - Auth summary corrected
+- `CHANGELOG.md` - Unreleased auth UI simplification entry retained
+
 ## Completed Work
 
 ### Recipe Detail Page UI Improvements

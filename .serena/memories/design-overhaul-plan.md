@@ -21,8 +21,8 @@ Design overhaul fully implemented across 5 sessions. All 17 source files updated
 7. src/components/layout/Navbar.jsx — ChefHat icon, active route highlighting
 8. src/components/layout/Sidebar.jsx — Hover text → brand-accent
 9. src/layouts/AuthLayout.jsx — Gradient from-brand to-brand-accent
-10. src/pages/Auth/Login.jsx — Social auth, Mail/Lock icons
-11. src/pages/Auth/Signup.jsx — Social auth, password hint
+10. src/pages/Auth/Login.jsx — Email/password auth form, Mail/Lock icons, guest entry
+11. src/pages/Auth/Signup.jsx — Email/password signup flow, validation hints, guest entry
 12. src/pages/Recipe/Home.jsx — Category pills, sort dropdown, load-more, gradient hero
 13. src/pages/Recipe/Search.jsx — Pill filters, centered layout, SearchX empty state
 14. src/pages/Recipe/RecipeDetail.jsx — Breadcrumbs, author section, instruction steps
@@ -40,7 +40,7 @@ Design overhaul fully implemented across 5 sessions. All 17 source files updated
   - **v4.0 (current):** Light blue/cyan (`#0284C7` brand, `#06B6D4` accent, `#0891B2` hover, `#38BDF8` light, `#E0F2FE` pale)
 - **Home hero**: "Share Your Culinary Masterpiece" → "Fresh from the Kitchen"
 - **RecipeCard**: Dark overlay heart, timer badge, author avatar, star rating, description preview (line-clamp-2), like count, category badges (max 3)
-- **Auth pages**: Social auth buttons (Google + GitHub), icon-enhanced inputs
+- **Auth pages**: Email/password + guest mode only, icon-enhanced inputs
 - **Navbar**: ChefHat logo icon, active route highlighting, Search link
 - **RecipeDetail**: Breadcrumbs, rounded-full instruction step numbers, amber review stars. Reviews section moved BELOW content grid (not in sidebar).
 - **Animations**: fade-in, slide-up, scale-in keyframes

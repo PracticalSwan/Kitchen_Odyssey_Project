@@ -34,7 +34,7 @@ This implementation plan provides a complete design overhaul for the Kitchen Ody
 
 ### Version 1.9 (2026-02-17)
 - **Stitch redesign analysis**: Updated plan to reflect remade screen designs from Stitch project (last updated 2026-02-17T07:33:31Z)
-- **Auth screen redesign** (Phase 1): Updated to split-screen Login/Signup layout with Google + GitHub social auth logos, red error alert banner ("Authentication Failed"), green post-signup "Account Pending Approval" notice, password visibility toggle, "Forgot Password?" link, dark mode toggle placeholder in navbar
+- **Auth screen redesign** (Phase 1): Updated to split-screen Login/Signup layout with email/password fields, red error alert banner ("Authentication Failed"), green post-signup "Account Pending Approval" notice, password visibility toggle, "Forgot Password?" link, dark mode toggle placeholder in navbar
 - **Home screen redesign** (Phase 2): Updated hero to "Fresh from the Kitchen" heading, added category filter pills (Trending, Under 30min, Vegetarian, Desserts, Breakfast, Easy), Sort by dropdown, "Load More Recipes" button, updated recipe card layout (overlay favorite icon, timer badge, author avatar bar with difficulty)
 - **Recipe Detail updates** (Phase 4): Added Nutrition per serving panel (Calories, Protein, Carbs, Fat), expanded pending user restriction pattern with lock icon UX from dedicated "Pending User Restricted State" screen, breadcrumb navigation pattern, "Pending Status" info card
 - **Admin User Management redesign** (Phase 8): Documented two design variants (Variant A: current sidebar nav vs. Variant B: expanded sidebar with Dashboard/User Management/Recipes/Orders/Analytics/Settings), added pagination component, role/status filter dropdowns, Export button, Add New User button
@@ -314,20 +314,20 @@ Detailed changes documented in Testing Methodology update above.
 **Stitch Redesign Notes (v1.9):**
 - Stitch "User Authentication" screen shows Login and Signup as split-screen variants on same page
 - Login: "Welcome Back" heading, email (mail icon), password (lock icon + visibility toggle), "Forgot Password?" link, "Log In" button
-- Social auth: Google + GitHub with actual logo images (not placeholder text) under "Or continue with" divider
+- Auth flow: Email/password form only (no social auth buttons)
 - Signup: Email, Password, Confirm Password, "Sign Up" button (simpler than original multi-section plan)
 - Error state: Red alert banner "Authentication Failed — Please check your email and password and try again."
 - Post-signup state: Green success banner "Account Pending Approval — We've received your request."
 - Navbar: "Home" and "About" links + dark_mode toggle icon
 - Footer: "© 2023 Cookhub Inc. All rights reserved." (use "Kitchen Odyssey" in implementation)
-- **Reconciliation**: "Continue as Guest" button is NOT shown in Stitch redesign but MUST be kept per PREREQ-OV-001 (guest-mode feature requirement) — position it below social auth or as tertiary action
+- **Reconciliation**: "Continue as Guest" button is NOT shown in Stitch redesign but MUST be kept per PREREQ-OV-001 (guest-mode feature requirement) — position it as tertiary action below the main auth form
 
 | Task    | Description                                                   | Completed | Date       |
 | -------- | ------------------------------------------------------------- | --------- | ---------- |
 | TASK-OV-001 | Update `src/pages/Auth/Login.jsx` - Redesign with split-screen card layout matching Stitch "User Authentication" screen: "Welcome Back" heading, email/password inputs with icons (mail, lock), password visibility toggle |           |            |
-| TASK-OV-002 | Update `src/pages/Auth/Login.jsx` - Ensure "Continue as Guest" button (from guest mode plan) is integrated with new design (position below social auth as tertiary action — not in Stitch but required by PREREQ-OV-001) |           |            |
+| TASK-OV-002 | Update `src/pages/Auth/Login.jsx` - Ensure "Continue as Guest" button (from guest mode plan) is integrated with new design (tertiary action below main auth form — not in Stitch but required by PREREQ-OV-001) |           |            |
 | TASK-OV-003 | Update `src/pages/Auth/Login.jsx` - Enhance form inputs with icon prefixes (mail, lock), focus states, validation feedback, "Forgot Password?" link below password field |           |            |
-| TASK-OV-004 | Update `src/pages/Auth/Login.jsx` - Add social auth buttons with Google and GitHub logos matching Stitch design (under "Or continue with" divider), with actual logo images |           |            |
+| TASK-OV-004 | Update `src/pages/Auth/Login.jsx` - Remove social auth placeholders and keep focused email/password login UX (no "Or continue with" divider) |           |            |
 | TASK-OV-004.1 | Update `src/pages/Auth/Login.jsx` - Add error alert banner pattern: red "Authentication Failed" banner with descriptive message for invalid credentials |           |            |
 | TASK-OV-005 | Update `src/pages/Auth/Signup.jsx` - Redesign with card-based layout matching Stitch design: "Create Account" heading, email/password/confirm-password fields |           |            |
 | TASK-OV-006 | Update `src/pages/Auth/Signup.jsx` - Ensure "Continue as Guest" button is integrated with new design (not in Stitch but required by PREREQ-OV-001) |           |            |
