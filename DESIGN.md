@@ -284,7 +284,6 @@
 - Split-screen layout showing Login and Signup as distinct states/variants
 - Login: "Welcome Back" heading, email (mail icon), password (lock + visibility toggle), "Forgot Password?" link, "Log In" button
 - Signup: Email, Password, Confirm Password, "Sign Up" button
-- Social auth with Google + GitHub logos ("Or continue with" divider)
 - Error state: Red "Authentication Failed" alert banner
 - Post-signup: Green "Account Pending Approval" success notice
 - Navbar: "Home" and "About" links + dark-mode toggle icon
@@ -395,7 +394,7 @@
 | 6a35b85562824db1b1a501edc5f00fa9 | Cookhub Home - Recipe Feed | Hero + Grid | Hero section, category pills, sort dropdown, recipe cards, "Load More" |
 | 0c3d91cadee54c5588df173fe6274d6c | Search and Filtering Results | Sidebar + Grid | Filter sidebar, results grid, filter chips |
 | f85a1327eda741199830866d7ac291b2 | Search Results Empty State | Centered Empty | Empty message, illustration, retry button |
-| d4bb7f8218a042aa9b7270a97d6e3e6d | User Authentication | Split-screen | Login/Signup variants, Google+GitHub social auth, error/pending banners |
+| d4bb7f8218a042aa9b7270a97d6e3e6d | User Authentication | Split-screen | Login/Signup variants, error/pending banners |
 | caa7bca340144607854ef2514e1c5e93 | Recipe Detail View | Hero + Tabs | Full-width hero, tabbed content, review section, nutrition panel |
 | c2c636b8cc2b4c25af090b49dd2e028c | Create New Recipe Form | Multi-section | Form accordion, dynamic lists, image upload |
 | 3e4a18d80f1f412d922d3e89e602b580 | User Profile with Tabs | Header + Tabs | Profile header, tabbed content grids |

@@ -28,6 +28,10 @@ This implementation plan provides a complete design overhaul for the Kitchen Ody
 
 ## Changelog
 
+### Version 2.0 (2026-02-23)
+- Documentation sync: Auth UI no longer includes Google/GitHub social auth placeholders.
+- Current Login/Signup flow is email/password plus "Continue as Guest" only.
+
 ### Version 1.9 (2026-02-17)
 - **Stitch redesign analysis**: Updated plan to reflect remade screen designs from Stitch project (last updated 2026-02-17T07:33:31Z)
 - **Auth screen redesign** (Phase 1): Updated to split-screen Login/Signup layout with Google + GitHub social auth logos, red error alert banner ("Authentication Failed"), green post-signup "Account Pending Approval" notice, password visibility toggle, "Forgot Password?" link, dark mode toggle placeholder in navbar
@@ -1004,7 +1008,6 @@ Execute component enhancements in the following order to maximize efficiency and
 - **FILE-OV-001**: `src/pages/Auth/Login.jsx`
   - Redesign with split-screen card layout (Stitch v1.9)
   - "Welcome Back" heading, email/password with icon prefixes (mail, lock), password visibility toggle
-  - Social auth with Google + GitHub logos (under "Or continue with" divider)
   - "Forgot Password?" link
   - Error alert banner ("Authentication Failed") for invalid credentials
   - Integrate "Continue as Guest" button (from guest mode plan, not in Stitch but required)
@@ -1865,7 +1868,7 @@ test.describe('Recipe Management', () => {
 - **Branding Note**: Stitch project title is "Cookhub Home - Recipe Feed" and uses "Cookhub" in navbar/footer — implementation MUST use "Kitchen Odyssey" branding per project standards
 - **Screens Referenced (13 visible, current IDs as of v1.9)**:
   - `6a35b85562824db1b1a501edc5f00fa9` — Cookhub Home - Recipe Feed (TASK-OV-010 through TASK-OV-019) — Hero: "Fresh from the Kitchen", category filter pills, "Load More Recipes"
-  - `d4bb7f8218a042aa9b7270a97d6e3e6d` — User Authentication (TASK-OV-001 through TASK-OV-009) — Split-screen Login/Signup, Google+GitHub social auth, error/pending banners
+  - `d4bb7f8218a042aa9b7270a97d6e3e6d` — User Authentication (TASK-OV-001 through TASK-OV-009) — Split-screen Login/Signup, error/pending banners
   - `0c3d91cadee54c5588df173fe6274d6c` — Search and Filtering Results (TASK-OV-020 through TASK-OV-027)
   - `f85a1327eda741199830866d7ac291b2` — Search Results Empty State (TASK-OV-024) — *ID changed from previous `8cac488c341249a2a1b03c0ca65b3778`*
   - `caa7bca340144607854ef2514e1c5e93` — Recipe Detail View (TASK-OV-028 through TASK-OV-037)

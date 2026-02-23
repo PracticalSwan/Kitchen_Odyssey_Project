@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed - 2026-02-23
+
+#### Authentication UI Simplification
+- Removed Google and GitHub social auth button placeholders from Login and Signup pages.
+- Removed the "or continue with email" divider from both auth screens.
+- Updated design documentation to reflect email/password + guest-mode auth flow only.
+
 ### Fixed - 2026-02-17
 
 #### Auth Session Stability (User Not Downgraded to Guest)
