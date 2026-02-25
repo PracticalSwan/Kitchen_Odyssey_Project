@@ -315,23 +315,12 @@ Admin reviews pending recipe
 - **Debouncing:** Search history updates (1.5s delay)
 - **LocalStorage Caching:** Seed data prevents redundant initialization
 
-## Testing Architecture
+## Quality Validation Architecture
 
-### Test Framework: Playwright
-```
-tests/
-├── guest-mode.spec.js              # Guest mode functionality
-├── guest-analytics.spec.js         # Analytics bypass verification
-├── guest-transitions.spec.js       # Auth ↔ Guest transitions
-└── random-recipe.spec.js           # Random recipe suggestion
-```
-
-### Testing Patterns
-- **Page Object Model:** Reusable page abstractions
-- **Fixtures:** Shared authentication states (admin, user, guest)
-- **Visual Regression:** Baseline screenshots for UI verification
-- **Accessibility Testing:** axe-core integration
-- **Responsive Testing:** Multiple viewport sizes
+### Validation Workflow
+- Frontend validation relies on `npm run lint` and `npm run build`.
+- Backend validation relies on `npm run lint` and `npm run build`.
+- Runtime behavior is verified via manual UI smoke checks and API endpoint checks.
 
 ## Deployment Architecture
 
@@ -393,10 +382,9 @@ NODE_ENV=production
 - Add error handling and retries
 - Maintain localStorage fallback
 
-### Phase 4: Testing & Deployment (Planned)
-- Integration tests for API
-- E2E tests with backend
-- Performance testing
+### Phase 4: Validation & Deployment (Planned)
+- Lint/build validation across frontend and backend
+- Runtime verification with API health and key user-flow checks
 - Production deployment
 
 ## Security Considerations

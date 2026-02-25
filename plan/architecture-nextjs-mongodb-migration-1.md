@@ -12,8 +12,7 @@ revision_notes: >
   (user management routes), TASK-016-B (deletion cascade logic). Expanded TASK-017
   scope to include view recording and rating endpoints.
   Rev 4 (2026-02-17): Reduced to implementation-critical content only. Removed embedded
-  testing strategy and matrix. Testing scope moved to
-  `plan/architecture-nextjs-mongodb-migration-testing-1.md`.
+  testing strategy and matrix.
 ---
 
 # Introduction
@@ -23,7 +22,7 @@ This plan defines the implementation path for migrating Kitchen Odyssey from loc
 - Backend: `Project2/kitchen-odyssey-backend` (Next.js 16.1.6, JavaScript, App Router, `src/` structure)
 - Database: MongoDB Atlas Free Tier
 
-All testing execution details were extracted to `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-testing-1.md`.
+Validation execution details are tracked in `Kitchen_Odyssey/docs/migration-readiness-checklist.md`.
 
 ## 1. Non-Negotiables
 
@@ -272,19 +271,13 @@ Field-level mapping details are maintained in `Kitchen_Odyssey/docs/migration-da
 - Image upload/storage will use local filesystem with Next.js static file serving via `/public/uploads` or API route proxy.
 - Existing URL-based images in localStorage will be preserved and migrated as-is.
 
-## 8. Testing Plan Split
+## 8. Validation Plan Split
 
-Testing work was intentionally removed from this architecture plan.
-
-Authoritative testing plan:
-- `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-testing-1.md`
-
-Testing tasks moved there include:
-- TASK-004, TASK-046, TASK-046-A, TASK-047 through TASK-056, TASK-060
+Detailed validation steps are maintained in:
+- `Kitchen_Odyssey/docs/migration-readiness-checklist.md`
 
 ## 9. Related Documents
 
 - `Kitchen_Odyssey/docs/api-contract-specification-1.md`
 - `Kitchen_Odyssey/docs/migration-data-mapping-1.md`
 - `Kitchen_Odyssey/docs/security-considerations-1.md`
-- `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-testing-1.md`

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed - 2026-02-26
+
+#### Test Suite Cleanup and Repository Hygiene
+- Removed obsolete Playwright artifacts and legacy spec files that were no longer aligned with the current backend-only architecture.
+- Updated tracked test footprint by removing stale `tests/` files and deprecated snapshot tooling from the frontend repository.
+- Kept documentation references focused on historical last-known regression status while clarifying current untracked test-file expectation.
+
 ### Fixed - 2026-02-25
 
 #### Backend Auth + CSRF Cookie Reliability

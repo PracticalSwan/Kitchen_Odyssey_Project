@@ -30,7 +30,6 @@ Continuation of migration-plan review/hardening with no implementation start.
 
 ## Previous docs updated (2026-02-17)
 - `plan/architecture-nextjs-mongodb-migration-1.md`
-- `docs/testing-strategy-1.md`
 - `docs/security-considerations-1.md`
 - `docs/api-contract-specification-1.md`
 - `docs/migration-data-mapping-1.md`

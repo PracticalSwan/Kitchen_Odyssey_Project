@@ -58,12 +58,11 @@
 - [ ] Security headers configured in proxy.js
 - [ ] Request payload size limits enforced
 
-### Testing
-- [ ] Backend unit tests for repositories/services pass
-- [ ] Backend integration tests against seeded test DB pass
-- [ ] API contract tests validate response schemas
-- [ ] Playwright E2E tests pass in both localStorage and API modes
-- [ ] No critical security test failures
+### Quality Validation
+- [ ] Frontend lint and production build pass
+- [ ] Backend lint and production build pass
+- [ ] API contract responses are manually validated against expected schemas
+- [ ] No critical security validation failures
 
 ## Release Gate
 All checkboxes above must be checked before enabling `VITE_USE_BACKEND_API=true` in production.

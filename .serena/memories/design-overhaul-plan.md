@@ -1,5 +1,8 @@
 # Design Overhaul Plan
 
+## 2026-02-26 Update
+- Any Playwright verification references below are retained as historical implementation context only.
+
 ## Status: ✅ Completed (June 2025)
 
 **Created**: 2026-02-11

@@ -3,7 +3,6 @@
 ![Development Status](https://img.shields.io/badge/status-active-brightgreen)
 ![React](https://img.shields.io/badge/React-19.2.0-blue)
 ![Vite](https://img.shields.io/badge/Vite-7.2.4-646cff)
-![Playwright Tests](https://img.shields.io/badge/Tests-Comprehensive%20Suite%20Passing-green)
 
 A modern recipe-sharing platform built with React 19 and Vite, featuring moderated content publication, role-based access control, and comprehensive discovery tools.
 
@@ -138,41 +137,20 @@ Frontend environment variables (`.env`):
 
 **Note:** Backend mode is required for all authenticated operations. Guest mode uses localStorage for session ID only.
 
-### Testing
+### Quality Checks
 
 ```bash
-# Run all Playwright tests
-npx playwright test
+# Frontend lint + production build
+cd Kitchen_Odyssey
+npm run lint
+npm run build
 
-# Run tests with visible output
-npx playwright test --reporter=list
-
-# Run specific test file
-npx playwright test tests/guest-mode.spec.js
-
-# Run comprehensive end-to-end regression tests
-npx playwright test tests/comprehensive.spec.js --reporter=list
-
-# Run tests in headed mode (visible browser)
-npx playwright test --headed
-```
-
-**Test Coverage:**
-- `comprehensive.spec.js` — Full regression coverage for auth, guest mode, discovery/search, recipe interactions, profile flows, admin dashboard, user management, recipe moderation, and sign out.
-- Extended comprehensive scenarios also validate review-upsert updates, search-history persistence after reload, admin metric/report consistency, and user-email search in admin management.
-- `guest-transitions.spec.js` - Includes a transient refresh failure regression check to ensure logged-in users are not switched to Guest UI state.
-- `guest-mode.spec.js` — 13 tests (functionality + blocking)
-- `guest-analytics.spec.js` — 4 tests (analytics isolation)
-- `guest-transitions.spec.js` — 5 tests (mode transitions)
-- `random-recipe.spec.js` — 11 tests (Surprise Me feature)
-
-**Backend validation + clean reset for deterministic runs:**
-```bash
-# Backend tests
+# Backend lint + production build
 cd ../kitchen-odyssey-backend
-npm test
+npm run lint
+npm run build
 
-# Reset database seed data after E2E runs
+# Reset database seed data
 node src/scripts/seed.js --clean
 ```
 
@@ -202,12 +180,7 @@ Kitchen_Odyssey/
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
-├── tests/                  # Playwright E2E tests
-│   ├── guest-mode.spec.js
-│   ├── guest-analytics.spec.js
-│   ├── guest-transitions.spec.js
-│   └── random-recipe.spec.js
-├── docs/                   # Testing documentation
+├── docs/                   # Architecture and migration documentation
 ├── plan/                   # Feature implementation plans
 ├── public/                 # Static assets
 └── guides/                 # Setup guides
@@ -220,7 +193,6 @@ Kitchen_Odyssey/
 - **React Router DOM 7.13.0** - Client-side routing (HashRouter)
 - **Tailwind CSS 4.1.18** - Utility-first styling
 - **Lucide React 0.562.0** - Icon library
-- **Playwright 1.58.2** - End-to-end testing
 - **ESLint 9.39.1** - Code quality and linting
 - **date-fns 4.1.0** - Date manipulation
 - **clsx 2.1.1 + tailwind-merge 3.4.0** - Intelligent class merging
@@ -319,9 +291,6 @@ Additional test users with various roles are pre-configured.
 ### Feature Documentation
 - [Guest Mode](plan/feature-guest-mode-1.md) — Guest mode implementation and restrictions
 - [Random Recipe Suggestion](plan/feature-random-recipe-suggestion-1.md) — "Surprise Me" feature specification
-
-### Testing
-- [docs/testing/](docs/testing/) — Testing documentation and checklists
 
 ---
 

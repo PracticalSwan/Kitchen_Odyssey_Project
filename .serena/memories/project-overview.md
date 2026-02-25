@@ -1,5 +1,9 @@
 # Kitchen Odyssey - Project Overview
 
+## 2026-02-26 Update
+- Project now operates with backend-required authenticated flows; migration is complete.
+- Playwright references in older sections are historical and no longer part of active workflow.
+
 ## Project Identity
 
 **Project Name:** Kitchen Odyssey (branded as "Kitchen Odyssey" in UI)

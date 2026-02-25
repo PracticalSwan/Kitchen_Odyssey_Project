@@ -156,4 +156,3 @@ Minimum rollback artifacts:
 - `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-1.md`
 - `Kitchen_Odyssey/docs/api-contract-specification-1.md`
 - `Kitchen_Odyssey/docs/security-considerations-1.md`
-- `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-testing-1.md`

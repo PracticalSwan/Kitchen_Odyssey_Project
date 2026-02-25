@@ -1,5 +1,9 @@
 # Kitchen Odyssey - Feature Implementations
 
+## 2026-02-26 Update
+- Playwright-based test count references in this file are historical only.
+- Active quality workflow uses lint/build and runtime verification.
+
 ## Feature Overview
 
 This document details the implementation of all major features in Kitchen Odyssey.

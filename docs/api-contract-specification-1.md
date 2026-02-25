@@ -186,4 +186,3 @@ Minimum codes that all handlers should use consistently:
 - `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-1.md`
 - `Kitchen_Odyssey/docs/migration-data-mapping-1.md`
 - `Kitchen_Odyssey/docs/security-considerations-1.md`
-- `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-testing-1.md`

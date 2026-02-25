@@ -87,12 +87,10 @@ Minimum guard list:
 - Security headers and CSRF protections are active.
 - Sensitive values are not hardcoded.
 
-Security test execution details are defined in:
-- `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-testing-1.md`
+Security validation execution details should follow lint/build checks and manual endpoint verification for production readiness.
 
 ## 10. Related Documents
 
 - `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-1.md`
 - `Kitchen_Odyssey/docs/api-contract-specification-1.md`
 - `Kitchen_Odyssey/docs/migration-data-mapping-1.md`
-- `Kitchen_Odyssey/plan/architecture-nextjs-mongodb-migration-testing-1.md`
