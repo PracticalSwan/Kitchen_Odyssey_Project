@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - 2026-02-25
+
+#### Backend Auth + CSRF Cookie Reliability
+- Fixed backend auth cookie strategy so `Secure` is now protocol-aware (auto-detected from request), preventing dropped cookies on HTTP deployments.
+- Added optional `COOKIE_SECURE` override (`true`/`false`) for environments that need explicit cookie security behavior.
+- Updated auth cookie handling to consistently use request-derived cookies first (with framework fallback), improving session continuity on login/refresh.
+- Resolved cascading failures where missing auth/CSRF cookies caused `UNAUTHORIZED` session expiry and `CSRF_TOKEN_INVALID` on actions like save/favorite.
+
+#### Review Avatar Rendering
+- Fixed missing profile icons in recipe reviews by normalizing review avatar URLs in frontend storage adapter.
+- Review entries now map backend `avatar`/`avatarUrl`/`avatarThumbnailUrl` to deployment-safe `/uploads/...` paths consistently.
+
 ### Changed - 2026-02-25
 
 #### Azure VM Deployment Readiness

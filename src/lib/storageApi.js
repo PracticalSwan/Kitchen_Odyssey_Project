@@ -6,15 +6,25 @@ import { storage as localStorageAdapter, DEFAULT_AVATARS as LOCAL_DEFAULT_AVATAR
 
 export const DEFAULT_AVATARS = LOCAL_DEFAULT_AVATARS;
 
+function normalizeUploadUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+  return url.replace(/^https?:\/\/localhost:3000\/uploads\//, '/uploads/');
+}
+
 function normalizeUser(user) {
   if (!user) return null;
   const id = user._id || user.id;
+  const normalizedAvatar = normalizeUploadUrl(
+    user.avatar || user.avatarUrl || user.avatarThumbnailUrl || null,
+  );
+  const normalizedAvatarUrl = normalizeUploadUrl(user.avatarUrl || user.avatar || null);
   return {
     ...user,
     _id: id,
     id,
-    avatar: user.avatar || user.avatarUrl || user.avatarThumbnailUrl || null,
-    avatarUrl: user.avatarUrl || user.avatar || null,
+    avatar: normalizedAvatar,
+    avatarUrl: normalizedAvatarUrl,
+    avatarThumbnailUrl: normalizeUploadUrl(user.avatarThumbnailUrl || null),
     favorites: Array.isArray(user.favorites) ? user.favorites : [],
     viewedRecipes: Array.isArray(user.viewedRecipes) ? user.viewedRecipes : [],
   };
@@ -23,13 +33,17 @@ function normalizeUser(user) {
 function normalizeRecipe(recipe) {
   if (!recipe) return null;
   const id = recipe._id || recipe.id;
+  const normalizedImageUrl = normalizeUploadUrl(recipe.imageUrl);
+  const normalizedImages = Array.isArray(recipe.images)
+    ? recipe.images.map(normalizeUploadUrl)
+    : (normalizedImageUrl ? [normalizedImageUrl] : []);
   return {
     ...recipe,
     _id: id,
     id,
-    images: Array.isArray(recipe.images)
-      ? recipe.images
-      : (recipe.imageUrl ? [recipe.imageUrl] : []),
+    imageUrl: normalizedImageUrl,
+    imageThumbnailUrl: normalizeUploadUrl(recipe.imageThumbnailUrl),
+    images: normalizedImages,
     likedBy: Array.isArray(recipe.likedBy) ? recipe.likedBy : [],
     viewedBy: Array.isArray(recipe.viewedBy) ? recipe.viewedBy : [],
   };
@@ -38,10 +52,16 @@ function normalizeRecipe(recipe) {
 function normalizeReview(review) {
   if (!review) return null;
   const id = review._id || review.id;
+  const normalizedAvatar = normalizeUploadUrl(
+    review.avatar || review.avatarUrl || review.avatarThumbnailUrl || null,
+  );
   return {
     ...review,
     _id: id,
     id,
+    avatar: normalizedAvatar,
+    avatarUrl: normalizeUploadUrl(review.avatarUrl || normalizedAvatar),
+    avatarThumbnailUrl: normalizeUploadUrl(review.avatarThumbnailUrl || null),
   };
 }
 
