@@ -99,6 +99,21 @@ The application requires both backend and frontend running:
 - **Backend API**: http://localhost:3000/api/v1
 - **Frontend UI**: http://localhost:5173
 
+### Docker Compose (Production-style)
+
+From `kitchen-odyssey-backend/`, run both services with Docker:
+
+```bash
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Containerized setup notes:
+- Frontend is served by Nginx on port `80`.
+- Frontend proxies `/api/*` requests to backend container (`backend:3000`).
+- Backend env values are read from `kitchen-odyssey-backend/.env`.
+- Frontend source path defaults to sibling folder `../Kitchen_Odyssey` (configurable with `FRONTEND_CONTEXT`).
+
 ### Build for Production
 
 ```bash

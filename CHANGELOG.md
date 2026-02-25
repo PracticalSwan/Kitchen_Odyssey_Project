@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed - 2026-02-25
+
+#### Azure VM Deployment Readiness
+- Backend CORS allowlist now always includes:
+  - `http://kitchenodyssey.eastasia.cloudapp.azure.com`
+  - `https://kitchenodyssey.eastasia.cloudapp.azure.com`
+- Added production-ready Docker containerization for frontend and backend:
+  - multi-stage backend `Dockerfile` (Next.js production runtime)
+  - multi-stage frontend `Dockerfile` (Vite build + Nginx serving)
+  - Nginx reverse proxy config for `/api/*` -> backend container
+  - `kitchen-odyssey-backend/docker-compose.prod.yml` for two-service deployment
+- Updated `.gitignore` rules for Docker-specific env templates and local override files.
+
 ### Changed - 2026-02-23
 
 #### Authentication UI Simplification
