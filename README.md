@@ -8,6 +8,12 @@ A modern recipe-sharing platform built with React 19 and Vite, featuring moderat
 
 ![Kitchen Odyssey Logo](./src/assets/Logo.png)
 
+## Members
+
+- **Sithu Win San**
+
+- **Aung Thura Hein**
+
 ## Overview
 
 Kitchen Odyssey is a modern recipe-sharing platform featuring moderated content publication, user onboarding workflows, and comprehensive discovery tools. The application uses a split architecture with React + Vite frontend and Next.js backend API, with MongoDB Atlas for persistent storage.
