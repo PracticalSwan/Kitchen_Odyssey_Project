@@ -8,7 +8,22 @@ export const DEFAULT_AVATARS = LOCAL_DEFAULT_AVATARS;
 
 function normalizeUploadUrl(url) {
   if (!url || typeof url !== 'string') return url;
-  return url.replace(/^https?:\/\/localhost:3000\/uploads\//, '/uploads/');
+  
+  if (url.startsWith('/')) return url;
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.pathname?.startsWith('/uploads/')) {
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
+    if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
+  } catch {
+    return url;
+  }
+
+  return url;
 }
 
 function normalizeUser(user) {

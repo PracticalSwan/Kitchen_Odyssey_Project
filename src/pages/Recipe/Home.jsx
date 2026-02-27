@@ -6,7 +6,7 @@ import { RecipeCard } from '../../components/recipe/RecipeCard';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { RecipeGridSkeleton } from '../../components/ui/LoadingSkeleton';
-import { Search, X, Sparkles, Flame, Clock, Leaf, Cake, Sunrise, ThumbsUp, ChevronDown } from 'lucide-react';
+import { Search, X, Sparkles, Flame, Clock, Cake, Sunrise, ThumbsUp, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { RecipeSuggestionModal } from '../../components/recipe/RecipeSuggestionModal';
 import { cn, normalizeCategories } from '../../lib/utils';
@@ -14,7 +14,6 @@ import { cn, normalizeCategories } from '../../lib/utils';
 const FILTER_CHIPS = [
     { key: 'trending', label: 'Trending', icon: Flame },
     { key: 'quick', label: 'Under 30min', icon: Clock },
-    { key: 'vegetarian', label: 'Vegetarian', icon: Leaf },
     { key: 'desserts', label: 'Desserts', icon: Cake },
     { key: 'breakfast', label: 'Breakfast', icon: Sunrise },
     { key: 'easy', label: 'Easy', icon: ThumbsUp },
@@ -104,12 +103,6 @@ export function Home() {
                         const cook = Number(r.cookTime) || 0;
                         return prep + cook <= 30;
                     });
-                    break;
-                case 'vegetarian':
-                    list = list.filter(r =>
-                        normalizeCategories(r.categories ?? r.category)
-                            .some(c => c.toLowerCase().includes('vegetarian') || c.toLowerCase().includes('vegan'))
-                    );
                     break;
                 case 'desserts':
                     list = list.filter(r =>

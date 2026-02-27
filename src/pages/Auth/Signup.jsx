@@ -7,6 +7,26 @@ import { Input } from '../../components/ui/Input';
 import { formatError } from '../../components/ui/Toast';
 import { Mail, Lock, User, AlertCircle } from 'lucide-react';
 
+function buildUsername(firstName, lastName, email) {
+    const fromName = `${firstName || ''}_${lastName || ''}`
+        .toLowerCase()
+        .replace(/[^a-z0-9_\s]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 30);
+
+    if (fromName.length >= 2) return fromName;
+
+    const fromEmail = (email || '')
+        .split('@')[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, '')
+        .slice(0, 30);
+
+    if (fromEmail.length >= 2) return fromEmail;
+    return `user_${Date.now().toString(36)}`;
+}
+
 export function Signup() {
     const [formData, setFormData] = useState({
         firstName: '',
@@ -63,7 +83,7 @@ export function Signup() {
         setIsLoading(true);
 
         try {
-            const username = `${formData.firstName} ${formData.lastName}`;
+            const username = buildUsername(formData.firstName, formData.lastName, formData.email);
             await signup({
                 username,
                 firstName: formData.firstName,

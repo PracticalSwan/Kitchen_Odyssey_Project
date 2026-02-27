@@ -7,12 +7,47 @@ const API_BASE = (
 const DEFAULT_MAX_BYTES = 5 * 1024 * 1024;
 const DEFAULT_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+
+function normalizeUploadUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+
+  // Already a same-origin path.
+  if (url.startsWith('/')) return url;
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.pathname?.startsWith('/uploads/')) {
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
+    if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
+  } catch {
+    return url;
+  }
+
+  return url;
+}
+
+function getCsrfToken() {
+  if (typeof document === 'undefined') return null;
+  return document.cookie
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith('ko_csrf='))
+    ?.split('=')
+    .slice(1)
+    .join('=') || null;
+}
 function uploadViaXhr(path, formData, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `${API_BASE}${path}`);
     xhr.withCredentials = true;
-
+    const csrfToken = getCsrfToken();
+    if (csrfToken) {
+      xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+    }
     xhr.upload.onprogress = (event) => {
       if (!event.lengthComputable || typeof onProgress !== 'function') return;
       const progress = Math.round((event.loaded / event.total) * 100);
@@ -28,7 +63,19 @@ function uploadViaXhr(path, formData, onProgress) {
           reject(new Error(message));
           return;
         }
-        resolve(json?.data || json);
+        const payload = json?.data || json;
+        if (payload && typeof payload === 'object') {
+          resolve({
+            ...payload,
+            imageUrl: normalizeUploadUrl(payload.imageUrl),
+            imageThumbnailUrl: normalizeUploadUrl(payload.imageThumbnailUrl),
+            avatarUrl: normalizeUploadUrl(payload.avatarUrl),
+            avatarThumbnailUrl: normalizeUploadUrl(payload.avatarThumbnailUrl),
+          });
+          return;
+        }
+
+        resolve(payload);
       } catch {
         reject(new Error('Invalid upload response'));
       }
@@ -84,9 +131,13 @@ export async function deleteImage(storagePath) {
   const normalized = storagePath
     .replace(/\\/g, '/')
     .replace(/^.*\/uploads\//, '');
+     const csrfToken = getCsrfToken();
   const response = await fetch(`${API_BASE}/upload/image/${normalized}`, {
     method: 'DELETE',
     credentials: 'include',
+    headers: {
+      ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+    },
   });
   if (!response.ok) {
     const json = await response.json().catch(() => null);

@@ -171,12 +171,16 @@ export function CreateRecipe() {
             newErrors.servings = 'Servings cannot exceed 100';
         }
 
-        // Image URL validation (optional but must be valid if provided)
+        // Image source validation (optional): allow absolute URLs or app-root paths like /uploads/...
         if (formData.image && formData.image.trim()) {
+            const imageValue = formData.image.trim();
             try {
-                new URL(formData.image);
+                new URL(imageValue);
             } catch {
-                newErrors.image = 'Please enter a valid URL';
+                // Accept same-origin absolute path references used by uploaded assets.
+                if (!imageValue.startsWith('/')) {
+                    newErrors.image = 'Please enter a valid URL or path (e.g. /uploads/your-image.jpg)';
+                }
             }
         }
 
@@ -338,7 +342,7 @@ export function CreateRecipe() {
 
                         <div className="grid sm:grid-cols-2 gap-2">
                             <div>
-                                <label className="text-sm font-medium text-warm-gray-60 mb-1 block">Categories (1–3)</label>
+                                <label className="text-sm font-medium text-warm-gray-60 mb-1 block">Category</label>
                                 <div className="relative">
                                     <button
                                         type="button"
@@ -399,7 +403,7 @@ export function CreateRecipe() {
                             </div>
                         </div>
                         <div>
-                            <Input id="image" label="Image URL (optional)" placeholder="https://..." value={formData.image} onChange={handleChange} />
+                            <Input id="image" label="Image URL or path (optional)" placeholder="https://... or /uploads/your-image.jpg" value={formData.image} onChange={handleChange} />
                             {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
                         </div>
                         <ImageUpload
